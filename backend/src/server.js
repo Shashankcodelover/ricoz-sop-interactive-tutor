@@ -2,9 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
-const HierarchicalChunker = require('./services/rag/chunker');
-const RAGEngine = require('./services/rag/ragEngine');
-const SOPInteractiveTutor = require('./services/tutor/tutorService');
+const SOPHierarchicalChunker = require('./services/rag/sopHierarchicalChunker');
+const InteractiveSOPTutorOrchestrator = require('./services/rag/tutorOrchestrator');
 const { NotionAdapter, GoogleDriveAdapter, ConfluenceAdapter } = require('./services/connectors/adapters');
 
 dotenv.config();
@@ -12,19 +11,20 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// In-Memory store for high-velocity local execution & instant demonstration
-const inMemoryStore = {
+// In-Memory Global Knowledge State
+const globalKnowledgeState = {
   documents: [],
-  chunks: [],
+  parentChunks: [],
+  childChunks: [],
   sessions: []
 };
 
-// Seed foundational RicoZ SOPs so the tutor has live knowledge out-of-the-box
-const seedInitialData = () => {
-  const sampleDocs = [
+// Seed Canonical Ricoz Knowledge Base & Master Playbook Standards
+const seedMasterKnowledgeBase = () => {
+  const masterDocs = [
     {
       sourcePlatform: 'notion',
-      externalId: 'notion_sop_001',
+      externalId: 'notion_sop_tech_001',
       title: 'RicoZ Tech Stack & Engineering Standards SOP',
       sourceUrl: 'https://notion.so/ricoz/engineering-standards',
       category: 'Engineering Standards',
@@ -40,7 +40,7 @@ const seedInitialData = () => {
     },
     {
       sourcePlatform: 'google_drive',
-      externalId: 'gdrive_hr_002',
+      externalId: 'gdrive_hr_attendance_002',
       title: 'Employee Attendance & Daily Standup Policy',
       sourceUrl: 'https://drive.google.com/file/d/ricoz-attendance-sop',
       category: 'HR Policies',
@@ -55,7 +55,7 @@ const seedInitialData = () => {
     },
     {
       sourcePlatform: 'confluence',
-      externalId: 'confluence_dev_003',
+      externalId: 'confluence_sec_tokens_003',
       title: 'API Security & OAuth Token Management SOP',
       sourceUrl: 'https://confluence.ricoz.in/wiki/spaces/SEC/pages/api-tokens',
       category: 'Security & Compliance',
@@ -67,56 +67,75 @@ const seedInitialData = () => {
 2. Environment Configuration: Store all sensitive configuration values in .env files ignored by version control.
 3. Access Control Validation: Enforce strict role-based access control (RBAC) on all protected routes prior to data retrieval.
 4. Ingestion Permissions: Verify organization ID and user permissions before allowing RAG chunk retrieval.`
+    },
+    {
+      sourcePlatform: 'notion',
+      externalId: 'notion_playbook_gate_004',
+      title: '30-Day Product Execution & GTM Playbook (v2.0)',
+      sourceUrl: 'https://notion.so/ricoz/30-day-gtm-playbook',
+      category: 'Product Governance',
+      department: 'Product & Technology',
+      version: '2.0',
+      effectiveDate: new Date('2026-11-05'),
+      content: `## Executive Operating Playbook: 30-Day Lifecycle & Gate Governance
+1. Phase 1 Discovery: Days 1 to 5 cover ideation, technical feasibility, and exit at Gate G1.
+2. Phase 2 Scope & Plan: Days 6 to 10 finalize detailed component design, task decomposition, and exit at Gate G2.
+3. Phase 3 MVP Build: Days 11 to 17 activate core engineering, frontend integration, and exit at Gate G3 Feature-Complete sign-off.
+4. Phase 4 Testing: Days 18 to 22 execute integration testing, performance optimization, and exit at Gate G4.
+5. Phase 5 GTM Launch: Days 23 to 25 conduct Go/No-Go Gate G5 review and official GTM Launch at Day 25 Gate G6.
+6. Evidence Standard: Principle 3 requires that no task can be marked complete without attached evidence (code, PR, or test logs).`
     }
   ];
 
-  sampleDocs.forEach(rawDoc => {
-    inMemoryStore.documents.push(rawDoc);
-    const chunkHierarchy = HierarchicalChunker.processDocument(rawDoc.content, {
-      sourcePlatform: rawDoc.sourcePlatform,
-      documentTitle: rawDoc.title,
-      sourceUrl: rawDoc.sourceUrl,
-      version: rawDoc.version,
-      department: rawDoc.department
+  masterDocs.forEach(doc => {
+    globalKnowledgeState.documents.push(doc);
+    const hierarchy = SOPHierarchicalChunker.processSOP(doc.content, {
+      sourcePlatform: doc.sourcePlatform,
+      documentTitle: doc.title,
+      sourceUrl: doc.sourceUrl,
+      version: doc.version,
+      department: doc.department,
+      effectiveDate: doc.effectiveDate
     });
 
-    chunkHierarchy.forEach(item => {
-      // Embed and store child chunks
+    hierarchy.forEach(item => {
+      globalKnowledgeState.parentChunks.push(item.parent);
       item.children.forEach(child => {
-        child.embedding = RAGEngine.generateEmbedding(child.content);
-        inMemoryStore.chunks.push(child);
+        globalKnowledgeState.childChunks.push(child);
       });
-      // Store parent chunk
-      item.parent.embedding = RAGEngine.generateEmbedding(item.parent.content);
-      inMemoryStore.chunks.push(item.parent);
     });
   });
 
-  console.log(`[Seed] Ingested ${inMemoryStore.documents.length} official SOPs and generated ${inMemoryStore.chunks.length} vectorized chunks.`);
+  console.log(`[RicoZ Knowledge Init] Ingested ${globalKnowledgeState.documents.length} Master SOPs | Parents: ${globalKnowledgeState.parentChunks.length} | Children: ${globalKnowledgeState.childChunks.length}`);
 };
 
-seedInitialData();
+seedMasterKnowledgeBase();
 
-// --- REST API ENDPOINTS ---
+// --- REST API ROUTES ---
 
-// Health & System Information
+// Health & Indexing Metrics
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'healthy',
     service: 'RicoZ Internal Knowledge & SOP Interactive Tutor API',
-    version: '1.0.0',
-    indexedDocuments: inMemoryStore.documents.length,
-    vectorizedChunks: inMemoryStore.chunks.length,
+    leadArchitect: 'Shashank J (Head of Technology)',
+    version: '2.0.0',
+    metrics: {
+      indexedDocuments: globalKnowledgeState.documents.length,
+      parentContextChunks: globalKnowledgeState.parentChunks.length,
+      childActionChunks: globalKnowledgeState.childChunks.length,
+      vectorEmbeddingDimensions: 384
+    },
     timestamp: new Date().toISOString()
   });
 });
 
-// List all indexed SOPs and documents
+// List all indexed SOP documents
 app.get('/api/documents', (req, res) => {
   res.json({
     success: true,
-    total: inMemoryStore.documents.length,
-    documents: inMemoryStore.documents.map(d => ({
+    total: globalKnowledgeState.documents.length,
+    documents: globalKnowledgeState.documents.map(d => ({
       title: d.title,
       sourcePlatform: d.sourcePlatform,
       sourceUrl: d.sourceUrl,
@@ -128,46 +147,35 @@ app.get('/api/documents', (req, res) => {
   });
 });
 
-// Interactive SOP Tutor Query Endpoint (Hybrid RAG + Contradiction Check)
+// Enterprise Interactive SOP Tutor Query Endpoint
 app.post('/api/tutor/query', (req, res) => {
   const { question } = req.body;
-  if (!question || question.trim().length === 0) {
-    return res.status(400).json({ error: 'Question query string is required.' });
+  if (!question || typeof question !== 'string' || question.trim().length === 0) {
+    return res.status(400).json({ error: 'A valid question string is required.' });
   }
 
-  const queryVec = RAGEngine.generateEmbedding(question);
+  // Execute full RAG & Tutoring pipeline
+  const tutorResponse = InteractiveSOPTutorOrchestrator.processQuery(
+    question,
+    globalKnowledgeState.childChunks,
+    globalKnowledgeState.parentChunks
+  );
 
-  // Hybrid search across all stored chunks
-  const scoredChunks = inMemoryStore.chunks.map(chunk => ({
-    chunk,
-    score: RAGEngine.hybridScore(question, chunk, queryVec)
-  })).sort((a, b) => b.score - a.score);
-
-  // Top-k retrieved chunks (threshold: 0.15)
-  const topK = scoredChunks.filter(sc => sc.score > 0.15).slice(0, 3);
-
-  // Generate grounded guidance, citations, and interactive steps
-  const guidance = SOPInteractiveTutor.generateTutorGuidance(question, topK);
-
-  // Save session record
   const sessionId = `sess_${Date.now()}`;
-  inMemoryStore.sessions.push({
+  globalKnowledgeState.sessions.push({
     sessionId,
     question,
-    response: guidance,
+    response: tutorResponse,
     timestamp: new Date()
   });
 
   res.json({
-    success: true,
-    sessionId,
-    question,
-    ...guidance,
-    relevanceScore: topK.length > 0 ? parseFloat(topK[0].score.toFixed(4)) : 0
+    ...tutorResponse,
+    sessionId
   });
 });
 
-// Document Ingestion Endpoint (Ingests Notion, Google Drive, or Confluence content)
+// Multi-Source Document Ingestion Endpoint (Notion, Drive, Confluence)
 app.post('/api/ingest', (req, res) => {
   const { platform, rawData } = req.body;
   if (!platform || !rawData) {
@@ -179,29 +187,30 @@ app.post('/api/ingest', (req, res) => {
   else if (platform === 'google_drive') normalizedDoc = GoogleDriveAdapter.parseDoc(rawData);
   else if (platform === 'confluence') normalizedDoc = ConfluenceAdapter.parsePage(rawData);
   else {
-    return res.status(400).json({ error: 'Unsupported source platform. Use notion, google_drive, or confluence.' });
+    return res.status(400).json({ error: 'Unsupported platform. Supported: notion, google_drive, confluence.' });
   }
 
-  inMemoryStore.documents.push(normalizedDoc);
+  globalKnowledgeState.documents.push(normalizedDoc);
 
-  const chunkHierarchy = HierarchicalChunker.processDocument(normalizedDoc.content, {
+  const hierarchy = SOPHierarchicalChunker.processSOP(normalizedDoc.content, {
     sourcePlatform: normalizedDoc.sourcePlatform,
     documentTitle: normalizedDoc.title,
     sourceUrl: normalizedDoc.sourceUrl,
     version: normalizedDoc.version,
-    department: normalizedDoc.department
+    department: normalizedDoc.department,
+    effectiveDate: normalizedDoc.effectiveDate
   });
 
-  let newChunksCount = 0;
-  chunkHierarchy.forEach(item => {
+  let parentsAdded = 0;
+  let childrenAdded = 0;
+
+  hierarchy.forEach(item => {
+    globalKnowledgeState.parentChunks.push(item.parent);
+    parentsAdded++;
     item.children.forEach(child => {
-      child.embedding = RAGEngine.generateEmbedding(child.content);
-      inMemoryStore.chunks.push(child);
-      newChunksCount++;
+      globalKnowledgeState.childChunks.push(child);
+      childrenAdded++;
     });
-    item.parent.embedding = RAGEngine.generateEmbedding(item.parent.content);
-    inMemoryStore.chunks.push(item.parent);
-    newChunksCount++;
   });
 
   res.json({
@@ -210,13 +219,13 @@ app.post('/api/ingest', (req, res) => {
     document: {
       title: normalizedDoc.title,
       version: normalizedDoc.version,
-      newChunksIndexed: newChunksCount
+      newParents: parentsAdded,
+      newChildren: childrenAdded
     }
   });
 });
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`[RicoZ SOP Tutor API] Listening on port ${PORT}`);
+  console.log(`[RicoZ SOP Tutor API v2.0] Listening on port ${PORT}`);
 });
-
