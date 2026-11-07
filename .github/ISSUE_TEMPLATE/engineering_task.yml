@@ -1,0 +1,77 @@
+name: 🚀 Engineering Task & Feature Issue
+description: Standardized task template adhering to Ricoz Innovation 30-Day Product Execution Playbook
+title: "[TRACK]: Task Title"
+labels: ["triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Ricoz Innovation Engineering Task Specification
+        All engineering tasks must comply with the **30-Day Product Execution & GTM Playbook (v2.0)**.
+  - type: dropdown
+    id: track
+    attributes:
+      label: Functional Track
+      description: Select your assigned engineering workstream.
+      options:
+        - "Track 1: AI & RAG Engine (Lead: Shashank J)"
+        - "Track 2: Backend & Cloud Database"
+        - "Track 3: Frontend & UX/UI"
+        - "Track 4: QA, SecOps & DevOps"
+    validations:
+      required: true
+  - type: input
+    id: playbook_task_id
+    attributes:
+      label: Playbook Task ID
+      description: e.g. TEC-D11, TEC-D12, TEC-D13
+      placeholder: "TEC-DXX"
+    validations:
+      required: true
+  - type: input
+    id: primary_owner
+    attributes:
+      label: Primary Task Owner
+      description: GitHub handle of responsible engineer.
+      placeholder: "@username"
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Task Priority
+      options:
+        - "Critical / P1 (Launch Blocking)"
+        - "High / P2"
+        - "Medium / P3"
+        - "Low / P4"
+    validations:
+      required: true
+  - type: textarea
+    id: objective
+    attributes:
+      label: Task Objective
+      description: What business or operational outcome does this task achieve?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Detailed Technical Scope & Implementation Steps
+      description: Step-by-step breakdown of changes to be executed.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria (Principle 3 Compliant)
+      description: Conditions that must be met before this task can be approved.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Verification Evidence Standards
+      description: Links, test logs, code references, or deployment proof.
+    validations:
+      required: true
