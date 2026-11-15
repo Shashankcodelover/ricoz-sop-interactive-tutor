@@ -29,7 +29,9 @@ import {
   Lock,
   Calendar,
   UserCheck,
-  RotateCcw
+  RotateCcw,
+  Sun,
+  Moon
 } from 'lucide-react';
 
 interface Step {
@@ -85,13 +87,30 @@ interface KnowledgeDoc {
 
 const PRESET_QUERIES = [
   { label: "45% Teammate Allocation", query: "What is the required progress for teammates group allocation and engineering standards?" },
-  { label: "30-Day GTM & Gate G3", query: "What are the requirements for Phase 3 MVP build and Gate G3 sign-off in the 30-Day Playbook?" },
+  { label: "Leave & Emergency Absence", query: "How do I apply for annual or emergency medical leave?" },
+  { label: "Expense Reimbursement", query: "What is the reimbursement procedure for a project expense of 4,000 INR?" },
+  { label: "Customer Refund Dispute", query: "How do we handle customer refund requests and dispute escalations?" },
+  { label: "Production Incident SOP", query: "What are the severity levels and incident response escalation steps for production outages?" },
+  { label: "7-Day Onboarding SOP", query: "What is the new employee 7-day technical onboarding checklist?" },
   { label: "Daily Attendance SOP", query: "How do I record daily attendance check-in, tasks, and standup reporting?" },
-  { label: "API Key & OAuth Security", query: "What are the mandatory security standards for API keys, database credentials, and OAuth tokens?" },
-  { label: "PR Review Acceptance", query: "What is the code review and pull request acceptance protocol?" }
+  { label: "API Key & OAuth Security", query: "What are the mandatory security standards for API keys, database credentials, and OAuth tokens?" }
 ];
 
 export default function Home() {
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('ricoz_theme') as 'dark' | 'light' | null;
+    if (savedTheme) {
+      setTheme(savedTheme);
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    localStorage.setItem('ricoz_theme', nextTheme);
+  };
   // Navigation tabs
   const [activeTab, setActiveTab] = useState<'tutor' | 'stepper' | 'knowledge' | 'compliance'>('tutor');
 
@@ -275,11 +294,15 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-[#fafafa] flex flex-col font-sans selection:bg-white selection:text-black antialiased">
+    <div className={`min-h-screen flex flex-col font-sans transition-colors duration-200 antialiased ${
+  theme === 'dark' 
+    ? 'bg-[#09090b] text-[#fafafa] selection:bg-white selection:text-black' 
+    : 'bg-[#f4f4f5] text-[#09090b] selection:bg-black selection:text-white'
+}`}>
       
       {/* Policy Discrepancy & Conflict Alert Banner */}
       {activeConflict && (
-        <div className="bg-[#121215] border-b border-[#27272a] px-4 py-2.5 flex items-center justify-between transition-all">
+        <div className={`border-b px-4 py-2.5 flex items-center justify-between transition-all ${theme === "dark" ? "bg-[#121215] border-[#27272a]" : "bg-amber-50 border-amber-200"}`}>
           <div className="flex items-center gap-3 text-xs max-w-5xl">
             <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/10 text-white font-medium border border-white/20 shrink-0">
               <AlertTriangle className="h-3 w-3 text-amber-400" />
@@ -309,33 +332,43 @@ export default function Home() {
       )}
 
       {/* Enterprise Header */}
-      <header className="border-b border-[#27272a] bg-[#09090b]/90 backdrop-blur sticky top-0 z-40 px-6 py-3.5 flex items-center justify-between">
+      <header className={`border-b backdrop-blur sticky transition-colors top-0 z-40 px-6 py-3.5 flex items-center justify-between ${
+        theme === "dark" ? "border-[#27272a] bg-[#09090b]/90 text-white" : "border-zinc-200 bg-white/90 text-zinc-900"
+      }`}>
         <div className="flex items-center gap-4">
-          <div className="h-9 w-9 rounded-lg bg-white text-black flex items-center justify-center font-bold text-base shadow-sm">
-            <Bot className="h-5 w-5 text-black" />
+          <div className="h-9 w-9 rounded-lg bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-base shadow-sm">
+            <Bot className="h-5 w-5" />
           </div>
           <div>
             <div className="flex items-center gap-2.5">
-              <h1 className="font-semibold text-sm tracking-tight text-white">RicoZ SOP Interactive Tutor</h1>
-              <span className="text-[11px] px-2 py-0.5 rounded-md bg-white/10 text-zinc-300 border border-[#27272a] font-mono">
+              <h1 className="font-semibold text-sm tracking-tight">RicoZ SOP Interactive Tutor</h1>
+              <span className={`text-[11px] px-2 py-0.5 rounded-md border font-mono ${
+                theme === 'dark' ? 'bg-white/10 text-zinc-300 border-[#27272a]' : 'bg-zinc-100 text-zinc-700 border-zinc-200'
+              }`}>
                 CATALOG #86
               </span>
-              <span className="text-[11px] px-2 py-0.5 rounded-md bg-zinc-900 text-zinc-400 border border-[#27272a]">
+              <span className={`text-[11px] px-2 py-0.5 rounded-md border ${
+                theme === 'dark' ? 'bg-zinc-900 text-zinc-400 border-[#27272a]' : 'bg-zinc-100 text-zinc-600 border-zinc-200'
+              }`}>
                 v2.0 PRODUCTION
               </span>
             </div>
-            <p className="text-xs text-zinc-400 hidden sm:block">Automated SOP Tutor, RAG Document Retrieval & Governance Engine</p>
+            <p className={`text-xs hidden sm:block ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-500'}`}>
+              Automated SOP Tutor, RAG Document Retrieval &amp; Governance Engine
+            </p>
           </div>
         </div>
 
         {/* View Switchers */}
-        <div className="flex items-center bg-[#121215] border border-[#27272a] rounded-lg p-0.5">
+        <div className={`flex items-center border rounded-lg p-0.5 ${
+          theme === 'dark' ? 'bg-[#121215] border-[#27272a]' : 'bg-zinc-100 border-zinc-200'
+        }`}>
           <button
             onClick={() => setActiveTab('tutor')}
             className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${
               activeTab === 'tutor' 
-                ? 'bg-white text-black shadow-sm font-semibold' 
-                : 'text-zinc-400 hover:text-white'
+                ? (theme === 'dark' ? 'bg-white text-black font-semibold' : 'bg-black text-white font-semibold')
+                : (theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-black')
             }`}
           >
             <Sparkles className="h-3.5 w-3.5" />
@@ -345,14 +378,16 @@ export default function Home() {
             onClick={() => setActiveTab('stepper')}
             className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${
               activeTab === 'stepper' 
-                ? 'bg-white text-black shadow-sm font-semibold' 
-                : 'text-zinc-400 hover:text-white'
+                ? (theme === 'dark' ? 'bg-white text-black font-semibold' : 'bg-black text-white font-semibold')
+                : (theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-black')
             }`}
           >
             <Layers className="h-3.5 w-3.5" />
             <span>SOP Stepper</span>
             <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${
-              activeTab === 'stepper' ? 'bg-black text-white' : 'bg-[#27272a] text-zinc-300'
+              activeTab === 'stepper' 
+                ? (theme === 'dark' ? 'bg-black text-white' : 'bg-zinc-200 text-black')
+                : (theme === 'dark' ? 'bg-[#27272a] text-zinc-300' : 'bg-zinc-200 text-zinc-700')
             }`}>
               {completedCount}/{activeSteps.length}
             </span>
@@ -361,8 +396,8 @@ export default function Home() {
             onClick={() => setActiveTab('knowledge')}
             className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${
               activeTab === 'knowledge' 
-                ? 'bg-white text-black shadow-sm font-semibold' 
-                : 'text-zinc-400 hover:text-white'
+                ? (theme === 'dark' ? 'bg-white text-black font-semibold' : 'bg-black text-white font-semibold')
+                : (theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-black')
             }`}
           >
             <BookOpen className="h-3.5 w-3.5" />
@@ -372,8 +407,8 @@ export default function Home() {
             onClick={() => setActiveTab('compliance')}
             className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${
               activeTab === 'compliance' 
-                ? 'bg-white text-black shadow-sm font-semibold' 
-                : 'text-zinc-400 hover:text-white'
+                ? (theme === 'dark' ? 'bg-white text-black font-semibold' : 'bg-black text-white font-semibold')
+                : (theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-black')
             }`}
           >
             <ShieldCheck className="h-3.5 w-3.5" />
@@ -381,30 +416,61 @@ export default function Home() {
           </button>
         </div>
 
-        {/* Status Indicators */}
-        <div className="hidden xl:flex items-center gap-3 text-xs">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#121215] border border-[#27272a] text-zinc-300">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 inline-block animate-pulse" />
-            <span className="font-mono text-[11px]">RAG Vector Indexed: 5 Docs</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-zinc-400">
-            <Database className="h-3.5 w-3.5 text-zinc-400" />
-            <span className="text-[11px]">Notion · Drive · Confluence</span>
+        {/* Theme Toggle & Status Indicators */}
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
+            className={`p-2 rounded-lg border text-xs flex items-center gap-1.5 transition-all shadow-sm ${
+              theme === 'dark'
+                ? 'bg-[#18181b] border-[#27272a] text-zinc-300 hover:text-white hover:border-zinc-500'
+                : 'bg-white border-zinc-300 text-zinc-700 hover:text-black hover:border-zinc-400'
+            }`}
+            title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+          >
+            {theme === 'dark' ? (
+              <>
+                <Sun className="h-4 w-4 text-amber-400" />
+                <span className="hidden md:inline font-medium">Light</span>
+              </>
+            ) : (
+              <>
+                <Moon className="h-4 w-4 text-zinc-800" />
+                <span className="hidden md:inline font-medium">Dark</span>
+              </>
+            )}
+          </button>
+
+          <div className="hidden xl:flex items-center gap-3 text-xs">
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${
+              theme === 'dark' ? 'bg-[#121215] border-[#27272a] text-zinc-300' : 'bg-zinc-50 border-zinc-200 text-zinc-700'
+            }`}>
+              <span className="h-2 w-2 rounded-full bg-emerald-500 inline-block animate-pulse" />
+              <span className="font-mono text-[11px]">RAG Vector Indexed: 9 Docs</span>
+            </div>
+            <div className={`flex items-center gap-1.5 ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-500'}`}>
+              <Database className="h-3.5 w-3.5" />
+              <span className="text-[11px]">Notion · Drive · Confluence</span>
+            </div>
           </div>
         </div>
       </header>
 
       {/* Sub-header Banner */}
-      <div className="border-b border-[#27272a] bg-[#121215] px-6 py-2 flex items-center justify-between text-xs text-zinc-400">
+      <div className={`border-b px-6 py-2 flex items-center justify-between text-xs transition-colors ${
+        theme === 'dark' ? 'border-[#27272a] bg-[#121215] text-zinc-400' : 'border-zinc-200 bg-white text-zinc-600'
+      }`}>
         <div className="flex items-center gap-2">
-          <Compass className="h-3.5 w-3.5 text-zinc-300" />
+          <Compass className="h-3.5 w-3.5" />
           <span>Active Objective:</span>
-          <span className="text-white font-medium">Independent Milestone Progress &gt;45% & SOP Execution</span>
+          <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-zinc-900'}`}>
+            Independent Milestone Progress &gt;45% &amp; SOP Execution
+          </span>
         </div>
         <div className="flex items-center gap-3 font-mono text-[11px]">
-          <span className="text-zinc-500">ENGINE: Dense 384d Cosine + BM25 Sparse</span>
-          <span className="text-zinc-600">|</span>
-          <span className="text-zinc-300">FIRSTRICOZ GOVERNANCE</span>
+          <span className={theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}>ENGINE: Dense 384d Cosine + BM25 Sparse</span>
+          <span className={theme === 'dark' ? 'text-zinc-600' : 'text-zinc-300'}>|</span>
+          <span className={theme === 'dark' ? 'text-zinc-300' : 'text-zinc-700'}>FIRSTRICOZ GOVERNANCE</span>
         </div>
       </div>
 

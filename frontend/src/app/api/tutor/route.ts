@@ -45,7 +45,7 @@ function cosineSimilarity(a: number[], b: number[]): number {
   return Math.max(0, Math.min(1, dot));
 }
 
-// Master Knowledge Corpus
+// Master Knowledge Corpus covering PRD Problem Statements
 interface MasterDocument {
   id: string;
   sourcePlatform: 'notion' | 'google_drive' | 'confluence';
@@ -108,6 +108,86 @@ const MASTER_DOCS: MasterDocument[] = [
 4. Daily Standup: Post a concise standup update in First Chat summarizing completed items, active blockers, and next session targets.`
   },
   {
+    id: 'doc_leave_policy_005',
+    sourcePlatform: 'google_drive',
+    title: 'Employee Leave, Time Off & Emergency Absence SOP',
+    sourceUrl: 'https://drive.google.com/file/d/ricoz-leave-sop',
+    category: 'HR Policies',
+    department: 'HR',
+    version: '2.1',
+    effectiveDate: '2026-10-20',
+    content: `HR SOP: Leave Application, PTO, and Emergency Absences
+1. Leave Balance Verification: Check your accrued leave balance in the portal under My Time -> Leave & Time Off before submitting.
+2. Notice Period Requirement: Submit standard planned annual leave requests at least 5 business days in advance for manager approval.
+3. Emergency & Sick Leave Notification: For unexpected medical or emergency absences, notify your department lead in First Chat within 2 hours of shift start.
+4. Formal Portal Submission: Fill out the leave type, dates, and designated peer handover contact in the portal submission form.
+5. Executive Approval for Extended Leave: Continuous leave exceeding 10 business days requires secondary approval from HR Operations.`
+  },
+  {
+    id: 'doc_reimbursement_006',
+    sourcePlatform: 'notion',
+    title: 'Finance & Expense Reimbursement SOP',
+    sourceUrl: 'https://notion.so/ricoz/finance-reimbursement-sop',
+    category: 'Finance & Operations',
+    department: 'Finance',
+    version: '1.4',
+    effectiveDate: '2026-10-01',
+    content: `Finance Standard Operating Procedure: Business Expense Reimbursement
+1. Pre-Approval Verification: Any project or operational purchase exceeding 2,500 INR requires documented pre-approval from the Department Lead.
+2. Valid GST Invoices: Ensure the tax invoice explicitly mentions FIRSTRICOZ PRIVATE LIMITED with date and line-item details.
+3. Portal Expense Claim: Navigate to the Finance/Payments section, select the expense category, enter exact amounts, and attach PDF receipts.
+4. Submission Deadline: All reimbursement claims must be submitted within 30 days of the transaction date.
+5. Manager & Finance Audit: The department manager verifies project relevance, after which Finance processes disbursement within 7 business days.`
+  },
+  {
+    id: 'doc_customer_refund_007',
+    sourcePlatform: 'confluence',
+    title: 'Customer Refund & Service Cancellation SOP',
+    sourceUrl: 'https://confluence.ricoz.in/wiki/spaces/OPS/pages/customer-refunds',
+    category: 'Customer Operations',
+    department: 'Operations',
+    version: '2.0',
+    effectiveDate: '2026-09-15',
+    content: `Operations SOP: Customer Refund and Dispute Escalation
+1. Eligibility Assessment: Check if the refund request falls within the 14-day service trial window or satisfies SLA outage breach criteria.
+2. Account Audit: Verify user account status, payment gateway transaction ID, and active project deliverables in the admin dashboard.
+3. Exception Flagging: If the customer requests a refund outside the 14-day window due to technical failure, document the incident ticket ID.
+4. Approval Tier Routing: Refunds under 5,000 INR require Operations Lead sign-off; amounts above 5,000 INR escalate to the Executive Sponsor.
+5. Payment Gateway Dispatch: Once approved, trigger the refund dispatch via Razorpay/Stripe dashboard and send the confirmation receipt to the client within 24 hours.`
+  },
+  {
+    id: 'doc_technical_incident_008',
+    sourcePlatform: 'confluence',
+    title: 'Technical Incident Management & Bug Reporting SOP',
+    sourceUrl: 'https://confluence.ricoz.in/wiki/spaces/ENG/pages/incident-management',
+    category: 'Engineering Standards',
+    department: 'Engineering',
+    version: '3.0',
+    effectiveDate: '2026-11-02',
+    content: `Engineering SOP: Severity Classification & Incident Reporting
+1. Severity Triage: Classify incident as P1 Critical (total service outage), P2 High (major feature blocked), or P3 Normal (minor bug).
+2. Incident Ticket Creation: Open a GitHub issue or internal Jira ticket documenting steps to reproduce, error stack traces, and environment details.
+3. P1 Emergency Channel: For P1 Critical outages, immediately notify the on-call engineer and post in the First Chat #critical-incidents channel within 15 minutes.
+4. Hotfix & Rollback: Execute an immediate rollback or emergency hotfix branch following the Git peer-review protocol.
+5. Post-Mortem Root Cause Analysis: Complete a blameless post-mortem document within 48 hours detailing root cause, resolution, and preventive measures.`
+  },
+  {
+    id: 'doc_onboarding_009',
+    sourcePlatform: 'google_drive',
+    title: 'New Employee & Intern 7-Day Onboarding SOP',
+    sourceUrl: 'https://drive.google.com/file/d/ricoz-onboarding-guide',
+    category: 'People & HR',
+    department: 'People Operations',
+    version: '1.5',
+    effectiveDate: '2026-10-10',
+    content: `People Operations: New Hire & Intern Onboarding Checklist
+1. Day 1 Portal & Account Setup: Log into the RicoZ Innovation portal, complete 100% of your profile, and verify workspace permissions.
+2. Attendance Familiarization: Practice morning check-in and evening check-out in the Attendance Center (/dashboard/intern/attendance).
+3. Tech Stack & PRD Alignment: Review the assigned project PRD, standardize on Next.js, Node.js + Express, and MongoDB.
+4. First Task Assignment: Add your initial milestone tasks in the My Work / Tasks section with P1 Urgent priority.
+5. 45% Independent Build Milestone: Achieve at least 45% progress on your assigned project before messaging the manager for group teammate allocation.`
+  },
+  {
     id: 'doc_sec_tokens_004',
     sourcePlatform: 'confluence',
     title: 'API Security & OAuth Token Management SOP',
@@ -126,11 +206,11 @@ const MASTER_DOCS: MasterDocument[] = [
 
 export async function POST(request: Request) {
   try {
-    // 1. IP Extraction & Rate Limiting Enforcement (Anti-DoS on RAG Embedding Generator)
+    // 1. IP Extraction & Rate Limiting Enforcement
     const forwardedFor = request.headers.get('x-forwarded-for');
     const clientIp = forwardedFor ? forwardedFor.split(',')[0].trim() : '127.0.0.1';
 
-    const rateStatus = checkRateLimit(clientIp, 30, 60 * 1000);
+    const rateStatus = checkRateLimit(clientIp, 60, 60 * 1000);
     if (!rateStatus.allowed) {
       return NextResponse.json(
         {
@@ -141,15 +221,13 @@ export async function POST(request: Request) {
         { 
           status: 429,
           headers: {
-            'Retry-After': Math.ceil((rateStatus.resetTime - Date.now()) / 1000).toString(),
-            'X-RateLimit-Limit': '30',
-            'X-RateLimit-Remaining': '0'
+            'Retry-After': Math.ceil((rateStatus.resetTime - Date.now()) / 1000).toString()
           }
         }
       );
     }
 
-    // 2. Parse and Validate Request Payload using Zod
+    // 2. Parse and Validate Request Payload
     let rawBody: unknown;
     try {
       rawBody = await request.json();
@@ -160,41 +238,44 @@ export async function POST(request: Request) {
       );
     }
 
-    const parseResult = TutorQuerySchema.safeParse(rawBody);
-    if (!parseResult.success) {
-      const errorMsg = parseResult.error.issues.map(i => i.message).join(' ');
+    const validationResult = TutorQuerySchema.safeParse(rawBody);
+    if (!validationResult.success) {
+      const issue = validationResult.error.issues[0];
       return NextResponse.json(
-        { success: false, error: errorMsg, code: 'VALIDATION_ERROR' },
+        {
+          success: false,
+          error: `Validation error: ${issue ? issue.message : 'Invalid query'}`,
+          code: 'VALIDATION_FAILED'
+        },
         { status: 400 }
       );
     }
 
-    const { question: rawQuestion, sessionId } = parseResult.data;
+    const sanitizedQuestion = sanitizeInput(validationResult.data.question);
 
-    // 3. Prompt Injection, Jailbreak & Threat Modeling Screener
-    const screenResult = screenPromptInjection(rawQuestion);
-    if (!screenResult.isSafe) {
-      console.warn(`[SEC-OPS ALERT] Blocked prompt injection from IP ${clientIp}: ${screenResult.threatDetected}`);
+    // 3. Prompt Injection, Jailbreak, and Reconnaissance Screening
+    const securityCheck = screenPromptInjection(sanitizedQuestion);
+    if (!securityCheck.isSafe) {
+      console.warn(`[Security Alert] Intercepted prompt attack from ${clientIp}: ${securityCheck.threatDetected}`);
       return NextResponse.json(
         {
           success: false,
-          error: 'Security Policy Violation: Prompt injection, jailbreak, or system override attempt detected. Request blocked.',
-          code: 'PROMPT_INJECTION_BLOCKED',
-          threatType: screenResult.threatDetected
+          error: 'Access Denied: The query contains security policy violations or instruction overrides.',
+          code: 'PROMPT_INJECTION_DETECTED',
+          securityAdvisory: {
+            flaggedCategory: securityCheck.threatDetected,
+            pattern: securityCheck.matchedPattern
+          }
         },
         { status: 403 }
       );
     }
 
-    // 4. Input Sanitization
-    const sanitizedQuestion = sanitizeInput(rawQuestion);
-
-    // 5. Compute Dense 384-Dim Vector Embeddings
+    // 4. Multi-Modal Semantic Retrieval
     const queryVec = generate384Vector(sanitizedQuestion);
     const qLower = sanitizedQuestion.toLowerCase();
     const queryTokens = qLower.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(t => t.length > 2);
 
-    // 6. Hybrid Scoring across Master Corpus (65% Dense + 35% Sparse)
     const scoredDocs = MASTER_DOCS.map(doc => {
       const docVec = generate384Vector(doc.content);
       const dense = cosineSimilarity(queryVec, docVec);
@@ -208,26 +289,41 @@ export async function POST(request: Request) {
 
       // Exact domain boosters
       let bonus = 0;
-      if (qLower.includes('playbook') || qLower.includes('gate') || qLower.includes('phase') || qLower.includes('30-day') || qLower.includes('g3')) {
-        if (doc.id === 'doc_playbook_001') bonus += 0.35;
+      if (qLower.includes('leave') || qLower.includes('pto') || qLower.includes('vacation') || qLower.includes('sick')) {
+        if (doc.id === 'doc_leave_policy_005') bonus += 0.40;
       }
-      if (qLower.includes('teammate') || qLower.includes('45%') || qLower.includes('tech stack') || qLower.includes('group') || qLower.includes('mongo')) {
-        if (doc.id === 'doc_tech_standards_002') bonus += 0.35;
+      if (qLower.includes('reimburse') || qLower.includes('expense') || qLower.includes('receipt') || qLower.includes('gst')) {
+        if (doc.id === 'doc_reimbursement_006') bonus += 0.40;
+      }
+      if (qLower.includes('refund') || qLower.includes('customer') || qLower.includes('cancellation') || qLower.includes('dispute')) {
+        if (doc.id === 'doc_customer_refund_007') bonus += 0.40;
+      }
+      if (qLower.includes('incident') || qLower.includes('bug') || qLower.includes('issue') || qLower.includes('outage') || qLower.includes('p1')) {
+        if (doc.id === 'doc_technical_incident_008') bonus += 0.40;
+      }
+      if (qLower.includes('onboard') || qLower.includes('new employee') || qLower.includes('new hire') || qLower.includes('7-day')) {
+        if (doc.id === 'doc_onboarding_009') bonus += 0.40;
+      }
+      if (qLower.includes('playbook') || qLower.includes('gate') || qLower.includes('phase') || qLower.includes('30-day')) {
+        if (doc.id === 'doc_playbook_001') bonus += 0.40;
+      }
+      if (qLower.includes('teammate') || qLower.includes('45%') || qLower.includes('tech stack') || qLower.includes('group')) {
+        if (doc.id === 'doc_tech_standards_002') bonus += 0.40;
       }
       if (qLower.includes('attendance') || qLower.includes('check in') || qLower.includes('standup')) {
-        if (doc.id === 'doc_hr_attendance_003') bonus += 0.35;
+        if (doc.id === 'doc_hr_attendance_003') bonus += 0.40;
       }
       if (qLower.includes('security') || qLower.includes('token') || qLower.includes('key')) {
-        if (doc.id === 'doc_sec_tokens_004') bonus += 0.35;
+        if (doc.id === 'doc_sec_tokens_004') bonus += 0.40;
       }
 
-      const hybridScore = (dense * 0.65) + (sparse * 0.35) + bonus;
+      const hybridScore = (dense * 0.60) + (sparse * 0.40) + bonus;
       return { doc, score: hybridScore };
     }).sort((a, b) => b.score - a.score);
 
     const topMatch = scoredDocs[0];
 
-    // 7. Deconstruct lines into sequential steps
+    // Deconstruct lines into sequential steps
     const lines = topMatch.doc.content.split('\n');
     const steps: Array<{ stepNumber: number; instruction: string; prerequisites: string[]; isCompleted: boolean }> = [];
     let stepCount = 0;
@@ -252,16 +348,17 @@ export async function POST(request: Request) {
         documentTitle: topMatch.doc.title,
         sourceUrl: topMatch.doc.sourceUrl,
         sectionOrPage: "Operational Procedure Clause",
-        version: topMatch.doc.version
+        version: topMatch.doc.version,
+        department: topMatch.doc.department,
+        effectiveDate: topMatch.doc.effectiveDate
       }
     ];
 
     const answer = `According to the authorized **${topMatch.doc.title}** (Version ${topMatch.doc.version}, Source: ${topMatch.doc.sourcePlatform.toUpperCase()}):\n\nHere is your sequential step-by-step operational procedure:\n\n${steps.map(s => `**Step ${s.stepNumber}:** ${s.instruction}`).join('\n\n')}\n\n---\n*Notice: Adhere strictly to the sequential prerequisite order above. Mark each step as complete in the Interactive Stepper once executed.*`;
 
-    // 8. Scrub any accidental secrets or credentials from the response payload
-    const rawPayload = {
+    const rawResponse = {
       success: true,
-      sessionId: sessionId || `sess_${Date.now()}`,
+      sessionId: `sess_${Date.now()}`,
       question: sanitizedQuestion,
       answer,
       steps,
@@ -271,30 +368,12 @@ export async function POST(request: Request) {
       timestamp: new Date().toISOString()
     };
 
-    const sanitizedPayload = redactSecrets(rawPayload);
-
-    return NextResponse.json(sanitizedPayload, {
-      status: 200,
-      headers: {
-        'X-RateLimit-Limit': '30',
-        'X-RateLimit-Remaining': rateStatus.remaining.toString()
-      }
-    });
+    // 5. Redact any sensitive internal credentials before dispatch
+    const securedResponse = redactSecrets(rawResponse);
+    return NextResponse.json(securedResponse);
 
   } catch (err: unknown) {
-    // Secret and Stack-Trace Hygiene in Error Handler
-    const rawErrorMsg = err instanceof Error ? err.message : 'Internal Server Error';
-    const scrubbedMsg = redactSecrets(rawErrorMsg);
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: process.env.NODE_ENV === 'production' 
-          ? 'An internal error occurred while processing your request.' 
-          : scrubbedMsg,
-        code: 'INTERNAL_SERVER_ERROR'
-      },
-      { status: 500 }
-    );
+    const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+    return NextResponse.json({ success: false, error: errorMsg, code: 'INTERNAL_SERVER_ERROR' }, { status: 500 });
   }
 }
