@@ -33,3 +33,4 @@ jobs:
           cd frontend
           npm ci --silent
           npm run build
+

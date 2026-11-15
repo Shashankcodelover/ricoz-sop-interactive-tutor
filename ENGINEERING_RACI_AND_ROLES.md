@@ -60,3 +60,4 @@ As Head of Technology, the engineering organization is structured into 4 special
 2. **Principle 6 (No Informal Bypasses):** No direct pushes to `main`. Every code contribution must go through a feature branch (`feat/issue-number-title`) and require peer review and approval by Shashank J.
 3. **Principle 7 (Standardized Stack):** All code must use Next.js, Express.js, and MongoDB. No unapproved third-party dependencies or external databases.
 4. **Mandatory Secret Hygiene:** Never commit `.env` or credentials. All API tokens and OAuth secrets must remain local or in Vercel/Render production environment variables.
+

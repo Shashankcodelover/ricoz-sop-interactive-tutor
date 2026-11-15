@@ -61,7 +61,8 @@ class SOPHierarchicalChunker {
       const fullSectionText = sec.lines.join('\n').trim();
       if (fullSectionText.length < 20) return;
 
-      const parentChunkId = `parent_${docMetadata.externalId || 'doc'}_sec_${secIdx + 1}`;
+      const docIdSlug = docMetadata.externalId || (docMetadata.documentTitle ? docMetadata.documentTitle.toLowerCase().replace(/[^a-z0-9]/g, '_') : 'doc');
+      const parentChunkId = `parent_${docIdSlug}_sec_${secIdx + 1}`;
       
       const parentChunk = {
         id: parentChunkId,

@@ -105,8 +105,14 @@ class EnterpriseHybridRetriever {
     const qLower = query.toLowerCase();
     const cLower = content.toLowerCase();
 
-    // Check for critical technical identifiers or percentages (e.g. 45%, MongoDB, Express)
-    const criticalTerms = ['45%', 'next.js', 'mongodb', 'express', 'notion', 'attendance', 'check in', 'check out'];
+    // Check for critical technical identifiers, domains, and keywords
+    const criticalTerms = [
+      '45%', 'next.js', 'mongodb', 'express', 'notion', 'attendance', 'check in', 'check out',
+      'eslint', 'prettier', 'standup', 'first chat', 'gate g1', 'gate g2', 'gate g3', 'gate g4',
+      'gate g5', 'gate g6', 'playbook', 'phase 1', 'phase 2', 'phase 3', 'phase 4', 'phase 5',
+      'principle 3', 'leave', 'compensatory', 'peer review', 'pull request', 'token', 'rbac', 'validation',
+      'modular', 'formatting', 'linting', 'vector', 'embedding', '384', 'priority'
+    ];
     let bonus = 0;
 
     criticalTerms.forEach(term => {
@@ -115,7 +121,7 @@ class EnterpriseHybridRetriever {
       }
     });
 
-    return Math.min(0.2, bonus);
+    return Math.min(0.25, bonus);
   }
 }
 

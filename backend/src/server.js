@@ -1,15 +1,79 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const SOPHierarchicalChunker = require('./services/rag/sopHierarchicalChunker');
 const InteractiveSOPTutorOrchestrator = require('./services/rag/tutorOrchestrator');
 const { NotionAdapter, GoogleDriveAdapter, ConfluenceAdapter } = require('./services/connectors/adapters');
+const {
+  apiRateLimiter,
+  tutorQueryRateLimiter,
+  ingestRateLimiter,
+  promptInjectionGuardMiddleware,
+  ingestGuardMiddleware,
+  secureErrorHandler,
+  redactSecrets
+} = require('./services/security/securityGuard');
 
 dotenv.config();
 const app = express();
-app.use(cors());
-app.use(express.json());
+
+// Disable technology disclosure header
+app.disable('x-powered-by');
+
+// 1. Enterprise Security Headers via Helmet
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'", "http://localhost:3000", "http://127.0.0.1:3000"],
+        objectSrc: ["'none'"],
+        frameAncestors: ["'none'"]
+      }
+    },
+    xContentTypeOptions: true, // X-Content-Type-Options: nosniff
+    xFrameOptions: { action: 'deny' }, // X-Frame-Options: DENY
+    strictTransportSecurity: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true
+    },
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
+  })
+);
+
+// 2. Strict CORS Allowlisting
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim()) : [])
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (e.g., local server-to-server, unit tests, mobile)
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error(`CORS policy violation: Origin ${origin} is not allowed.`));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  })
+);
+
+// Body Parser with strict size limit to prevent memory exhaustion attacks
+app.use(express.json({ limit: '1mb' }));
+
+// 3. Global API Rate Limiter
+app.use('/api/', apiRateLimiter);
 
 // In-Memory Global Knowledge State
 const globalKnowledgeState = {
@@ -66,7 +130,8 @@ const seedMasterKnowledgeBase = () => {
 1. Credential Secrecy: Never expose API keys, database credentials, or OAuth tokens in client-side code, git repositories, or terminal logs.
 2. Environment Configuration: Store all sensitive configuration values in .env files ignored by version control.
 3. Access Control Validation: Enforce strict role-based access control (RBAC) on all protected routes prior to data retrieval.
-4. Ingestion Permissions: Verify organization ID and user permissions before allowing RAG chunk retrieval.`
+4. Ingestion Permissions: Verify organization ID and user permissions before allowing RAG chunk retrieval.
+5. Vector Embeddings: The AI engine uses 384-dimensional dense vector embeddings for semantic similarity search.`
     },
     {
       sourcePlatform: 'notion',
@@ -118,6 +183,7 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'healthy',
     service: 'RicoZ Internal Knowledge & SOP Interactive Tutor API',
+    securityStatus: 'FORTIFIED',
     leadArchitect: 'Shashank J (Head of Technology)',
     version: '2.0.0',
     metrics: {
@@ -132,100 +198,132 @@ app.get('/api/health', (req, res) => {
 
 // List all indexed SOP documents
 app.get('/api/documents', (req, res) => {
-  res.json({
+  const safeDocs = globalKnowledgeState.documents.map(d => ({
+    title: d.title,
+    sourcePlatform: d.sourcePlatform,
+    sourceUrl: d.sourceUrl,
+    category: d.category,
+    department: d.department,
+    version: d.version,
+    effectiveDate: d.effectiveDate
+  }));
+
+  res.json(redactSecrets({
     success: true,
     total: globalKnowledgeState.documents.length,
-    documents: globalKnowledgeState.documents.map(d => ({
-      title: d.title,
-      sourcePlatform: d.sourcePlatform,
-      sourceUrl: d.sourceUrl,
-      category: d.category,
-      department: d.department,
-      version: d.version,
-      effectiveDate: d.effectiveDate
-    }))
-  });
+    documents: safeDocs
+  }));
 });
 
-// Enterprise Interactive SOP Tutor Query Endpoint
-app.post('/api/tutor/query', (req, res) => {
-  const { question } = req.body;
-  if (!question || typeof question !== 'string' || question.trim().length === 0) {
-    return res.status(400).json({ error: 'A valid question string is required.' });
-  }
+// Enterprise Interactive SOP Tutor Query Endpoint (Fortified with Prompt Injection Defense & Rate Limiting)
+app.post(
+  '/api/tutor/query',
+  tutorQueryRateLimiter,
+  promptInjectionGuardMiddleware,
+  (req, res, next) => {
+    try {
+      const { question, sessionId: clientSessionId } = req.body;
 
-  // Execute full RAG & Tutoring pipeline
-  const tutorResponse = InteractiveSOPTutorOrchestrator.processQuery(
-    question,
-    globalKnowledgeState.childChunks,
-    globalKnowledgeState.parentChunks
-  );
+      // Execute full RAG & Tutoring pipeline
+      const tutorResponse = InteractiveSOPTutorOrchestrator.processQuery(
+        question,
+        globalKnowledgeState.childChunks,
+        globalKnowledgeState.parentChunks
+      );
 
-  const sessionId = `sess_${Date.now()}`;
-  globalKnowledgeState.sessions.push({
-    sessionId,
-    question,
-    response: tutorResponse,
-    timestamp: new Date()
-  });
+      const sessionId = clientSessionId || `sess_${Date.now()}`;
+      globalKnowledgeState.sessions.push({
+        sessionId,
+        question,
+        response: tutorResponse,
+        timestamp: new Date()
+      });
 
-  res.json({
-    ...tutorResponse,
-    sessionId
-  });
-});
+      const safePayload = redactSecrets({
+        ...tutorResponse,
+        sessionId
+      });
 
-// Multi-Source Document Ingestion Endpoint (Notion, Drive, Confluence)
-app.post('/api/ingest', (req, res) => {
-  const { platform, rawData } = req.body;
-  if (!platform || !rawData) {
-    return res.status(400).json({ error: 'Both platform and rawData are required.' });
-  }
-
-  let normalizedDoc;
-  if (platform === 'notion') normalizedDoc = NotionAdapter.parsePage(rawData);
-  else if (platform === 'google_drive') normalizedDoc = GoogleDriveAdapter.parseDoc(rawData);
-  else if (platform === 'confluence') normalizedDoc = ConfluenceAdapter.parsePage(rawData);
-  else {
-    return res.status(400).json({ error: 'Unsupported platform. Supported: notion, google_drive, confluence.' });
-  }
-
-  globalKnowledgeState.documents.push(normalizedDoc);
-
-  const hierarchy = SOPHierarchicalChunker.processSOP(normalizedDoc.content, {
-    sourcePlatform: normalizedDoc.sourcePlatform,
-    documentTitle: normalizedDoc.title,
-    sourceUrl: normalizedDoc.sourceUrl,
-    version: normalizedDoc.version,
-    department: normalizedDoc.department,
-    effectiveDate: normalizedDoc.effectiveDate
-  });
-
-  let parentsAdded = 0;
-  let childrenAdded = 0;
-
-  hierarchy.forEach(item => {
-    globalKnowledgeState.parentChunks.push(item.parent);
-    parentsAdded++;
-    item.children.forEach(child => {
-      globalKnowledgeState.childChunks.push(child);
-      childrenAdded++;
-    });
-  });
-
-  res.json({
-    success: true,
-    message: `Successfully ingested document from ${platform.toUpperCase()}`,
-    document: {
-      title: normalizedDoc.title,
-      version: normalizedDoc.version,
-      newParents: parentsAdded,
-      newChildren: childrenAdded
+      res.json(safePayload);
+    } catch (err) {
+      next(err);
     }
+  }
+);
+
+// Multi-Source Document Ingestion Endpoint (Fortified with Ingestion Guard & Rate Limiter)
+app.post(
+  '/api/ingest',
+  ingestRateLimiter,
+  ingestGuardMiddleware,
+  (req, res, next) => {
+    try {
+      const { platform, rawData } = req.body;
+
+      let normalizedDoc;
+      if (platform === 'notion') normalizedDoc = NotionAdapter.parsePage(rawData);
+      else if (platform === 'google_drive') normalizedDoc = GoogleDriveAdapter.parseDoc(rawData);
+      else if (platform === 'confluence') normalizedDoc = ConfluenceAdapter.parsePage(rawData);
+      else {
+        return res.status(400).json({ error: 'Unsupported platform.' });
+      }
+
+      globalKnowledgeState.documents.push(normalizedDoc);
+
+      const hierarchy = SOPHierarchicalChunker.processSOP(normalizedDoc.content, {
+        sourcePlatform: normalizedDoc.sourcePlatform,
+        documentTitle: normalizedDoc.title,
+        sourceUrl: normalizedDoc.sourceUrl,
+        version: normalizedDoc.version,
+        department: normalizedDoc.department,
+        effectiveDate: normalizedDoc.effectiveDate
+      });
+
+      let parentsAdded = 0;
+      let childrenAdded = 0;
+
+      hierarchy.forEach(item => {
+        globalKnowledgeState.parentChunks.push(item.parent);
+        parentsAdded++;
+        item.children.forEach(child => {
+          globalKnowledgeState.childChunks.push(child);
+          childrenAdded++;
+        });
+      });
+
+      res.json(redactSecrets({
+        success: true,
+        message: `Successfully ingested document from ${platform.toUpperCase()}`,
+        document: {
+          title: normalizedDoc.title,
+          version: normalizedDoc.version,
+          newParents: parentsAdded,
+          newChildren: childrenAdded
+        }
+      }));
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+// 4. Fallback 404 handler
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    error: 'Endpoint not found.',
+    code: 'NOT_FOUND'
   });
 });
+
+// 5. Centralized Enterprise Error Handler (Prevents Stack Trace & Secret Leaks)
+app.use(secureErrorHandler);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`[RicoZ SOP Tutor API v2.0] Listening on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`[RicoZ SOP Tutor API v2.0] Listening on port ${PORT} [Security Guard Active]`);
+  });
+}
+
+module.exports = app;

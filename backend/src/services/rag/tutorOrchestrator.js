@@ -55,6 +55,7 @@ class InteractiveSOPTutorOrchestrator {
     const docTitle = topResult.chunk.metadata?.documentTitle || 'Company Standard Operating Procedure';
     const sourcePlatform = topResult.chunk.metadata?.sourcePlatform || 'internal';
     const version = topResult.chunk.metadata?.version || '1.0';
+    const department = topResult.chunk.metadata?.department || 'Operations';
 
     // 4. Procedural Step Extraction & Prerequisite Mapping
     const rawLines = contextContent.split('\n');
@@ -111,7 +112,7 @@ class InteractiveSOPTutorOrchestrator {
     const citations = Array.from(citationsMap.values());
 
     // 6. Formulate Conversational Synthesis
-    let answerHeader = `According to the authorized **${docTitle}** (Version ${version}, Source: ${sourcePlatform.toUpperCase()}):\n\nHere is your sequential step-by-step operational procedure:`;
+    let answerHeader = `According to the authorized **${docTitle}** (Version ${version}, Department: ${department}, Source: ${sourcePlatform.toUpperCase()}):\n\nHere is your sequential step-by-step operational procedure:`;
 
     if (conflictReport && conflictReport.hasConflict) {
       answerHeader = `⚠️ **POLICY ADVISORY: MULTIPLE DOCUMENT EDITIONS IDENTIFIED**\n*${conflictReport.systemAdvice}*\n\n` + answerHeader;

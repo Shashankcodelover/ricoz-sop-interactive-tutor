@@ -58,3 +58,4 @@ npm run dev
 * `GET /api/documents` - List all indexed organizational SOPs
 * `POST /api/tutor/query` - Interactive tutor conversational endpoint with citations
 * `POST /api/ingest` - Ingest documents from Notion, Google Drive, or Confluence
+

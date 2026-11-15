@@ -1,4 +1,11 @@
 import { NextResponse } from 'next/server';
+import { 
+  TutorQuerySchema, 
+  sanitizeInput, 
+  screenPromptInjection, 
+  checkRateLimit, 
+  redactSecrets 
+} from '@/lib/securityGuard';
 
 // 384-Dimensional Unit Normalized Dense Vector Embedding Generator
 function generate384Vector(text: string): number[] {
@@ -119,24 +126,75 @@ const MASTER_DOCS: MasterDocument[] = [
 
 export async function POST(request: Request) {
   try {
-    let question = '';
+    // 1. IP Extraction & Rate Limiting Enforcement (Anti-DoS on RAG Embedding Generator)
+    const forwardedFor = request.headers.get('x-forwarded-for');
+    const clientIp = forwardedFor ? forwardedFor.split(',')[0].trim() : '127.0.0.1';
+
+    const rateStatus = checkRateLimit(clientIp, 30, 60 * 1000);
+    if (!rateStatus.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Rate limit exceeded: Too many RAG queries. Please wait a moment before trying again.',
+          code: 'RATE_LIMIT_EXCEEDED'
+        },
+        { 
+          status: 429,
+          headers: {
+            'Retry-After': Math.ceil((rateStatus.resetTime - Date.now()) / 1000).toString(),
+            'X-RateLimit-Limit': '30',
+            'X-RateLimit-Remaining': '0'
+          }
+        }
+      );
+    }
+
+    // 2. Parse and Validate Request Payload using Zod
+    let rawBody: unknown;
     try {
-      const data = await request.json();
-      question = data.question || data.q || data.prompt || '';
+      rawBody = await request.json();
     } catch {
-      question = '';
+      return NextResponse.json(
+        { success: false, error: 'Malformed JSON payload.', code: 'INVALID_JSON' },
+        { status: 400 }
+      );
     }
 
-    // Fallback if empty payload
-    if (!question || typeof question !== 'string' || question.trim().length === 0) {
-      question = "What are the requirements for Phase 3 MVP build and Gate G3 sign-off?";
+    const parseResult = TutorQuerySchema.safeParse(rawBody);
+    if (!parseResult.success) {
+      const errorMsg = parseResult.error.issues.map(i => i.message).join(' ');
+      return NextResponse.json(
+        { success: false, error: errorMsg, code: 'VALIDATION_ERROR' },
+        { status: 400 }
+      );
     }
 
-    const queryVec = generate384Vector(question);
-    const qLower = question.toLowerCase();
+    const { question: rawQuestion, sessionId } = parseResult.data;
+
+    // 3. Prompt Injection, Jailbreak & Threat Modeling Screener
+    const screenResult = screenPromptInjection(rawQuestion);
+    if (!screenResult.isSafe) {
+      console.warn(`[SEC-OPS ALERT] Blocked prompt injection from IP ${clientIp}: ${screenResult.threatDetected}`);
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Security Policy Violation: Prompt injection, jailbreak, or system override attempt detected. Request blocked.',
+          code: 'PROMPT_INJECTION_BLOCKED',
+          threatType: screenResult.threatDetected
+        },
+        { status: 403 }
+      );
+    }
+
+    // 4. Input Sanitization
+    const sanitizedQuestion = sanitizeInput(rawQuestion);
+
+    // 5. Compute Dense 384-Dim Vector Embeddings
+    const queryVec = generate384Vector(sanitizedQuestion);
+    const qLower = sanitizedQuestion.toLowerCase();
     const queryTokens = qLower.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(t => t.length > 2);
 
-    // Hybrid Scoring across Master Corpus (65% Dense + 35% Sparse)
+    // 6. Hybrid Scoring across Master Corpus (65% Dense + 35% Sparse)
     const scoredDocs = MASTER_DOCS.map(doc => {
       const docVec = generate384Vector(doc.content);
       const dense = cosineSimilarity(queryVec, docVec);
@@ -169,7 +227,7 @@ export async function POST(request: Request) {
 
     const topMatch = scoredDocs[0];
 
-    // Deconstruct lines into sequential steps
+    // 7. Deconstruct lines into sequential steps
     const lines = topMatch.doc.content.split('\n');
     const steps: Array<{ stepNumber: number; instruction: string; prerequisites: string[]; isCompleted: boolean }> = [];
     let stepCount = 0;
@@ -200,19 +258,43 @@ export async function POST(request: Request) {
 
     const answer = `According to the authorized **${topMatch.doc.title}** (Version ${topMatch.doc.version}, Source: ${topMatch.doc.sourcePlatform.toUpperCase()}):\n\nHere is your sequential step-by-step operational procedure:\n\n${steps.map(s => `**Step ${s.stepNumber}:** ${s.instruction}`).join('\n\n')}\n\n---\n*Notice: Adhere strictly to the sequential prerequisite order above. Mark each step as complete in the Interactive Stepper once executed.*`;
 
-    return NextResponse.json({
+    // 8. Scrub any accidental secrets or credentials from the response payload
+    const rawPayload = {
       success: true,
-      question,
+      sessionId: sessionId || `sess_${Date.now()}`,
+      question: sanitizedQuestion,
       answer,
       steps,
       citations,
       relevanceScore: parseFloat(topMatch.score.toFixed(4)),
       conflictReport: null,
       timestamp: new Date().toISOString()
+    };
+
+    const sanitizedPayload = redactSecrets(rawPayload);
+
+    return NextResponse.json(sanitizedPayload, {
+      status: 200,
+      headers: {
+        'X-RateLimit-Limit': '30',
+        'X-RateLimit-Remaining': rateStatus.remaining.toString()
+      }
     });
 
   } catch (err: unknown) {
-    const errorMsg = err instanceof Error ? err.message : 'Unknown error';
-    return NextResponse.json({ error: errorMsg }, { status: 500 });
+    // Secret and Stack-Trace Hygiene in Error Handler
+    const rawErrorMsg = err instanceof Error ? err.message : 'Internal Server Error';
+    const scrubbedMsg = redactSecrets(rawErrorMsg);
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: process.env.NODE_ENV === 'production' 
+          ? 'An internal error occurred while processing your request.' 
+          : scrubbedMsg,
+        code: 'INTERNAL_SERVER_ERROR'
+      },
+      { status: 500 }
+    );
   }
 }
