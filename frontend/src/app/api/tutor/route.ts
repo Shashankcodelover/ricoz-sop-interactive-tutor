@@ -204,6 +204,26 @@ const MASTER_DOCS: MasterDocument[] = [
   }
 ];
 
+export async function GET() {
+  return NextResponse.json({
+    success: true,
+    totalDocuments: MASTER_DOCS.length,
+    documents: MASTER_DOCS.map(d => ({
+      id: d.id,
+      title: d.title,
+      sourcePlatform: d.sourcePlatform,
+      sourceUrl: d.sourceUrl,
+      category: d.category,
+      department: d.department,
+      version: d.version,
+      effectiveDate: d.effectiveDate,
+      author: d.department + " Operations",
+      tags: [d.category, d.department, d.sourcePlatform],
+      content: d.content
+    }))
+  });
+}
+
 export async function POST(request: Request) {
   try {
     // 1. IP Extraction & Rate Limiting Enforcement
