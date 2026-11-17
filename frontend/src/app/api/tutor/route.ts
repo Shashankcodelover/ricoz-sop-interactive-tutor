@@ -6,6 +6,7 @@ import {
   checkRateLimit, 
   redactSecrets 
 } from '@/lib/securityGuard';
+import { dataStore, StoredSOPDocument } from '@/lib/dataStore';
 
 // 384-Dimensional Unit Normalized Dense Vector Embedding Generator
 function generate384Vector(text: string): number[] {
@@ -205,22 +206,11 @@ const MASTER_DOCS: MasterDocument[] = [
 ];
 
 export async function GET() {
+  const allDocs = dataStore.getAllDocuments();
   return NextResponse.json({
     success: true,
-    totalDocuments: MASTER_DOCS.length,
-    documents: MASTER_DOCS.map(d => ({
-      id: d.id,
-      title: d.title,
-      sourcePlatform: d.sourcePlatform,
-      sourceUrl: d.sourceUrl,
-      category: d.category,
-      department: d.department,
-      version: d.version,
-      effectiveDate: d.effectiveDate,
-      author: d.department + " Operations",
-      tags: [d.category, d.department, d.sourcePlatform],
-      content: d.content
-    }))
+    totalDocuments: allDocs.length,
+    documents: allDocs
   });
 }
 
@@ -291,12 +281,13 @@ export async function POST(request: Request) {
       );
     }
 
-    // 4. Multi-Modal Semantic Retrieval
+    // 4. Multi-Modal Semantic Retrieval across live dataStore
     const queryVec = generate384Vector(sanitizedQuestion);
     const qLower = sanitizedQuestion.toLowerCase();
     const queryTokens = qLower.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(t => t.length > 2);
 
-    const scoredDocs = MASTER_DOCS.map(doc => {
+    const activeDocs = dataStore.getAllDocuments();
+    const scoredDocs = activeDocs.map(doc => {
       const docVec = generate384Vector(doc.content);
       const dense = cosineSimilarity(queryVec, docVec);
       
@@ -310,31 +301,36 @@ export async function POST(request: Request) {
       // Exact domain boosters
       let bonus = 0;
       if (qLower.includes('leave') || qLower.includes('pto') || qLower.includes('vacation') || qLower.includes('sick')) {
-        if (doc.id === 'doc_leave_policy_005') bonus += 0.40;
+        if (doc.id.includes('leave')) bonus += 0.40;
       }
       if (qLower.includes('reimburse') || qLower.includes('expense') || qLower.includes('receipt') || qLower.includes('gst')) {
-        if (doc.id === 'doc_reimbursement_006') bonus += 0.40;
+        if (doc.id.includes('reimburse')) bonus += 0.40;
       }
       if (qLower.includes('refund') || qLower.includes('customer') || qLower.includes('cancellation') || qLower.includes('dispute')) {
-        if (doc.id === 'doc_customer_refund_007') bonus += 0.40;
+        if (doc.id.includes('refund')) bonus += 0.40;
       }
       if (qLower.includes('incident') || qLower.includes('bug') || qLower.includes('issue') || qLower.includes('outage') || qLower.includes('p1')) {
-        if (doc.id === 'doc_technical_incident_008') bonus += 0.40;
+        if (doc.id.includes('incident')) bonus += 0.40;
       }
       if (qLower.includes('onboard') || qLower.includes('new employee') || qLower.includes('new hire') || qLower.includes('7-day')) {
-        if (doc.id === 'doc_onboarding_009') bonus += 0.40;
+        if (doc.id.includes('onboarding')) bonus += 0.40;
       }
       if (qLower.includes('playbook') || qLower.includes('gate') || qLower.includes('phase') || qLower.includes('30-day')) {
-        if (doc.id === 'doc_playbook_001') bonus += 0.40;
+        if (doc.id.includes('playbook')) bonus += 0.40;
       }
       if (qLower.includes('teammate') || qLower.includes('45%') || qLower.includes('tech stack') || qLower.includes('group')) {
-        if (doc.id === 'doc_tech_standards_002') bonus += 0.40;
+        if (doc.id.includes('tech_stack')) bonus += 0.40;
       }
       if (qLower.includes('attendance') || qLower.includes('check in') || qLower.includes('standup')) {
-        if (doc.id === 'doc_hr_attendance_003') bonus += 0.40;
+        if (doc.id.includes('attendance')) bonus += 0.40;
       }
       if (qLower.includes('security') || qLower.includes('token') || qLower.includes('key')) {
-        if (doc.id === 'doc_sec_tokens_004') bonus += 0.40;
+        if (doc.id.includes('sec')) bonus += 0.40;
+      }
+
+      // Check if title has matching words
+      if (doc.title.toLowerCase().split(/\s+/).some(w => w.length > 3 && qLower.includes(w))) {
+        bonus += 0.35;
       }
 
       const hybridScore = (dense * 0.60) + (sparse * 0.40) + bonus;

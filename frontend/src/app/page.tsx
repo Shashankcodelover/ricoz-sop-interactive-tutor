@@ -33,7 +33,12 @@ import {
   Sun,
   Moon,
   Clock,
-  Activity
+  Activity,
+  LogIn,
+  LogOut,
+  UserPlus,
+  PlusCircle,
+  CheckSquare
 } from 'lucide-react';
 
 interface Step {
@@ -116,6 +121,34 @@ export default function Home() {
   };
 
   // Navigation tabs
+    // Authentication State
+  const [currentUser, setCurrentUser] = useState<{ id: string; name: string; email: string; role: string; department: string } | null>(null);
+  const [authToken, setAuthToken] = useState<string>('');
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
+  const [authForm, setAuthForm] = useState({ name: '', email: '', password: '', department: 'Engineering', role: 'employee' as const });
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authLoading, setAuthLoading] = useState<boolean>(false);
+
+  // New Document Upload State (Allow user to enter their own live operational data)
+  const [showDocModal, setShowDocModal] = useState<boolean>(false);
+  const [docForm, setDocForm] = useState({
+    title: '',
+    category: 'Engineering',
+    department: 'Technology',
+    sourcePlatform: 'custom_upload' as const,
+    sourceUrl: 'https://internal.ricoz.in/docs/custom-sop',
+    version: '1.0',
+    content: ''
+  });
+  const [docLoading, setDocLoading] = useState<boolean>(false);
+  const [docError, setDocError] = useState<string | null>(null);
+
+  // Step Exception / Feedback State
+  const [stepNotes, setStepNotes] = useState<Record<number, string>>({});
+  const [activeNoteStep, setActiveNoteStep] = useState<number | null>(null);
+  const [tempNoteText, setTempNoteText] = useState<string>('');
+
   const [activeTab, setActiveTab] = useState<'tutor' | 'stepper' | 'knowledge' | 'compliance'>('tutor');
 
   // Chat State
@@ -181,6 +214,126 @@ export default function Home() {
     supersededPolicy: 'RicoZ Tech Stack SOP v1.0',
     activePolicy: 'RicoZ Tech Stack SOP v2.0'
   });
+
+  // Verify session on mount
+  useEffect(() => {
+    const savedToken = localStorage.getItem('ricoz_auth_token');
+    if (savedToken) {
+      setAuthToken(savedToken);
+      fetch('/api/auth', {
+        headers: { 'Authorization': `Bearer ${savedToken}` }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.authenticated && data.user) {
+          setCurrentUser(data.user);
+        } else {
+          localStorage.removeItem('ricoz_auth_token');
+        }
+      })
+      .catch(() => {});
+    }
+
+    // Load saved step notes from localStorage
+    const savedNotes = localStorage.getItem('ricoz_step_notes');
+    if (savedNotes) {
+      try { setStepNotes(JSON.parse(savedNotes)); } catch {}
+    }
+  }, []);
+
+  const handleAuthSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError(null);
+    setAuthLoading(true);
+
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: authMode,
+          ...authForm
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        setAuthError(data.error || 'Authentication failed');
+        setAuthLoading(false);
+        return;
+      }
+
+      setAuthToken(data.token);
+      setCurrentUser(data.user);
+      localStorage.setItem('ricoz_auth_token', data.token);
+      setShowAuthModal(false);
+      setAuthForm({ name: '', email: '', password: '', department: 'Engineering', role: 'employee' });
+    } catch {
+      setAuthError('Connection error during authentication.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleSignOut = () => {
+    setCurrentUser(null);
+    setAuthToken('');
+    localStorage.removeItem('ricoz_auth_token');
+  };
+
+  const handleCreateDocument = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentUser) {
+      setShowAuthModal(true);
+      return;
+    }
+    setDocError(null);
+    setDocLoading(true);
+
+    try {
+      const res = await fetch('/api/documents', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify(docForm)
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        setDocError(data.error || 'Failed to ingest document');
+        setDocLoading(false);
+        return;
+      }
+
+      // Add to live docs list and select it
+      setDocs(prev => [data.document, ...prev]);
+      setSelectedDoc(data.document);
+      setShowDocModal(false);
+      setDocForm({
+        title: '',
+        category: 'Engineering',
+        department: currentUser.department || 'Technology',
+        sourcePlatform: 'custom_upload',
+        sourceUrl: 'https://internal.ricoz.in/docs/custom-sop',
+        version: '1.0',
+        content: ''
+      });
+      setActiveTab('knowledge');
+    } catch {
+      setDocError('Error uploading document to RAG engine.');
+    } finally {
+      setDocLoading(false);
+    }
+  };
+
+  const saveStepNote = (stepNum: number) => {
+    const updated = { ...stepNotes, [stepNum]: tempNoteText };
+    setStepNotes(updated);
+    localStorage.setItem('ricoz_step_notes', JSON.stringify(updated));
+    setActiveNoteStep(null);
+    setTempNoteText('');
+  };
 
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -470,6 +623,36 @@ export default function Home() {
               Board View
             </button>
           </div>
+
+          {/* User Auth Status / Sign In Pill */}
+          {currentUser ? (
+            <div className="flex items-center gap-2 px-3 py-1 rounded-full border shadow-xs" style={{ background: 'var(--card)', borderColor: 'var(--line-strong)' }}>
+              <div className="h-6 w-6 rounded-full flex items-center justify-center text-xs font-bold font-mono-code" style={{ background: 'var(--accent)', color: 'var(--on-accent)' }}>
+                {currentUser.name.charAt(0).toUpperCase()}
+              </div>
+              <div className="hidden sm:flex flex-col text-left">
+                <span className="text-[11px] font-medium leading-none" style={{ color: 'var(--ink)' }}>{currentUser.name}</span>
+                <span className="text-[9px] font-mono-code leading-none mt-0.5" style={{ color: 'var(--ink-2)' }}>{currentUser.role}</span>
+              </div>
+              <button
+                onClick={handleSignOut}
+                title="Sign out"
+                className="p-1 rounded-full hover:opacity-75 transition-opacity"
+                style={{ color: 'var(--ink-3)' }}
+              >
+                <LogOut className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => { setShowAuthModal(true); setAuthMode('signin'); }}
+              className="px-3.5 py-1.5 rounded-full text-xs font-medium border flex items-center gap-1.5 shadow-xs transition-transform hover:scale-102 cursor-pointer"
+              style={{ background: 'var(--card)', borderColor: 'var(--line-strong)', color: 'var(--ink)' }}
+            >
+              <LogIn className="h-3.5 w-3.5" style={{ color: 'var(--accent)' }} />
+              <span>Sign In / Sign Up</span>
+            </button>
+          )}
 
           <button
             onClick={toggleTheme}
@@ -1358,6 +1541,55 @@ export default function Home() {
                         {step.instruction}
                       </p>
 
+                      {/* Operator Note / Exception Log */}
+                      {stepNotes[step.stepNumber] && (
+                        <div className="mt-2.5 p-2.5 rounded-xl border text-xs" style={{ background: 'var(--canvas)', borderColor: 'var(--line-strong)' }}>
+                          <span className="font-mono-code font-semibold text-[10px] block" style={{ color: 'var(--accent)' }}>OPERATOR LOG / EXCEPTION:</span>
+                          <span className="mt-0.5 block" style={{ color: 'var(--ink)' }}>{stepNotes[step.stepNumber]}</span>
+                        </div>
+                      )}
+
+                      <div className="mt-2 flex items-center gap-3">
+                        {activeNoteStep === step.stepNumber ? (
+                          <div className="flex-1 flex items-center gap-2 mt-1" onClick={(e) => e.stopPropagation()}>
+                            <input
+                              type="text"
+                              value={tempNoteText}
+                              onChange={(e) => setTempNoteText(e.target.value)}
+                              placeholder="Record real execution note or blocker..."
+                              className="flex-1 border rounded-lg px-2.5 py-1 text-xs focus:outline-none"
+                              style={{ background: 'var(--canvas)', borderColor: 'var(--line-strong)', color: 'var(--ink)' }}
+                            />
+                            <button
+                              onClick={() => saveStepNote(step.stepNumber)}
+                              className="px-3 py-1 rounded-lg text-xs font-semibold shadow-xs"
+                              style={{ background: 'var(--accent)', color: 'var(--on-accent)' }}
+                            >
+                              Save Log
+                            </button>
+                            <button
+                              onClick={() => setActiveNoteStep(null)}
+                              className="px-2 py-1 text-xs"
+                              style={{ color: 'var(--ink-3)' }}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveNoteStep(step.stepNumber);
+                              setTempNoteText(stepNotes[step.stepNumber] || '');
+                            }}
+                            className="text-[11px] font-mono-code flex items-center gap-1 hover:underline cursor-pointer"
+                            style={{ color: 'var(--accent)' }}
+                          >
+                            <span>+ {stepNotes[step.stepNumber] ? 'Edit Step Log' : 'Add Execution Note / Blocker'}</span>
+                          </button>
+                        )}
+                      </div>
+
                       {step.prerequisites && step.prerequisites.length > 0 && (
                         <div 
                           className="mt-3 flex items-center gap-2 text-xs p-2.5 rounded-xl border"
@@ -1430,8 +1662,18 @@ export default function Home() {
                 />
               </div>
 
-              <div className="flex items-center gap-2 overflow-x-auto text-xs">
-                <Filter className="h-3.5 w-3.5 shrink-0" style={{ color: 'var(--ink-3)' }} />
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setShowDocModal(true)}
+                  className="px-4 py-2 rounded-full text-xs font-semibold flex items-center gap-2 shadow-xs transition-transform hover:scale-102 cursor-pointer shrink-0"
+                  style={{ background: 'var(--accent)', color: 'var(--on-accent)' }}
+                >
+                  <PlusCircle className="h-3.5 w-3.5" />
+                  <span>+ Ingest Custom SOP</span>
+                </button>
+
+                <div className="flex items-center gap-2 overflow-x-auto text-xs">
+                  <Filter className="h-3.5 w-3.5 shrink-0" style={{ color: 'var(--ink-3)' }} />
                 {categories.map((cat, idx) => (
                   <button
                     key={idx}
@@ -1446,6 +1688,7 @@ export default function Home() {
                     {cat}
                   </button>
                 ))}
+                </div>
               </div>
             </div>
 
@@ -1797,6 +2040,288 @@ export default function Home() {
         </div>
       </footer>
 
+      {/* ========================================================================= */}
+      {/* MODAL 1: ENTERPRISE AUTHENTICATION (SIGN IN & SIGN UP)                   */}
+      {/* ========================================================================= */}
+      {showAuthModal && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+          style={{ background: 'rgba(0,0,0,0.45)' }}
+          onClick={() => setShowAuthModal(false)}
+        >
+          <div 
+            className="w-full max-w-md border rounded-3xl p-6 shadow-2xl relative space-y-5"
+            style={{ background: 'var(--card)', borderColor: 'var(--line-strong)', boxShadow: 'var(--shadow)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: 'var(--line)' }}>
+              <div>
+                <span className="font-mono-code text-[11px] uppercase tracking-wider" style={{ color: 'var(--accent)' }}>
+                  RicoZ Access Control
+                </span>
+                <h3 className="font-editorial text-2xl font-bold tracking-tight" style={{ color: 'var(--ink)' }}>
+                  {authMode === 'signin' ? 'Sign In to Workspace' : 'Create Enterprise Account'}
+                </h3>
+              </div>
+              <button 
+                onClick={() => setShowAuthModal(false)}
+                className="p-1 rounded-full hover:opacity-75 transition-opacity"
+                style={{ color: 'var(--ink-3)' }}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {authError && (
+              <div className="p-3 rounded-xl border text-xs flex items-center gap-2" style={{ background: 'var(--clash-bg)', borderColor: 'var(--clash)', color: 'var(--clash)' }}>
+                <AlertTriangle className="h-4 w-4 shrink-0" />
+                <span>{authError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleAuthSubmit} className="space-y-3.5">
+              {authMode === 'signup' && (
+                <div>
+                  <label className="block text-xs font-mono-code mb-1" style={{ color: 'var(--ink-2)' }}>Full Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={authForm.name}
+                    onChange={(e) => setAuthForm({ ...authForm, name: e.target.value })}
+                    placeholder="e.g. Shashank J"
+                    className="w-full border rounded-xl px-3.5 py-2 text-xs focus:outline-none"
+                    style={{ background: 'var(--canvas)', borderColor: 'var(--line-strong)', color: 'var(--ink)' }}
+                  />
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-mono-code mb-1" style={{ color: 'var(--ink-2)' }}>Work Email</label>
+                <input
+                  type="email"
+                  required
+                  value={authForm.email}
+                  onChange={(e) => setAuthForm({ ...authForm, email: e.target.value })}
+                  placeholder="name@ricoz.in or personal email"
+                  className="w-full border rounded-xl px-3.5 py-2 text-xs focus:outline-none"
+                  style={{ background: 'var(--canvas)', borderColor: 'var(--line-strong)', color: 'var(--ink)' }}
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono-code mb-1" style={{ color: 'var(--ink-2)' }}>Password</label>
+                <input
+                  type="password"
+                  required
+                  value={authForm.password}
+                  onChange={(e) => setAuthForm({ ...authForm, password: e.target.value })}
+                  placeholder="••••••••••••"
+                  className="w-full border rounded-xl px-3.5 py-2 text-xs focus:outline-none"
+                  style={{ background: 'var(--canvas)', borderColor: 'var(--line-strong)', color: 'var(--ink)' }}
+                />
+              </div>
+
+              {authMode === 'signup' && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-mono-code mb-1" style={{ color: 'var(--ink-2)' }}>Department</label>
+                    <select
+                      value={authForm.department}
+                      onChange={(e) => setAuthForm({ ...authForm, department: e.target.value })}
+                      className="w-full border rounded-xl px-3 py-2 text-xs focus:outline-none"
+                      style={{ background: 'var(--canvas)', borderColor: 'var(--line-strong)', color: 'var(--ink)' }}
+                    >
+                      <option value="Technology">Technology</option>
+                      <option value="Engineering">Engineering</option>
+                      <option value="People & HR">People &amp; HR</option>
+                      <option value="Finance">Finance</option>
+                      <option value="Operations">Operations</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-mono-code mb-1" style={{ color: 'var(--ink-2)' }}>Role</label>
+                    <select
+                      value={authForm.role}
+                      onChange={(e) => setAuthForm({ ...authForm, role: e.target.value as any })}
+                      className="w-full border rounded-xl px-3 py-2 text-xs focus:outline-none"
+                      style={{ background: 'var(--canvas)', borderColor: 'var(--line-strong)', color: 'var(--ink)' }}
+                    >
+                      <option value="employee">Employee</option>
+                      <option value="department_lead">Department Lead</option>
+                      <option value="org_admin">Org Admin</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={authLoading}
+                className="w-full py-2.5 rounded-xl text-xs font-semibold shadow-xs transition-opacity hover:opacity-90 disabled:opacity-50 cursor-pointer"
+                style={{ background: 'var(--accent)', color: 'var(--on-accent)' }}
+              >
+                {authLoading ? 'Verifying...' : (authMode === 'signin' ? 'Sign In' : 'Create Account')}
+              </button>
+            </form>
+
+            <div className="text-center pt-2 border-t text-xs" style={{ borderColor: 'var(--line)', color: 'var(--ink-2)' }}>
+              {authMode === 'signin' ? (
+                <span>Need a new account? <button onClick={() => { setAuthMode('signup'); setAuthError(null); }} className="font-semibold underline" style={{ color: 'var(--accent)' }}>Sign up here</button></span>
+              ) : (
+                <span>Already registered? <button onClick={() => { setAuthMode('signin'); setAuthError(null); }} className="font-semibold underline" style={{ color: 'var(--accent)' }}>Sign in here</button></span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL 2: LIVE OPERATIONAL DOCUMENT INGESTION (ENTER YOUR OWN DATA)        */}
+      {/* ========================================================================= */}
+      {showDocModal && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+          style={{ background: 'rgba(0,0,0,0.45)' }}
+          onClick={() => setShowDocModal(false)}
+        >
+          <div 
+            className="w-full max-w-2xl border rounded-3xl p-6 shadow-2xl relative space-y-5 max-h-[90vh] overflow-y-auto"
+            style={{ background: 'var(--card)', borderColor: 'var(--line-strong)', boxShadow: 'var(--shadow)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: 'var(--line)' }}>
+              <div>
+                <span className="font-mono-code text-[11px] uppercase tracking-wider" style={{ color: 'var(--accent)' }}>
+                  Enterprise Knowledge Intake
+                </span>
+                <h3 className="font-editorial text-2xl font-bold tracking-tight" style={{ color: 'var(--ink)' }}>
+                  Ingest Custom SOP Document
+                </h3>
+              </div>
+              <button 
+                onClick={() => setShowDocModal(false)}
+                className="p-1 rounded-full hover:opacity-75 transition-opacity"
+                style={{ color: 'var(--ink-3)' }}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {docError && (
+              <div className="p-3 rounded-xl border text-xs flex items-center gap-2" style={{ background: 'var(--clash-bg)', borderColor: 'var(--clash)', color: 'var(--clash)' }}>
+                <AlertTriangle className="h-4 w-4 shrink-0" />
+                <span>{docError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleCreateDocument} className="space-y-4">
+              <div>
+                <label className="block text-xs font-mono-code mb-1" style={{ color: 'var(--ink-2)' }}>Document Title</label>
+                <input
+                  type="text"
+                  required
+                  value={docForm.title}
+                  onChange={(e) => setDocForm({ ...docForm, title: e.target.value })}
+                  placeholder="e.g. AWS Deployment Runbook or Payroll Approval SOP"
+                  className="w-full border rounded-xl px-3.5 py-2 text-xs focus:outline-none"
+                  style={{ background: 'var(--canvas)', borderColor: 'var(--line-strong)', color: 'var(--ink)' }}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-mono-code mb-1" style={{ color: 'var(--ink-2)' }}>Category</label>
+                  <input
+                    type="text"
+                    required
+                    value={docForm.category}
+                    onChange={(e) => setDocForm({ ...docForm, category: e.target.value })}
+                    placeholder="e.g. DevOps, Legal"
+                    className="w-full border rounded-xl px-3 py-2 text-xs focus:outline-none"
+                    style={{ background: 'var(--canvas)', borderColor: 'var(--line-strong)', color: 'var(--ink)' }}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-mono-code mb-1" style={{ color: 'var(--ink-2)' }}>Department</label>
+                  <input
+                    type="text"
+                    required
+                    value={docForm.department}
+                    onChange={(e) => setDocForm({ ...docForm, department: e.target.value })}
+                    placeholder="e.g. Engineering"
+                    className="w-full border rounded-xl px-3 py-2 text-xs focus:outline-none"
+                    style={{ background: 'var(--canvas)', borderColor: 'var(--line-strong)', color: 'var(--ink)' }}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-mono-code mb-1" style={{ color: 'var(--ink-2)' }}>Source Platform</label>
+                  <select
+                    value={docForm.sourcePlatform}
+                    onChange={(e) => setDocForm({ ...docForm, sourcePlatform: e.target.value as any })}
+                    className="w-full border rounded-xl px-3 py-2 text-xs focus:outline-none"
+                    style={{ background: 'var(--canvas)', borderColor: 'var(--line-strong)', color: 'var(--ink)' }}
+                  >
+                    <option value="custom_upload">Direct Upload</option>
+                    <option value="notion">Notion Workspace</option>
+                    <option value="google_drive">Google Drive</option>
+                    <option value="confluence">Confluence Cloud</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono-code mb-1" style={{ color: 'var(--ink-2)' }}>Source Reference URL</label>
+                <input
+                  type="url"
+                  required
+                  value={docForm.sourceUrl}
+                  onChange={(e) => setDocForm({ ...docForm, sourceUrl: e.target.value })}
+                  placeholder="https://..."
+                  className="w-full border rounded-xl px-3.5 py-2 text-xs focus:outline-none"
+                  style={{ background: 'var(--canvas)', borderColor: 'var(--line-strong)', color: 'var(--ink)' }}
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono-code mb-1" style={{ color: 'var(--ink-2)' }}>
+                  Operational Text &amp; Numbered Clauses (Enter your real SOP instructions)
+                </label>
+                <textarea
+                  required
+                  rows={6}
+                  value={docForm.content}
+                  onChange={(e) => setDocForm({ ...docForm, content: e.target.value })}
+                  placeholder="1. Step 1: Verify prerequisites...&#10;2. Step 2: Trigger automated deployment...&#10;3. Step 3: Check system health metrics..."
+                  className="w-full border rounded-xl p-3.5 text-xs font-mono-code leading-relaxed focus:outline-none"
+                  style={{ background: 'var(--canvas)', borderColor: 'var(--line-strong)', color: 'var(--ink)' }}
+                />
+                <span className="text-[11px] mt-1 block" style={{ color: 'var(--ink-3)' }}>
+                  Numbered lines (e.g. "1. Instruction") are automatically decomposed into interactive steps by the Tutor.
+                </span>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-2 border-t" style={{ borderColor: 'var(--line)' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowDocModal(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-medium"
+                  style={{ color: 'var(--ink-2)' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={docLoading}
+                  className="px-5 py-2 rounded-xl text-xs font-semibold shadow-xs transition-opacity hover:opacity-90 disabled:opacity-50 cursor-pointer"
+                  style={{ background: 'var(--accent)', color: 'var(--on-accent)' }}
+                >
+                  {docLoading ? 'Indexing in Vector Store...' : 'Ingest & Index Document'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
