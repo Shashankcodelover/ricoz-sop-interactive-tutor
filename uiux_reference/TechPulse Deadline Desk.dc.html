@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#E6E8EC;color:#0B1220;font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#2557D6}a:hover{color:#1D44B0}
+button{font-family:inherit}
+input::placeholder{color:#667085}
+*:focus-visible{outline:2px solid #2557D6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</helmet>
+<div style="min-height:100vh;box-sizing:border-box;padding:40px 48px 72px;display:flex;flex-direction:column;gap:28px;font-family:'Inter',system-ui,sans-serif">
+  <header style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:24px;max-width:1711px">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span style="font:500 12px/16px 'JetBrains Mono',monospace;letter-spacing:.06em;color:#4A5468">TECHPULSE · DEADLINE DESK · DISCOVER PROTOTYPE</span>
+      <h1 style="margin:0;font:700 28px/34px 'Inter',sans-serif;letter-spacing:-0.022em;color:#0B1220">Discovery, sorted by deadline, checked against your exams</h1>
+    </div>
+    <p style="margin:0;max-width:600px;font:400 14px/20px 'Inter',sans-serif;color:#4A5468;text-wrap:pretty">Sample data: 6 listings + a 5th-sem CIE timetable (8 exams, covers to 13 Dec). Clock starts Sat 14 Nov 2026, 10:00 IST and ticks live. Tap any clash pill for its reason. Tweaks: thumb-reach overlay, start with or without a timetable, mobile start tab.</p>
+  </header>
+
+  <div style="display:flex;gap:56px;align-items:flex-start">
+
+    <div style="flex:none;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:8px"><span style="font:600 11px/14px 'JetBrains Mono',monospace;padding:3px 7px;background:#0B1220;color:#FFFFFF;border-radius:4px">M</span><span style="font:600 13px/16px 'Inter',sans-serif;color:#0B1220">Mobile first</span><span style="font:500 12px/16px 'JetBrains Mono',monospace;color:#4A5468">375 × 812</span></div>
+      <div data-screen-label="Mobile 375" style="width:375px;height:812px;position:relative;overflow:hidden;border-radius:36px;background:#F6F7F9;border:1px solid #D0D5DD;box-shadow:0 8px 24px rgba(16,24,40,.12);isolation:isolate">
+
+        <div style="position:absolute;top:0;left:0;right:0;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 26px 0 34px;background:#FFFFFF;font:600 15px/20px 'Inter',sans-serif;color:#0B1220;z-index:5">
+          <span style="font-variant-numeric:tabular-nums">{{ clock }}</span>
+          <div aria-hidden="true" style="display:flex;align-items:center;gap:6px"><span style="font:600 12px/14px 'Inter',sans-serif">5G</span><span style="width:24px;height:12px;box-sizing:border-box;border:1.5px solid #0B1220;border-radius:4px;padding:1.5px;display:flex"><span style="width:70%;background:#0B1220;border-radius:1.5px"></span></span></div>
+        </div>
+
+        <div style="position:absolute;top:44px;left:0;right:0;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 6px 0 16px;background:#FFFFFF;border-bottom:1px solid #E3E7EE;z-index:5">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span aria-hidden="true" style="width:24px;height:24px;border-radius:7px;background:linear-gradient(135deg,#2563EB,#1D44B0);display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2.5px;padding-left:6px;box-sizing:border-box"><span style="width:11px;height:2.5px;border-radius:2px;background:#FFFFFF"></span><span style="width:7px;height:2.5px;border-radius:2px;background:#FFFFFF"></span><span style="width:9px;height:2.5px;border-radius:2px;background:rgba(255,255,255,.6)"></span></span>
+            <span style="font:800 17px/20px 'Inter',sans-serif;letter-spacing:-0.03em;color:#0B1220">TechPulse</span>
+          </div>
+          <div style="display:flex;align-items:center">
+            <button type="button" aria-label="Notifications" onClick="{{ mBell }}" style="width:44px;height:44px;border:0;background:transparent;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#4A5468;cursor:pointer" style-hover="background:#F0F2F5"><span style="display:flex;font-size:20px">{{ ic.bell }}</span></button>
+            <button type="button" aria-label="Account menu, Asha R." onClick="{{ mAvatar }}" style="width:44px;height:44px;border:0;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer"><span style="width:30px;height:30px;border-radius:50%;background:#EEF3FF;color:#1D44B0;font:600 12px/30px 'Inter',sans-serif;text-align:center">AR</span></button>
+          </div>
+        </div>
+
+        <div style="position:absolute;top:96px;bottom:84px;left:0;right:0;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain">
+
+          <sc-if value="{{ mDiscover }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-direction:column;padding:12px 0 24px">
+              <p style="margin:0 16px 10px;font:600 16px/22px 'Inter',sans-serif;letter-spacing:-0.012em;color:#0B1220;text-wrap:pretty">Pan-India hackathons &amp; dev opportunities, <span style="font-weight:500;color:#4A5468">filtered by your college exam calendar.</span></p>
+              <div style="padding:0 16px">
+                <label style="display:flex;align-items:center;gap:8px;height:44px;box-sizing:border-box;padding:0 4px 0 12px;background:#FFFFFF;border:1px solid #858FA1;border-radius:10px">
+                  <span style="display:flex;font-size:18px;color:#4A5468">{{ ic.search }}</span>
+                  <input type="text" enterkeyhint="search" aria-label="Search opportunities" placeholder="Search hackathons, skills, city" value="{{ q }}" onChange="{{ onSearch }}" style="flex:1;min-width:0;height:100%;border:0;outline:none;background:transparent;font:400 16px/24px 'Inter',sans-serif;color:#0B1220">
+                  <sc-if value="{{ hasQ }}" hint-placeholder-val="{{ false }}"><button type="button" aria-label="Clear search" onClick="{{ clearQ }}" style="width:36px;height:36px;border:0;background:transparent;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#4A5468;cursor:pointer"><span style="display:flex;font-size:16px">{{ ic.x }}</span></button></sc-if>
+                </label>
+              </div>
+              <div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 16px">
+                <button type="button" onClick="{{ openDrawer }}" aria-haspopup="dialog" style="flex:none;height:44px;padding:0;border:0;background:transparent;display:flex;align-items:center;cursor:pointer">
+                  <span style="height:32px;display:inline-flex;align-items:center;gap:6px;padding:0 10px;border-radius:999px;border:1px solid #858FA1;background:#FFFFFF;color:#0B1220;font:600 13px/16px 'Inter',sans-serif"><span style="display:flex;font-size:15px">{{ ic.sliders }}</span>Filters<sc-if value="{{ hasActiveF }}" hint-placeholder-val="{{ false }}"><span style="min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:9px;background:#2557D6;color:#FFFFFF;font:600 12px/18px 'JetBrains Mono',monospace;text-align:center">{{ activeN }}</span></sc-if></span>
+                </button>
+                <sc-for list="{{ mQuick }}" as="p" hint-placeholder-count="6">
+                  <button type="button" aria-pressed="{{ p.on }}" onClick="{{ p.toggle }}" style="flex:none;height:44px;padding:0;border:0;background:transparent;display:flex;align-items:center;cursor:pointer">
+                    <span style="height:32px;display:inline-flex;align-items:center;gap:6px;padding:0 12px;border-radius:999px;border:1px solid {{ p.bd }};background:{{ p.bg }};color:{{ p.fg }};font:500 13px/16px 'Inter',sans-serif;white-space:nowrap;transition:background 120ms cubic-bezier(.2,.8,.2,1)"><span style="display:{{ p.ck }};font-size:14px">{{ ic.check }}</span>{{ p.label }}<span style="font:500 12px/16px 'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;color:{{ p.cfg }}">{{ p.count }}</span></span>
+                  </button>
+                </sc-for>
+              </div>
+              <sc-if value="{{ hasActive }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:0 16px 6px">
+                  <span style="font:500 12px/16px 'JetBrains Mono',monospace;color:#4A5468">{{ activeSummary }}</span>
+                  <sc-for list="{{ active }}" as="a">
+                    <button type="button" onClick="{{ a.remove }}" aria-label="{{ a.aria }}" style="height:32px;padding:0 6px 0 10px;border:0;border-radius:6px;background:#0B1220;color:#FFFFFF;font:500 12px/16px 'Inter',sans-serif;display:inline-flex;align-items:center;gap:4px;cursor:pointer">{{ a.label }}<span style="display:flex;font-size:14px">{{ ic.x }}</span></button>
+                  </sc-for>
+                  <button type="button" onClick="{{ clearAll }}" style="height:32px;padding:0 6px;border:0;background:transparent;color:#2557D6;font:600 12px/16px 'Inter',sans-serif;cursor:pointer">Clear all</button>
+                </div>
+              </sc-if>
+
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 16px 0">
+                <span style="font:600 13px/18px 'Inter',sans-serif;color:#0B1220">Next 14 days</span>
+                <sc-if value="{{ tt }}" hint-placeholder-val="{{ true }}">
+                  <div aria-hidden="true" style="display:flex;align-items:center;gap:10px;font:500 12px/16px 'Inter',sans-serif;color:#4A5468">
+                    <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:#B54708"></span>Deadline</span>
+                    <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:6px;height:6px;background:#2557D6;transform:rotate(45deg);border-radius:1px"></span>Saved</span>
+                    <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:8px;height:7px;background:#0B1220;clip-path:polygon(50% 0,100% 100%,0 100%)"></span>Exam</span>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ noTt }}" hint-placeholder-val="{{ false }}">
+                  <button type="button" onClick="{{ mUpload }}" style="height:32px;padding:0 4px;border:0;background:transparent;color:#2557D6;font:600 13px/16px 'Inter',sans-serif;display:inline-flex;align-items:center;gap:5px;cursor:pointer"><span style="display:flex;font-size:15px">{{ ic.upload }}</span>Add exam dates</button>
+                </sc-if>
+              </div>
+              <div style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:6px 16px">
+                <sc-for list="{{ strip }}" as="d" hint-placeholder-count="7">
+                  <button type="button" onClick="{{ d.onClick }}" aria-label="{{ d.aria }}" aria-pressed="{{ d.sel }}" style="flex:none;width:46px;height:58px;box-sizing:border-box;padding:0;border-radius:10px;border:1px solid {{ d.bd }};background:{{ d.bg }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;transition:background 120ms cubic-bezier(.2,.8,.2,1)">
+                    <span style="font:500 12px/14px 'Inter',sans-serif;color:{{ d.wdc }}">{{ d.wd }}</span>
+                    <span style="font:600 15px/18px 'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;color:#0B1220">{{ d.num }}</span>
+                    <span style="display:flex;align-items:center;gap:3px;height:9px">
+                      <sc-for list="{{ d.marks }}" as="m"><span style="flex:none;width:{{ m.s }};height:{{ m.s }};background:{{ m.c }};border-radius:{{ m.r }};clip-path:{{ m.clip }};transform:{{ m.rot }}"></span></sc-for>
+                    </span>
+                  </button>
+                </sc-for>
+              </div>
+              <div style="padding:2px 16px 4px">
+                <button type="button" onClick="{{ openCal }}" style="width:100%;min-height:44px;box-sizing:border-box;display:flex;align-items:center;gap:8px;padding:8px 10px 8px 12px;border:1px solid #E3E7EE;border-radius:10px;background:#FFFFFF;text-align:left;cursor:pointer" style-hover="background:#F6F7F9">
+                  <span style="flex:none;font:600 12px/16px 'JetBrains Mono',monospace;color:#4A5468">{{ selShort }}</span>
+                  <span style="flex:none;width:{{ selFirst.m.s }};height:{{ selFirst.m.s }};background:{{ selFirst.m.c }};border-radius:{{ selFirst.m.r }};clip-path:{{ selFirst.m.clip }};transform:{{ selFirst.m.rot }}"></span>
+                  <span style="flex:1;min-width:0;font:500 13px/18px 'Inter',sans-serif;color:#0B1220;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ selFirst.title }}</span>
+                  <span style="flex:none;font:600 12px/16px 'Inter',sans-serif;color:#2557D6">{{ selMore }}</span>
+                  <span style="flex:none;display:flex;font-size:16px;color:#4A5468">{{ ic.chevR }}</span>
+                </button>
+              </div>
+
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 8px 0 16px">
+                <span style="font:500 13px/18px 'Inter',sans-serif;color:#4A5468"><span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:#0B1220">{{ resultCount }}</span> open · sorted by {{ sortLabel }}</span>
+                <button type="button" onClick="{{ toggleSort }}" style="height:44px;padding:0 8px;border:0;background:transparent;border-radius:10px;color:#0B1220;font:600 13px/16px 'Inter',sans-serif;display:inline-flex;align-items:center;gap:6px;cursor:pointer" style-hover="background:#F0F2F5"><span style="display:flex;font-size:15px">{{ ic.sort }}</span>Sort</button>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:12px;padding:0 16px">
+                <sc-for list="{{ mCards }}" as="c" hint-placeholder-count="3">
+                  <dc-import name="OpportunityCard" o="{{ c }}" ic="{{ ic }}" hint-size="100%,290px"></dc-import>
+                </sc-for>
+                <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:20px;background:#FFFFFF;border:1px dashed #858FA1;border-radius:14px">
+                    <span style="font:600 16px/24px 'Inter',sans-serif;color:#0B1220">{{ emptyTitle }}</span>
+                    <span style="font:400 14px/20px 'Inter',sans-serif;color:#4A5468">Remove the most restrictive filter to see more.</span>
+                    <sc-if value="{{ hasEmptyFix }}"><button type="button" onClick="{{ emptyFixDo }}" style="height:44px;padding:0 14px;border-radius:10px;border:1px solid #858FA1;background:#FFFFFF;color:#0B1220;font:600 14px/20px 'Inter',sans-serif;cursor:pointer">{{ emptyFix }}</button></sc-if>
+                  </div>
+                </sc-if>
+                <p style="margin:8px 0 0;font:400 12px/16px 'Inter',sans-serif;color:#667085;text-align:center">Missing fields show “—” (not stated by organiser).</p>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ mCalendar }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:12px;padding:16px 16px 24px">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <h2 style="margin:0;font:700 24px/30px 'Inter',sans-serif;letter-spacing:-0.02em;color:#0B1220">November 2026</h2>
+                <button type="button" onClick="{{ goToday }}" style="height:44px;padding:0 14px;border-radius:10px;border:1px solid #858FA1;background:#FFFFFF;color:#0B1220;font:600 14px/20px 'Inter',sans-serif;cursor:pointer">Today</button>
+              </div>
+              <div aria-hidden="true" style="display:flex;gap:14px;font:500 12px/16px 'Inter',sans-serif;color:#4A5468">
+                <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:#B54708"></span>Deadline</span>
+                <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:7px;height:7px;background:#2557D6;transform:rotate(45deg);border-radius:1px"></span>Saved event</span>
+                <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:9px;height:8px;background:#0B1220;clip-path:polygon(50% 0,100% 100%,0 100%)"></span>Exam</span>
+              </div>
+              <sc-if value="{{ noTt }}" hint-placeholder-val="{{ false }}">
+                <button type="button" onClick="{{ mUpload }}" style="min-height:44px;display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px dashed #858FA1;border-radius:10px;background:#FFFFFF;color:#0B1220;font:500 13px/18px 'Inter',sans-serif;text-align:left;cursor:pointer"><span style="display:flex;font-size:16px;color:#4A5468">{{ ic.upload }}</span><span style="flex:1">Exams appear here once you add your CIE timetable.</span><span style="color:#2557D6;font-weight:600">Add</span></button>
+              </sc-if>
+              <div style="background:#FFFFFF;border:1px solid #E3E7EE;border-radius:14px;padding:8px 6px">
+                <div aria-hidden="true" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));padding-bottom:4px;font:500 12px/20px 'Inter',sans-serif;color:#667085;text-align:center"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+                <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px">
+                  <sc-for list="{{ calDays }}" as="d" hint-placeholder-count="28">
+                    <button type="button" onClick="{{ d.onClick }}" aria-label="{{ d.aria }}" aria-pressed="{{ d.sel }}" style="height:52px;padding:0;box-sizing:border-box;border-radius:10px;border:1px solid {{ d.bd }};background:{{ d.bg }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer">
+                      <span style="font-family:'JetBrains Mono',monospace;font-size:14px;line-height:16px;font-variant-numeric:tabular-nums;font-weight:{{ d.fw }};color:{{ d.fg }}">{{ d.num }}</span>
+                      <span style="display:flex;align-items:center;gap:3px;height:8px">
+                        <sc-for list="{{ d.marks }}" as="m"><span style="flex:none;width:{{ m.s }};height:{{ m.s }};background:{{ m.c }};border-radius:{{ m.r }};clip-path:{{ m.clip }};transform:{{ m.rot }}"></span></sc-for>
+                        <span style="font:600 12px/8px 'JetBrains Mono',monospace;color:#4A5468">{{ d.more }}</span>
+                      </span>
+                    </button>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="background:#FFFFFF;border:1px solid #E3E7EE;border-radius:14px;padding:4px 16px 8px">
+                <div style="display:flex;align-items:center;justify-content:space-between;min-height:44px"><span style="font:600 15px/20px 'Inter',sans-serif;color:#0B1220">{{ selTitle }}</span><span style="font:500 12px/16px 'JetBrains Mono',monospace;color:#667085">{{ selCount }}</span></div>
+                <sc-for list="{{ selItems }}" as="it">
+                  <div style="display:flex;align-items:center;gap:12px;min-height:48px;padding:6px 0;border-top:1px solid #E3E7EE">
+                    <span style="flex:none;width:{{ it.mb.s }};height:{{ it.mb.s }};background:{{ it.mb.c }};border-radius:{{ it.mb.r }};clip-path:{{ it.mb.clip }};transform:{{ it.mb.rot }}"></span>
+                    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px"><span style="font:500 14px/20px 'Inter',sans-serif;color:#0B1220">{{ it.title }}</span><span style="font:500 12px/16px 'JetBrains Mono',monospace;color:#667085">{{ it.meta }}</span></div>
+                  </div>
+                </sc-for>
+                <sc-if value="{{ selEmpty }}" hint-placeholder-val="{{ false }}"><p style="margin:0;padding:10px 0 8px;border-top:1px solid #E3E7EE;font:400 14px/20px 'Inter',sans-serif;color:#4A5468">{{ selEmptyText }}</p></sc-if>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ mShield }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:14px;padding:16px 16px 24px">
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <h2 style="margin:0;font:700 24px/30px 'Inter',sans-serif;letter-spacing:-0.02em;color:#0B1220">Academic Shield</h2>
+                <p style="margin:0;font:400 14px/20px 'Inter',sans-serif;color:#4A5468;text-wrap:pretty">Checks every open event against your exam dates. If a date or time isn’t stated, we say so.</p>
+              </div>
+              <sc-if value="{{ tt }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;flex-direction:column;gap:12px;background:#FFFFFF;border:1px solid #E3E7EE;border-radius:14px;padding:14px">
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <span style="width:40px;height:40px;flex:none;border-radius:10px;background:#F0F2F5;display:flex;align-items:center;justify-content:center;font-size:20px;color:#4A5468">{{ ic.file }}</span>
+                    <div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font:600 14px/20px 'Inter',sans-serif;color:#0B1220">5th-Sem-CIE-Schedule.pdf</span><span style="font:500 12px/16px 'JetBrains Mono',monospace;color:#667085">8 exams · 19 Nov – 11 Dec</span></div>
+                  </div>
+                  <div style="display:flex;gap:8px">
+                    <button type="button" onClick="{{ mReplace }}" style="flex:1;height:44px;border-radius:10px;border:1px solid #858FA1;background:#FFFFFF;color:#0B1220;font:600 14px/20px 'Inter',sans-serif;cursor:pointer">Replace</button>
+                    <button type="button" onClick="{{ mRemoveTt }}" style="flex:1;height:44px;border-radius:10px;border:0;background:transparent;color:#B42318;font:600 14px/20px 'Inter',sans-serif;cursor:pointer" style-hover="background:#FEF3F2">Remove</button>
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <span style="font:600 13px/18px 'Inter',sans-serif;color:#0B1220">6 open events, checked</span>
+                  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">
+                    <sc-for list="{{ shieldStats }}" as="x" hint-placeholder-count="4">
+                      <div style="display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:10px;border:1px {{ x.bs }} {{ x.bd }};background:{{ x.bg }}">
+                        <span style="font:600 22px/28px 'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;color:{{ x.c }}">{{ x.n }}</span>
+                        <span style="font:500 12px/16px 'Inter',sans-serif;color:{{ x.c }}">{{ x.label }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <button type="button" onClick="{{ mSeeClear }}" style="height:52px;border-radius:10px;border:0;background:#2557D6;color:#FFFFFF;font:600 15px/20px 'Inter',sans-serif;cursor:pointer" style-hover="background:#1D44B0">See events with no clash</button>
+                </div>
+                <div style="background:#FFFFFF;border:1px solid #E3E7EE;border-radius:14px;padding:4px 14px 6px">
+                  <div style="display:flex;align-items:center;justify-content:space-between;min-height:40px"><span style="font:600 14px/20px 'Inter',sans-serif;color:#0B1220">Exam dates</span><span style="font:500 12px/16px 'JetBrains Mono',monospace;color:#667085">found in PDF</span></div>
+                  <sc-for list="{{ exams }}" as="e" hint-placeholder-count="8">
+                    <div style="display:flex;align-items:center;gap:10px;min-height:40px;border-top:1px solid #E3E7EE">
+                      <span style="flex:none;width:86px;font:600 12px/16px 'JetBrains Mono',monospace;color:#0B1220">{{ e.date }}</span>
+                      <span style="flex:1;min-width:0;font:500 13px/18px 'Inter',sans-serif;color:#0B1220">{{ e.name }}</span>
+                      <span style="flex:none;font:500 12px/16px 'JetBrains Mono',monospace;color:#667085">{{ e.t }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ noTt }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:10px;background:#FFFFFF;border:1px dashed #858FA1;border-radius:14px;padding:16px">
+                  <span style="font:600 16px/22px 'Inter',sans-serif;color:#0B1220">Add your exam schedule</span>
+                  <button type="button" onClick="{{ mUpload }}" style="height:52px;border-radius:10px;border:0;background:#2557D6;color:#FFFFFF;font:600 15px/20px 'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer" style-hover="background:#1D44B0"><span style="display:flex;font-size:18px">{{ ic.upload }}</span>Upload CIE timetable (PDF)</button>
+                  <button type="button" onClick="{{ mManual }}" style="height:44px;border-radius:10px;border:1px solid #858FA1;background:#FFFFFF;color:#0B1220;font:600 14px/20px 'Inter',sans-serif;cursor:pointer">Add dates manually</button>
+                  <button type="button" onClick="{{ mManual }}" style="height:44px;border-radius:10px;border:1px solid #858FA1;background:#FFFFFF;color:#0B1220;font:600 14px/20px 'Inter',sans-serif;cursor:pointer">Paste timetable text</button>
+                  <p style="margin:2px 0 0;font:400 12px/17px 'Inter',sans-serif;color:#667085;text-wrap:pretty">Parsed on our server. AI fallback only with your consent. You review every date before it’s used.</p>
+                </div>
+              </sc-if>
+              <button type="button" onClick="{{ mOd }}" style="min-height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border:1px solid #E3E7EE;border-radius:10px;background:#FFFFFF;color:#0B1220;font:500 14px/20px 'Inter',sans-serif;cursor:pointer">Need an OD letter? Attendance tools<span style="display:flex;font-size:16px;color:#4A5468">{{ ic.chevR }}</span></button>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ mDesk }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:12px;padding:16px 16px 24px">
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <h2 style="margin:0;font:700 24px/30px 'Inter',sans-serif;letter-spacing:-0.02em;color:#0B1220">My Desk</h2>
+                <p style="margin:0;font:500 13px/18px 'JetBrains Mono',monospace;color:#4A5468">{{ deskSub }}</p>
+              </div>
+              <sc-for list="{{ mSaved }}" as="c">
+                <dc-import name="OpportunityCard" o="{{ c }}" ic="{{ ic }}" hint-size="100%,290px"></dc-import>
+              </sc-for>
+              <sc-if value="{{ noSaved }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:20px;background:#FFFFFF;border:1px dashed #858FA1;border-radius:14px">
+                  <span style="font:600 16px/24px 'Inter',sans-serif;color:#0B1220">Nothing saved yet</span>
+                  <span style="font:400 14px/20px 'Inter',sans-serif;color:#4A5468;text-wrap:pretty">Tap the bookmark on any card to track its deadline here and on your calendar.</span>
+                  <button type="button" onClick="{{ goDiscover }}" style="height:44px;padding:0 14px;border-radius:10px;border:0;background:#2557D6;color:#FFFFFF;font:600 14px/20px 'Inter',sans-serif;cursor:pointer">Browse opportunities</button>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+        </div>
+
+        <nav aria-label="Primary" style="position:absolute;left:0;right:0;bottom:0;height:84px;box-sizing:border-box;padding:0 4px 20px;background:#FFFFFF;border-top:1px solid #E3E7EE;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));z-index:10">
+          <sc-for list="{{ mNav }}" as="n" hint-placeholder-count="4">
+            <button type="button" onClick="{{ n.onClick }}" aria-current="{{ n.cur }}" style="position:relative;height:64px;border:0;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:{{ n.color }};font:600 12px/16px 'Inter',sans-serif;cursor:pointer">
+              <span style="position:absolute;top:-1px;width:32px;height:3px;border-radius:0 0 3px 3px;background:{{ n.ind }}"></span>
+              <span style="position:relative;display:flex;font-size:24px">{{ n.icon }}<sc-if value="{{ n.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-4px;right:-10px;min-width:18px;height:18px;box-sizing:border-box;padding:0 5px;border-radius:9px;border:2px solid #FFFFFF;background:#2557D6;color:#FFFFFF;font:600 12px/14px 'JetBrains Mono',monospace;text-align:center">{{ n.badge }}</span></sc-if></span>
+              {{ n.label }}
+            </button>
+          </sc-for>
+          <span aria-hidden="true" style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:#0B1220"></span>
+        </nav>
+
+        <div onClick="{{ closeDrawer }}" style="position:absolute;inset:0;z-index:30;background:rgba(11,18,32,.45);opacity:{{ drawerFade }};pointer-events:{{ drawerPE }};transition:opacity 200ms cubic-bezier(.2,.8,.2,1)"></div>
+        <div role="dialog" aria-modal="true" aria-label="Filters" style="position:absolute;left:0;right:0;bottom:0;z-index:31;max-height:88%;display:flex;flex-direction:column;background:#FFFFFF;border-radius:20px 20px 0 0;box-shadow:0 8px 24px rgba(16,24,40,.12);transform:{{ drawerY }};transition:transform 200ms cubic-bezier(.2,.8,.2,1)">
+          <span aria-hidden="true" style="align-self:center;margin-top:8px;width:36px;height:4px;border-radius:2px;background:#D0D5DD"></span>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 8px 4px 20px">
+            <h2 style="margin:0;font:650 20px/28px 'Inter',sans-serif;font-weight:650;color:#0B1220">Filters</h2>
+            <div style="display:flex">
+              <button type="button" onClick="{{ resetFilters }}" style="height:44px;padding:0 12px;border:0;background:transparent;color:#2557D6;font:600 14px/20px 'Inter',sans-serif;cursor:pointer">Reset</button>
+              <button type="button" aria-label="Close filters" onClick="{{ closeDrawer }}" style="width:44px;height:44px;border:0;background:transparent;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#4A5468;cursor:pointer"><span style="display:flex;font-size:20px">{{ ic.x }}</span></button>
+            </div>
+          </div>
+          <div style="flex:1;min-height:0;overflow-y:auto;padding:0 20px">
+            <sc-for list="{{ mGroups }}" as="g" hint-placeholder-count="5">
+              <div style="display:flex;flex-direction:column;gap:8px;padding:12px 0 14px;border-top:1px solid #E3E7EE">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px"><span style="font:600 14px/20px 'Inter',sans-serif;color:#0B1220">{{ g.label }}</span><span style="font:400 12px/16px 'Inter',sans-serif;color:#667085">{{ g.note }}</span></div>
+                <div style="display:flex;flex-wrap:wrap;gap:8px">
+                  <sc-for list="{{ g.options }}" as="op">
+                    <button type="button" aria-pressed="{{ op.on }}" onClick="{{ op.toggle }}" style="height:40px;padding:0 12px;border-radius:999px;border:1px solid {{ op.bd }};background:{{ op.bg }};color:{{ op.fg }};font:500 14px/20px 'Inter',sans-serif;display:inline-flex;align-items:center;gap:6px;cursor:pointer;transition:background 120ms cubic-bezier(.2,.8,.2,1)"><span style="display:{{ op.ck }};font-size:14px">{{ ic.check }}</span>{{ op.label }}<span style="font:500 12px/16px 'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;color:{{ op.cfg }}">{{ op.count }}</span></button>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:10px;padding:12px 16px 28px;border-top:1px solid #E3E7EE;background:#FFFFFF">
+            <button type="button" onClick="{{ resetFilters }}" style="flex:1;height:52px;border-radius:10px;border:1px solid #858FA1;background:#FFFFFF;color:#0B1220;font:600 15px/20px 'Inter',sans-serif;cursor:pointer">Clear all</button>
+            <button type="button" onClick="{{ closeDrawer }}" style="flex:1.6;height:52px;border-radius:10px;border:0;background:#2557D6;color:#FFFFFF;font:600 15px/20px 'Inter',sans-serif;font-variant-numeric:tabular-nums;cursor:pointer" style-hover="background:#1D44B0">{{ showLabel }}</button>
+          </div>
+        </div>
+
+        <div role="status" aria-live="polite" style="position:absolute;left:16px;right:16px;bottom:96px;z-index:40;display:flex;justify-content:center;pointer-events:none;opacity:{{ mToastOp }};transform:{{ mToastY }};transition:opacity 200ms cubic-bezier(.2,.8,.2,1),transform 200ms cubic-bezier(.2,.8,.2,1)">
+          <span style="padding:10px 14px;border-radius:10px;background:#0B1220;color:#FFFFFF;font:500 14px/20px 'Inter',sans-serif;box-shadow:0 8px 24px rgba(16,24,40,.12)">{{ mToastMsg }}</span>
+        </div>
+
+        <sc-if value="{{ thumbZone }}" hint-placeholder-val="{{ false }}">
+          <div aria-hidden="true" style="position:absolute;inset:0;z-index:60;pointer-events:none;display:grid;grid-template-rows:34fr 24fr 42fr">
+            <div style="background:rgba(180,35,24,.10);border-bottom:1px dashed rgba(180,35,24,.55);display:flex;align-items:flex-end;justify-content:flex-end;padding:6px 10px"><span style="font:600 12px/16px 'JetBrains Mono',monospace;color:#B42318;background:#FFFFFF;padding:2px 6px;border-radius:4px">Hard reach</span></div>
+            <div style="background:rgba(181,71,8,.09);border-bottom:1px dashed rgba(181,71,8,.55);display:flex;align-items:flex-end;justify-content:flex-end;padding:6px 10px"><span style="font:600 12px/16px 'JetBrains Mono',monospace;color:#B54708;background:#FFFFFF;padding:2px 6px;border-radius:4px">Stretch</span></div>
+            <div style="background:rgba(6,118,71,.08);display:flex;align-items:flex-start;justify-content:flex-end;padding:6px 10px"><span style="font:600 12px/16px 'JetBrains Mono',monospace;color:#067647;background:#FFFFFF;padding:2px 6px;border-radius:4px">Natural thumb zone</span></div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <div style="flex:none;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:8px"><span style="font:600 11px/14px 'JetBrains Mono',monospace;padding:3px 7px;background:#0B1220;color:#FFFFFF;border-radius:4px">D</span><span style="font:600 13px/16px 'Inter',sans-serif;color:#0B1220">Desktop</span><span style="font:500 12px/16px 'JetBrains Mono',monospace;color:#4A5468">1280 × 900</span></div>
+      <div data-screen-label="Desktop 1280" style="width:1280px;height:900px;position:relative;overflow:hidden;border-radius:14px;background:#F6F7F9;border:1px solid #D0D5DD;box-shadow:0 8px 24px rgba(16,24,40,.12);display:flex;flex-direction:column;isolation:isolate">
+        <header style="flex:none;height:64px;box-sizing:border-box;display:flex;align-items:center;gap:36px;padding:0 20px 0 32px;background:#FFFFFF;border-bottom:1px solid #E3E7EE">
+          <div style="display:flex;align-items:center;gap:9px">
+            <span aria-hidden="true" style="width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#2563EB,#1D44B0);display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:3px;padding-left:6px;box-sizing:border-box"><span style="width:12px;height:2.5px;border-radius:2px;background:#FFFFFF"></span><span style="width:8px;height:2.5px;border-radius:2px;background:#FFFFFF"></span><span style="width:10px;height:2.5px;border-radius:2px;background:rgba(255,255,255,.6)"></span></span>
+            <span style="font:800 18px/20px 'Inter',sans-serif;letter-spacing:-0.03em;color:#0B1220">TechPulse</span>
+          </div>
+          <nav aria-label="Primary" style="display:flex;align-items:stretch;height:100%;gap:2px">
+            <sc-for list="{{ dNav }}" as="n" hint-placeholder-count="4">
+              <button type="button" onClick="{{ n.onClick }}" aria-current="{{ n.cur }}" style="position:relative;height:64px;padding:0 12px;border:0;background:transparent;display:flex;align-items:center;gap:8px;color:{{ n.color }};font:600 14px/20px 'Inter',sans-serif;cursor:pointer" style-hover="color:#0B1220">
+                <span style="display:flex;font-size:18px">{{ n.icon }}</span>{{ n.label }}
+                <sc-if value="{{ n.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="min-width:20px;height:20px;box-sizing:border-box;padding:0 6px;border-radius:10px;background:#EEF3FF;color:#1D44B0;font:600 12px/20px 'JetBrains Mono',monospace;text-align:center">{{ n.badge }}</span></sc-if>
+                <span style="position:absolute;left:12px;right:12px;bottom:-1px;height:2px;border-radius:2px;background:{{ n.ind }}"></span>
+              </button>
+            </sc-for>
+          </nav>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:6px">
+            <span style="font:500 12px/16px 'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;color:#4A5468;padding-right:10px">{{ clockLong }}</span>
+            <button type="button" aria-label="Notifications" onClick="{{ dBell }}" style="width:40px;height:40px;border:0;background:transparent;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#4A5468;cursor:pointer" style-hover="background:#F0F2F5"><span style="display:flex;font-size:20px">{{ ic.bell }}</span></button>
+            <button type="button" aria-label="Account menu, Asha R." onClick="{{ dAvatar }}" style="height:40px;padding:0 10px 0 4px;border:0;background:transparent;border-radius:10px;display:flex;align-items:center;gap:8px;cursor:pointer" style-hover="background:#F0F2F5"><span style="width:30px;height:30px;border-radius:50%;background:#EEF3FF;color:#1D44B0;font:600 12px/30px 'Inter',sans-serif;text-align:center">AR</span><span style="font:500 14px/20px 'Inter',sans-serif;color:#0B1220">Asha</span></button>
+          </div>
+        </header>
+
+        <div style="flex:1;min-height:0;display:flex">
+          <main style="flex:1;min-width:0;overflow-y:auto;box-sizing:border-box;padding:28px 32px 48px;display:flex;flex-direction:column;gap:14px">
+            <sc-if value="{{ dDiscover }}" hint-placeholder-val="{{ true }}">
+              <h1 style="margin:0 0 6px;max-width:700px;font:700 30px/38px 'Inter',sans-serif;letter-spacing:-0.026em;color:#0B1220;text-wrap:balance">Pan-India hackathons &amp; dev opportunities, <span style="font-weight:600;color:#4A5468">filtered by your college exam calendar.</span></h1>
+              <div style="display:flex;align-items:center;gap:10px">
+                <label style="flex:1;max-width:520px;display:flex;align-items:center;gap:8px;height:44px;box-sizing:border-box;padding:0 4px 0 12px;background:#FFFFFF;border:1px solid #858FA1;border-radius:10px">
+                  <span style="display:flex;font-size:18px;color:#4A5468">{{ ic.search }}</span>
+                  <input type="text" aria-label="Search opportunities" placeholder="Search hackathons, skills, organisers, city" value="{{ q }}" onChange="{{ onSearch }}" style="flex:1;min-width:0;height:100%;border:0;outline:none;background:transparent;font:400 15px/22px 'Inter',sans-serif;color:#0B1220">
+                  <sc-if value="{{ hasQ }}" hint-placeholder-val="{{ false }}"><button type="button" aria-label="Clear search" onClick="{{ clearQ }}" style="width:36px;height:36px;border:0;background:transparent;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#4A5468;cursor:pointer"><span style="display:flex;font-size:16px">{{ ic.x }}</span></button></sc-if>
+                </label>
+                <div style="margin-left:auto;display:flex;gap:8px;position:relative">
+                  <button type="button" onClick="{{ toggleSort }}" style="height:44px;padding:0 14px;border-radius:10px;border:1px solid #858FA1;background:#FFFFFF;color:#0B1220;font:600 14px/20px 'Inter',sans-serif;display:inline-flex;align-items:center;gap:8px;cursor:pointer" style-hover="background:#F6F7F9"><span style="display:flex;font-size:16px;color:#4A5468">{{ ic.sort }}</span>{{ sortBtn }}</button>
+                  <button type="button" onClick="{{ togglePop }}" aria-expanded="{{ pop }}" aria-haspopup="dialog" style="height:44px;padding:0 14px;border-radius:10px;border:1px solid {{ popBd }};background:{{ popBg }};color:#0B1220;font:600 14px/20px 'Inter',sans-serif;display:inline-flex;align-items:center;gap:8px;cursor:pointer"><span style="display:flex;font-size:16px;color:#4A5468">{{ ic.sliders }}</span>All filters<sc-if value="{{ hasActiveF }}" hint-placeholder-val="{{ false }}"><span style="min-width:20px;height:20px;box-sizing:border-box;padding:0 6px;border-radius:10px;background:#2557D6;color:#FFFFFF;font:600 12px/20px 'JetBrains Mono',monospace;text-align:center">{{ activeN }}</span></sc-if></button>
+                  <sc-if value="{{ pop }}" hint-placeholder-val="{{ false }}">
+                    <div role="dialog" aria-label="All filters" style="position:absolute;top:52px;right:0;z-index:20;width:400px;max-height:600px;display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #E3E7EE;border-radius:14px;box-shadow:0 8px 24px rgba(16,24,40,.12)">
+                      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 8px 8px 18px"><span style="font:600 16px/22px 'Inter',sans-serif;color:#0B1220">All filters</span><div style="display:flex"><button type="button" onClick="{{ resetFilters }}" style="height:40px;padding:0 10px;border:0;background:transparent;color:#2557D6;font:600 14px/20px 'Inter',sans-serif;cursor:pointer">Reset</button><button type="button" aria-label="Close" onClick="{{ closePop }}" style="width:40px;height:40px;border:0;background:transparent;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#4A5468;cursor:pointer"><span style="display:flex;font-size:18px">{{ ic.x }}</span></button></div></div>
+                      <div style="flex:1;min-height:0;overflow-y:auto;padding:0 18px">
+                        <sc-for list="{{ dGroups }}" as="g">
+                          <div style="display:flex;flex-direction:column;gap:8px;padding:12px 0 14px;border-top:1px solid #E3E7EE">
+                            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px"><span style="font:600 13px/18px 'Inter',sans-serif;color:#0B1220">{{ g.label }}</span><span style="font:400 12px/16px 'Inter',sans-serif;color:#667085">{{ g.note }}</span></div>
+                            <div style="display:flex;flex-wrap:wrap;gap:6px">
+                              <sc-for list="{{ g.options }}" as="op">
+                                <button type="button" aria-pressed="{{ op.on }}" onClick="{{ op.toggle }}" style="height:34px;padding:0 11px;border-radius:999px;border:1px solid {{ op.bd }};background:{{ op.bg }};color:{{ op.fg }};font:500 13px/18px 'Inter',sans-serif;display:inline-flex;align-items:center;gap:6px;cursor:pointer"><span style="display:{{ op.ck }};font-size:13px">{{ ic.check }}</span>{{ op.label }}<span style="font:500 12px/16px 'JetBrains Mono',monospace;color:{{ op.cfg }}">{{ op.count }}</span></button>
+                              </sc-for>
+                            </div>
+                          </div>
+                        </sc-for>
+                      </div>
+                      <div style="display:flex;gap:8px;padding:12px 18px;border-top:1px solid #E3E7EE"><button type="button" onClick="{{ resetFilters }}" style="flex:1;height:44px;border-radius:10px;border:1px solid #858FA1;background:#FFFFFF;color:#0B1220;font:600 14px/20px 'Inter',sans-serif;cursor:pointer">Clear all</button><button type="button" onClick="{{ closePop }}" style="flex:1.5;height:44px;border-radius:10px;border:0;background:#2557D6;color:#FFFFFF;font:600 14px/20px 'Inter',sans-serif;cursor:pointer" style-hover="background:#1D44B0">{{ showLabel }}</button></div>
+                    </div>
+                  </sc-if>
+                </div>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px">
+                <sc-for list="{{ dQuick }}" as="p" hint-placeholder-count="6">
+                  <button type="button" aria-pressed="{{ p.on }}" onClick="{{ p.toggle }}" style="height:36px;padding:0 13px;border-radius:999px;border:1px solid {{ p.bd }};background:{{ p.bg }};color:{{ p.fg }};font:500 14px/20px 'Inter',sans-serif;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;cursor:pointer;transition:background 120ms cubic-bezier(.2,.8,.2,1)" style-hover="border-color:#858FA1"><span style="display:{{ p.ck }};font-size:14px">{{ ic.check }}</span>{{ p.label }}<span style="font:500 12px/16px 'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;color:{{ p.cfg }}">{{ p.count }}</span></button>
+                </sc-for>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;min-height:32px;padding-top:2px;border-top:1px solid #E3E7EE;padding-top:12px">
+                <span style="font:500 13px/18px 'Inter',sans-serif;color:#4A5468"><span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:#0B1220">{{ resultCount }}</span> open · sorted by {{ sortLabel }}</span>
+                <sc-for list="{{ active }}" as="a">
+                  <button type="button" onClick="{{ a.remove }}" aria-label="{{ a.aria }}" style="height:28px;padding:0 6px 0 10px;border:0;border-radius:6px;background:#0B1220;color:#FFFFFF;font:500 12px/16px 'Inter',sans-serif;display:inline-flex;align-items:center;gap:4px;cursor:pointer">{{ a.label }}<span style="display:flex;font-size:14px">{{ ic.x }}</span></button>
+                </sc-for>
+                <sc-if value="{{ hasActive }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ clearAll }}" style="height:28px;padding:0 6px;border:0;background:transparent;color:#2557D6;font:600 13px/16px 'Inter',sans-serif;cursor:pointer">Clear all</button></sc-if>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start">
+                <sc-for list="{{ dCards }}" as="c" hint-placeholder-count="4">
+                  <dc-import name="OpportunityCard" o="{{ c }}" ic="{{ ic }}" hint-size="100%,270px"></dc-import>
+                </sc-for>
+              </div>
+              <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:16px;padding:20px 24px;background:#FFFFFF;border:1px dashed #858FA1;border-radius:14px">
+                  <div style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font:600 16px/24px 'Inter',sans-serif;color:#0B1220">{{ emptyTitle }}</span><span style="font:400 14px/20px 'Inter',sans-serif;color:#4A5468">Remove the most restrictive filter to see more.</span></div>
+                  <sc-if value="{{ hasEmptyFix }}"><button type="button" onClick="{{ emptyFixDo }}" style="height:44px;padding:0 14px;border-radius:10px;border:1px solid #858FA1;background:#FFFFFF;color:#0B1220;font:600 14px/20px 'Inter',sans-serif;cursor:pointer">{{ emptyFix }}</button></sc-if>
+                </div>
+              </sc-if>
+            </sc-if>
+            <sc-if value="{{ dDesk }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:6px">
+                <h1 style="margin:0;font:700 30px/38px 'Inter',sans-serif;letter-spacing:-0.026em;color:#0B1220">My Desk</h1>
+                <p style="margin:0;font:500 13px/18px 'JetBrains Mono',monospace;color:#4A5468">{{ deskSub }}</p>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start">
+                <sc-for list="{{ dSaved }}" as="c">
+                  <dc-import name="OpportunityCard" o="{{ c }}" ic="{{ ic }}" hint-size="100%,270px"></dc-import>
+                </sc-for>
+              </div>
+              <sc-if value="{{ noSaved }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:16px;padding:20px 24px;background:#FFFFFF;border:1px dashed #858FA1;border-radius:14px">
+                  <div style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font:600 16px/24px 'Inter',sans-serif;color:#0B1220">Nothing saved yet</span><span style="font:400 14px/20px 'Inter',sans-serif;color:#4A5468">Bookmark a card to track its deadline here and on your calendar.</span></div>
+                  <button type="button" onClick="{{ dGoDiscover }}" style="height:44px;padding:0 14px;border-radius:10px;border:0;background:#2557D6;color:#FFFFFF;font:600 14px/20px 'Inter',sans-serif;cursor:pointer">Browse opportunities</button>
+                </div>
+              </sc-if>
+            </sc-if>
+          </main>
+
+          <aside aria-label="Your schedule" style="flex:none;width:344px;box-sizing:border-box;overflow-y:auto;padding:24px 20px 32px;background:#FFFFFF;border-left:1px solid #E3E7EE;display:flex;flex-direction:column;gap:16px">
+            <section aria-label="Academic Shield" style="display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:14px;border:1px solid {{ shieldBd }};transition:border-color 200ms cubic-bezier(.2,.8,.2,1)">
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="display:flex;font-size:18px;color:#2557D6">{{ ic.shield }}</span>
+                <span style="flex:1;font:600 15px/20px 'Inter',sans-serif;color:#0B1220">Academic Shield</span>
+                <span style="font:500 12px/16px 'JetBrains Mono',monospace;color:#667085">{{ ttStatus }}</span>
+              </div>
+              <sc-if value="{{ tt }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:#F6F7F9">
+                  <span style="display:flex;font-size:18px;color:#4A5468">{{ ic.file }}</span>
+                  <div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font:600 13px/18px 'Inter',sans-serif;color:#0B1220">5th Sem CIE timetable</span><span style="font:500 12px/16px 'JetBrains Mono',monospace;color:#667085">8 exams · covers to 13 Dec</span></div>
+                  <button type="button" onClick="{{ dRemoveTt }}" style="height:32px;padding:0 8px;border:0;background:transparent;border-radius:8px;color:#B42318;font:600 12px/16px 'Inter',sans-serif;cursor:pointer" style-hover="background:#FEF3F2">Remove</button>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">
+                  <sc-for list="{{ shieldStats }}" as="x" hint-placeholder-count="4">
+                    <div style="display:flex;align-items:baseline;gap:8px;padding:8px 10px;border-radius:10px;border:1px {{ x.bs }} {{ x.bd }};background:{{ x.bg }}">
+                      <span style="font:600 18px/22px 'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;color:{{ x.c }}">{{ x.n }}</span>
+                      <span style="font:500 12px/16px 'Inter',sans-serif;color:{{ x.c }}">{{ x.label }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+                <button type="button" onClick="{{ dSeeClear }}" style="height:40px;border-radius:10px;border:1px solid #858FA1;background:#FFFFFF;color:#0B1220;font:600 13px/18px 'Inter',sans-serif;cursor:pointer" style-hover="background:#F6F7F9">Show only no-clash events</button>
+              </sc-if>
+              <sc-if value="{{ noTt }}" hint-placeholder-val="{{ false }}">
+                <p style="margin:0;font:400 13px/19px 'Inter',sans-serif;color:#4A5468;text-wrap:pretty">Add your CIE timetable and every card will say whether it overlaps an exam. Until then, clashes show as unknown.</p>
+                <button type="button" onClick="{{ dUpload }}" style="height:44px;border-radius:10px;border:0;background:#2557D6;color:#FFFFFF;font:600 14px/20px 'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer" style-hover="background:#1D44B0"><span style="display:flex;font-size:16px">{{ ic.upload }}</span>Upload CIE timetable</button>
+                <span style="font:400 12px/16px 'Inter',sans-serif;color:#667085">PDF, manual entry or pasted text. You review dates first.</span>
+              </sc-if>
+            </section>
+
+            <section aria-label="Calendar" style="display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:14px;border:1px solid {{ calBd }};transition:border-color 200ms cubic-bezier(.2,.8,.2,1)">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <span style="font:600 15px/20px 'Inter',sans-serif;color:#0B1220">November 2026</span>
+                <button type="button" onClick="{{ goToday }}" style="height:32px;padding:0 10px;border-radius:8px;border:1px solid #D0D5DD;background:#FFFFFF;color:#0B1220;font:600 12px/16px 'Inter',sans-serif;cursor:pointer">Today</button>
+              </div>
+              <div aria-hidden="true" style="display:flex;gap:12px;font:500 12px/16px 'Inter',sans-serif;color:#4A5468">
+                <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:6px;height:6px;border-radius:50%;background:#B54708"></span>Deadline</span>
+                <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:6px;height:6px;background:#2557D6;transform:rotate(45deg);border-radius:1px"></span>Saved event</span>
+                <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:8px;height:7px;background:#0B1220;clip-path:polygon(50% 0,100% 100%,0 100%)"></span>Exam</span>
+              </div>
+              <div>
+                <div aria-hidden="true" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));font:500 12px/20px 'Inter',sans-serif;color:#667085;text-align:center"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+                <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px">
+                  <sc-for list="{{ calDays }}" as="d" hint-placeholder-count="28">
+                    <button type="button" onClick="{{ d.onClick }}" aria-label="{{ d.aria }}" aria-pressed="{{ d.sel }}" style="height:44px;padding:0;box-sizing:border-box;border-radius:8px;border:1px solid {{ d.bd }};background:{{ d.bg }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer" style-hover="border-color:#858FA1">
+                      <span style="font-family:'JetBrains Mono',monospace;font-size:13px;line-height:15px;font-variant-numeric:tabular-nums;font-weight:{{ d.fw }};color:{{ d.fg }}">{{ d.num }}</span>
+                      <span style="display:flex;align-items:center;gap:2px;height:7px">
+                        <sc-for list="{{ d.marks }}" as="m"><span style="flex:none;width:{{ m.s }};height:{{ m.s }};background:{{ m.c }};border-radius:{{ m.r }};clip-path:{{ m.clip }};transform:{{ m.rot }}"></span></sc-for>
+                      </span>
+                    </button>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column">
+                <div style="display:flex;align-items:center;justify-content:space-between;min-height:36px;border-top:1px solid #E3E7EE;margin-top:4px"><span style="font:600 14px/20px 'Inter',sans-serif;color:#0B1220">{{ selTitle }}</span><span style="font:500 12px/16px 'JetBrains Mono',monospace;color:#667085">{{ selCount }}</span></div>
+                <sc-for list="{{ selItems }}" as="it">
+                  <div style="display:flex;align-items:center;gap:10px;min-height:44px;padding:4px 0;border-top:1px solid #F0F2F5">
+                    <span style="flex:none;width:{{ it.mb.s }};height:{{ it.mb.s }};background:{{ it.mb.c }};border-radius:{{ it.mb.r }};clip-path:{{ it.mb.clip }};transform:{{ it.mb.rot }}"></span>
+                    <div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font:500 13px/18px 'Inter',sans-serif;color:#0B1220">{{ it.title }}</span><span style="font:500 12px/16px 'JetBrains Mono',monospace;color:#667085">{{ it.meta }}</span></div>
+                  </div>
+                </sc-for>
+                <sc-if value="{{ selEmpty }}" hint-placeholder-val="{{ false }}"><p style="margin:0;padding:8px 0;font:400 13px/18px 'Inter',sans-serif;color:#4A5468">{{ selEmptyText }}</p></sc-if>
+              </div>
+            </section>
+          </aside>
+        </div>
+
+        <div role="status" aria-live="polite" style="position:absolute;left:0;right:0;bottom:24px;z-index:40;display:flex;justify-content:center;pointer-events:none;opacity:{{ dToastOp }};transform:{{ dToastY }};transition:opacity 200ms cubic-bezier(.2,.8,.2,1),transform 200ms cubic-bezier(.2,.8,.2,1)">
+          <span style="padding:10px 16px;border-radius:10px;background:#0B1220;color:#FFFFFF;font:500 14px/20px 'Inter',sans-serif;box-shadow:0 8px 24px rgba(16,24,40,.12)">{{ dToastMsg }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showThumbZone&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Testing&quot;},&quot;startWithTimetable&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;State&quot;},&quot;mobileStartTab&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;discover&quot;,&quot;calendar&quot;,&quot;shield&quot;,&quot;desk&quot;],&quot;default&quot;:&quot;discover&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;State&quot;}}">
+const NOW0 = Date.parse('2026-11-14T10:00:00+05:30');
+const HR = 3600000, DAY = 86400000;
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const WD = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const COL = { urgent:'#B42318', soon:'#B54708', clear:'#067647', closed:'#667085', brand:'#2557D6' };
+
+const OPPS = [
+  { id:'eth', title:'ETHIndia Buidl Sprint', org:'ETHIndia', source:'Devfolio', mode:'online', team:'2–4', fee:0, prize:150000, tags:['Web3','DeFi','Solidity'], dl:'2026-11-14T23:59:00+05:30', ev:['2026-11-20','2026-11-22'], clash:'major', clashText:'Overlaps 5th Sem CIE-2', why:'Sprint runs 20–22 Nov. Your CIE-2 Operating Systems (20 Nov) and Computer Networks (21 Nov) papers fall on sprint days 1 and 2.' },
+  { id:'sih', title:'Smart India Hackathon 2026', org:'MoE Innovation Cell & AICTE', source:'sih.gov.in', mode:'offline', city:'Bengaluru', team:'6', fee:0, prize:100000, tags:['AI/ML','GovTech','Open innovation'], dl:'2026-11-17T00:30:00+05:30', ev:['2026-11-28','2026-11-29'], clash:'clear', clashText:'No exam clash', why:'Grand finale is 28–29 Nov. Your timetable has no exams between 22 Nov and 1 Dec.' },
+  { id:'codefest', title:"CodeFest '26", org:'RV College of Engineering', source:'Unstop', mode:'offline', city:'Bengaluru', team:'1–3', fee:200, prize:75000, tags:['DSA','Web','App dev'], dl:'2026-11-21T23:59:00+05:30', ev:['2026-12-19','2026-12-20'], clash:'beyond', clashText:'Upload end-sem timetable', why:'CodeFest is on 19–20 Dec. Your CIE timetable only covers up to 13 Dec, so we can’t check this yet.' },
+  { id:'h4b', title:'Hack4Bharat AI Challenge', org:'Hack4Bharat Collective', source:'Unstop', mode:'online', team:'2–4', fee:0, prize:200000, tags:['AI/ML','LLMs','HealthTech'], dl:'2026-11-23T18:00:00+05:30', ev:['2026-12-01','2026-12-02'], clash:'possible', clashText:'Possible clash · OS Lab Exam', why:'Final demos are on 2 Dec and your OS Lab Exam is 9:30 am–12:30 pm that day. Demo slot times are not stated by the organiser.' },
+  { id:'gdg', title:'GenAI Build Weekend', org:'GDG Pune', source:'Commudle', mode:'offline', city:'Pune', team:'1–4', fee:0, prize:null, tags:['AI/ML','Gemini','Agents'], dl:'2026-11-25T23:59:00+05:30', ev:['2026-11-28','2026-11-29'], clash:'clear', clashText:'No exam clash', why:'Event is 28–29 Nov. Your timetable has no exams between 22 Nov and 1 Dec.' },
+  { id:'shaastra', title:'Smart Mobility Ideathon', org:'Shaastra, IIT Madras', source:'Unstop', mode:'hybrid', city:'Chennai', team:'2–5', fee:500, prize:50000, tags:['Hardware','IoT','Mobility'], dl:'2026-11-27T23:59:00+05:30', ev:['2027-01-04','2027-01-05'], clash:'beyond', clashText:'Upload end-sem timetable', why:'Finals are 4–5 Jan 2027, after the 13 Dec end of your uploaded timetable.' },
+];
+const EXAMS = [
+  { d:'2026-11-19', name:'CIE-2 · Database Systems', t:'9:30 am' },
+  { d:'2026-11-20', name:'CIE-2 · Operating Systems', t:'9:30 am' },
+  { d:'2026-11-21', name:'CIE-2 · Computer Networks', t:'9:30 am' },
+  { d:'2026-12-02', name:'OS Lab Exam', t:'9:30–12:30' },
+  { d:'2026-12-08', name:'CIE-3 · Database Systems', t:'9:30 am' },
+  { d:'2026-12-09', name:'CIE-3 · Operating Systems', t:'9:30 am' },
+  { d:'2026-12-10', name:'CIE-3 · Computer Networks', t:'9:30 am' },
+  { d:'2026-12-11', name:'CIE-3 · Software Engg.', t:'9:30 am' },
+];
+const SH = 'M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z';
+const ICONS = {
+  clock:[['circle',{cx:12,cy:12,r:10}],['path',{d:'M12 6v6l4 2'}]],
+  bookmark:[['path',{d:'m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z'}]],
+  pin:[['path',{d:'M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z'}],['circle',{cx:12,cy:10,r:3}]],
+  globe:[['circle',{cx:12,cy:12,r:10}],['path',{d:'M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20'}],['path',{d:'M2 12h20'}]],
+  users:[['path',{d:'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'}],['circle',{cx:9,cy:7,r:4}],['path',{d:'M22 21v-2a4 4 0 0 0-3-3.87'}],['path',{d:'M16 3.13a4 4 0 0 1 0 7.75'}]],
+  award:[['circle',{cx:12,cy:8,r:6}],['path',{d:'M15.477 12.89 17 22l-5-3-5 3 1.523-9.11'}]],
+  ticket:[['path',{d:'M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z'}],['path',{d:'M13 5v2'}],['path',{d:'M13 17v2'}],['path',{d:'M13 11v2'}]],
+  shield:[['path',{d:SH}]],
+  shieldCheck:[['path',{d:SH}],['path',{d:'m9 12 2 2 4-4'}]],
+  alert:[['path',{d:'m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z'}],['path',{d:'M12 9v4'}],['path',{d:'M12 17h.01'}]],
+  check:[['path',{d:'M20 6 9 17l-5-5'}]],
+  x:[['path',{d:'M18 6 6 18'}],['path',{d:'m6 6 12 12'}]],
+  search:[['circle',{cx:11,cy:11,r:8}],['path',{d:'m21 21-4.3-4.3'}]],
+  sliders:[['path',{d:'M21 4h-7'}],['path',{d:'M10 4H3'}],['path',{d:'M21 12h-9'}],['path',{d:'M8 12H3'}],['path',{d:'M21 20h-5'}],['path',{d:'M12 20H3'}],['path',{d:'M14 2v4'}],['path',{d:'M8 10v4'}],['path',{d:'M16 18v4'}]],
+  bell:[['path',{d:'M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9'}],['path',{d:'M10.3 21a1.94 1.94 0 0 0 3.4 0'}]],
+  calendar:[['rect',{x:3,y:4,width:18,height:18,rx:2}],['path',{d:'M16 2v4'}],['path',{d:'M8 2v4'}],['path',{d:'M3 10h18'}]],
+  compass:[['circle',{cx:12,cy:12,r:10}],['path',{d:'m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36z'}]],
+  briefcase:[['rect',{x:2,y:7,width:20,height:14,rx:2}],['path',{d:'M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16'}]],
+  upload:[['path',{d:'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'}],['path',{d:'m17 8-5-5-5 5'}],['path',{d:'M12 3v12'}]],
+  arrowUR:[['path',{d:'M7 7h10v10'}],['path',{d:'M7 17 17 7'}]],
+  chevR:[['path',{d:'m9 18 6-6-6-6'}]],
+  chevD:[['path',{d:'m6 9 6 6 6-6'}]],
+  chevU:[['path',{d:'m18 15-6-6-6 6'}]],
+  sort:[['path',{d:'m21 16-4 4-4-4'}],['path',{d:'M17 20V4'}],['path',{d:'m3 8 4-4 4 4'}],['path',{d:'M7 4v16'}]],
+  file:[['path',{d:'M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z'}],['path',{d:'M14 2v4a2 2 0 0 0 2 2h4'}]],
+};
+
+const istKey = ms => new Date(ms + 5.5 * HR).toISOString().slice(0, 10);
+const kDate = k => new Date(k + 'T00:00:00Z');
+const addD = (k, n) => new Date(kDate(k).getTime() + n * DAY).toISOString().slice(0, 10);
+const diffD = (a, b) => Math.round((kDate(b) - kDate(a)) / DAY);
+const fDay = k => { const d = kDate(k); return d.getUTCDate() + ' ' + MON[d.getUTCMonth()]; };
+const fDayW = k => WD[kDate(k).getUTCDay()] + ' ' + fDay(k);
+const fT = iso => { let h = +iso.slice(11, 13); const m = iso.slice(14, 16); const ap = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12; return h + ':' + m + ' ' + ap; };
+const inr = n => '₹' + n.toLocaleString('en-IN');
+const range = o => { const a = kDate(o.ev[0]), b = kDate(o.ev[1]); return a.getUTCMonth() === b.getUTCMonth() ? `${a.getUTCDate()}–${b.getUTCDate()} ${MON[b.getUTCMonth()]}` : `${fDay(o.ev[0])} – ${fDay(o.ev[1])}`; };
+const urg = (o, now) => { const ms = Date.parse(o.dl) - now; return ms <= 0 ? 'closed' : ms <= DAY ? 'urgent' : ms <= 7 * DAY ? 'soon' : 'clear'; };
+const countdown = (o, now) => {
+  const ms = Date.parse(o.dl) - now; if (ms <= 0) return 'Closed';
+  const d = Math.floor(ms / DAY), h = Math.floor(ms % DAY / HR), m = String(Math.floor(ms % HR / 60000)).padStart(2, '0');
+  if (istKey(Date.parse(o.dl)) === istKey(now)) return `Closes today · ${h}h ${m}m`;
+  if (ms < DAY) return `Closes in ${h}h ${m}m`;
+  if (ms < 7 * DAY) return `Closes in ${d}d ${h}h`;
+  return `Closes in ${d} days`;
+};
+const mark = (shape, c, big) => shape === 'dot' ? { s: big ? '8px' : '6px', c, r: '50%', clip: 'none', rot: 'none' }
+  : shape === 'dia' ? { s: big ? '8px' : '6px', c, r: '1px', clip: 'none', rot: 'rotate(45deg)' }
+  : shape === 'none' ? { s: '0px', c: 'transparent', r: '0', clip: 'none', rot: 'none' }
+  : { s: big ? '10px' : '7px', c, r: '0', clip: 'polygon(50% 0,100% 100%,0 100%)', rot: 'none' };
+const chip = (on, dis) => on ? { bg: '#EEF3FF', bd: '#2557D6', fg: '#1D44B0', cfg: '#1D44B0', ck: 'flex' } : { bg: '#FFFFFF', bd: dis ? '#E3E7EE' : '#D0D5DD', fg: dis ? '#667085' : '#0B1220', cfg: '#667085', ck: 'none' };
+const LBL = { online:'Online', offline:'Offline', hybrid:'Hybrid', free:'Free entry', paid:'Paid entry', aiml:'AI/ML', web3:'Web3', web:'Web', hardware:'Hardware', noClash:'No exam clash', hideMajor:'Hide major clashes' };
+const DLL = { '72h':'Closing < 72h', '7d':'Closing ≤ 7 days', '30d':'Closing ≤ 30 days' };
+const TECH = { aiml:'AI/ML', web3:'Web3', web:'Web', hardware:'Hardware' };
+
+class Component extends DCLogic {
+  state = { q: '', dl: 'any', f: {}, saved: { eth: true, sih: true }, tt: null, sel: '2026-11-14', mTab: null, dTab: 'discover', drawer: false, pop: false, sort: 'deadline', why: {}, toast: { m: { msg: '', on: false }, d: { msg: '', on: false } }, tick: 0 };
+  t0 = Date.now();
+
+  componentDidMount() {
+    this.iv = setInterval(() => this.setState(p => ({ tick: p.tick + 1 })), 20000);
+    this.onKey = e => { if (e.key === 'Escape') this.setState({ drawer: false, pop: false }); };
+    window.addEventListener('keydown', this.onKey);
+  }
+  componentWillUnmount() { clearInterval(this.iv); window.removeEventListener('keydown', this.onKey); clearTimeout(this.tm_m); clearTimeout(this.tm_d); }
+  componentDidUpdate(pp) {
+    if (pp.startWithTimetable !== this.props.startWithTimetable) this.setState({ tt: null });
+    if (pp.mobileStartTab !== this.props.mobileStartTab) this.setState({ mTab: null });
+  }
+  toast(ctx, msg) {
+    clearTimeout(this['tm_' + ctx]);
+    this.setState(p => ({ toast: { ...p.toast, [ctx]: { msg, on: true } } }));
+    this['tm_' + ctx] = setTimeout(() => this.setState(p => ({ toast: { ...p.toast, [ctx]: { ...p.toast[ctx], on: false } } })), 2600);
+  }
+  icons() {
+    const mk = (name, fill) => React.createElement('svg', { width: '1em', height: '1em', viewBox: '0 0 24 24', fill: fill || 'none', stroke: 'currentColor', strokeWidth: 1.75, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true, style: { display: 'block' } }, ICONS[name].map(([t, a], i) => React.createElement(t, { key: i, ...a })));
+    const ic = {}; Object.keys(ICONS).forEach(k => { ic[k] = mk(k); }); ic.bookmarkFill = mk('bookmark', 'currentColor');
+    return ic;
+  }
+
+  renderVals() {
+    const s = this.state;
+    const now = NOW0 + (Date.now() - this.t0);
+    const ic = this.ic || (this.ic = this.icons());
+    const tt = s.tt === null ? (this.props.startWithTimetable ?? true) : s.tt;
+    const mTab = s.mTab || this.props.mobileStartTab || 'discover';
+    const todayK = istKey(now);
+
+    const match = (o, st) => {
+      const ms = Date.parse(o.dl) - now;
+      if (ms <= 0) return false;
+      if (st.dl === '72h' && ms > 72 * HR) return false;
+      if (st.dl === '7d' && ms > 7 * DAY) return false;
+      if (st.dl === '30d' && ms > 30 * DAY) return false;
+      const f = st.f;
+      const modes = ['online', 'offline', 'hybrid'].filter(k => f[k]);
+      if (modes.length && !(modes.includes(o.mode) || (o.mode === 'hybrid' && modes.length))) return false;
+      const fees = ['free', 'paid'].filter(k => f[k]);
+      if (fees.length && !fees.includes(o.fee ? 'paid' : 'free')) return false;
+      const tech = Object.keys(TECH).filter(k => f[k]);
+      if (tech.length && !tech.some(k => o.tags.includes(TECH[k]))) return false;
+      if (tt && f.noClash && o.clash !== 'clear') return false;
+      if (tt && f.hideMajor && o.clash === 'major') return false;
+      if (st.q) {
+        const q = st.q.toLowerCase();
+        const hay = [o.title, o.org, o.source, o.city || '', o.mode, ...o.tags].join(' ').toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    };
+    const st = { q: s.q.trim(), dl: s.dl, f: s.f };
+    const filtered = x => OPPS.filter(o => match(o, x));
+    const cnt = mod => { const x = { ...st, f: { ...st.f } }; mod(x); return filtered(x).length; };
+    const sortFn = s.sort === 'prize' ? (a, b) => (b.prize || -1) - (a.prize || -1) : (a, b) => Date.parse(a.dl) - Date.parse(b.dl);
+    const results = filtered(st).sort(sortFn);
+
+    const setF = (k, v) => this.setState(p => ({ f: { ...p.f, [k]: v } }));
+    const setDl = v => this.setState({ dl: v });
+    const upload = ctx => { this.setState({ tt: true }); this.toast(ctx, 'Found 8 exam dates in 5th-Sem-CIE-Schedule.pdf'); };
+    const removeTt = ctx => { this.setState(p => ({ tt: false, f: { ...p.f, noClash: false, hideMajor: false } })); this.toast(ctx, 'Timetable removed · clashes now unknown'); };
+    const go = (ctx, tab) => ctx === 'm' ? this.setState({ mTab: tab, drawer: false }) : this.setState({ dTab: tab, pop: false });
+    const seeClear = ctx => { this.setState(p => ({ f: { ...p.f, noClash: true }, dl: 'any' })); go(ctx, 'discover'); this.toast(ctx, 'Showing events with no exam clash'); };
+
+    const flagOpt = (k, label, ctx) => {
+      const on = !!s.f[k] && !(!tt && (k === 'noClash' || k === 'hideMajor'));
+      const dis = (k === 'noClash' || k === 'hideMajor') && !tt;
+      const n = on ? results.length : cnt(x => { x.f[k] = true; });
+      return { label, on, count: dis ? '—' : String(n), ...chip(on, dis), toggle: dis ? () => this.toast(ctx, 'Add your exam timetable to use this filter') : () => setF(k, !s.f[k]) };
+    };
+    const dlOpt = (v, label) => {
+      const on = s.dl === v;
+      return { label, on, count: v === 'any' ? '' : String(cnt(x => { x.dl = v; })), ...chip(on), toggle: () => setDl(on && v !== 'any' ? 'any' : v) };
+    };
+    const quick = ctx => [dlOpt('72h', 'Closing < 72h'), flagOpt('noClash', 'No Exam Clash', ctx), flagOpt('online', 'Online', ctx), flagOpt('offline', 'Offline', ctx), flagOpt('aiml', 'AI/ML', ctx), flagOpt('free', 'Free Entry', ctx)];
+    const groups = ctx => [
+      { label: 'Deadline', note: 'In IST', options: [dlOpt('any', 'Any time'), dlOpt('72h', '≤ 72 hours'), dlOpt('7d', '≤ 7 days'), dlOpt('30d', '≤ 30 days')] },
+      { label: 'Mode', note: 'Hybrid matches both', options: [flagOpt('online', 'Online', ctx), flagOpt('offline', 'In person', ctx), flagOpt('hybrid', 'Hybrid', ctx)] },
+      { label: 'Entry fee', note: '', options: [flagOpt('free', 'Free', ctx), flagOpt('paid', 'Paid', ctx)] },
+      { label: 'Tech', note: 'From organiser tags', options: [flagOpt('aiml', 'AI/ML', ctx), flagOpt('web3', 'Web3', ctx), flagOpt('web', 'Web', ctx), flagOpt('hardware', 'Hardware', ctx)] },
+      { label: 'Academic', note: tt ? 'From your CIE timetable' : 'Needs your exam timetable', options: [flagOpt('noClash', 'Only no clash', ctx), flagOpt('hideMajor', 'Hide major clashes', ctx)] },
+    ];
+
+    const active = [];
+    if (s.dl !== 'any') active.push({ key: 'dl', label: DLL[s.dl], remove: () => setDl('any') });
+    Object.keys(LBL).forEach(k => { if (s.f[k] && (tt || !(k === 'noClash' || k === 'hideMajor'))) active.push({ key: k, label: LBL[k], remove: () => setF(k, false) }); });
+    const activeN = active.length;
+    if (st.q) active.push({ key: 'q', label: `“${st.q}”`, remove: () => this.setState({ q: '' }) });
+    active.forEach(a => { a.aria = 'Remove filter ' + a.label; });
+
+    let best = null;
+    if (!results.length) active.forEach(a => {
+      const x = { ...st, f: { ...st.f } };
+      if (a.key === 'dl') x.dl = 'any'; else if (a.key === 'q') x.q = ''; else x.f[a.key] = false;
+      const n = filtered(x).length; if (!best || n > best.n) best = { ...a, n };
+    });
+
+    const clashOf = o => {
+      if (!tt) return { k: 'none', label: 'Upload CIE timetable to check clashes', icon: ic.upload, c: '#4A5468', bg: '#FFFFFF', bd: '#858FA1', bs: 'dashed', why: `Add your exam dates and we’ll check ${o.title} (${range(o)}) against them. Until then this is unknown, not “clear”.`, action: 'Upload timetable' };
+      if (o.clash === 'clear') return { k: 'clear', label: o.clashText, icon: ic.shieldCheck, c: COL.clear, bg: '#ECFDF3', bd: '#ABEFC6', bs: 'solid', why: o.why };
+      if (o.clash === 'major') return { k: 'major', label: o.clashText, icon: ic.alert, c: COL.urgent, bg: '#FEF3F2', bd: '#FECDCA', bs: 'solid', why: o.why };
+      if (o.clash === 'possible') return { k: 'possible', label: o.clashText, icon: ic.alert, c: COL.soon, bg: '#FFF6ED', bd: '#F9DBAF', bs: 'solid', why: o.why };
+      return { k: 'beyond', label: o.clashText, icon: ic.upload, c: '#4A5468', bg: '#FFFFFF', bd: '#858FA1', bs: 'dashed', why: o.why, action: 'Add end-sem dates' };
+    };
+    const card = (o, ctx) => {
+      const cl = clashOf(o), wk = ctx + o.id, whyOpen = !!s.why[wk], saved = !!s.saved[o.id];
+      const dk = istKey(Date.parse(o.dl));
+      return {
+        id: o.id, title: o.title, org: o.org, source: o.source,
+        accent: COL[urg(o, now)], countdown: countdown(o, now),
+        closesAt: dk === todayK ? `${fT(o.dl)} IST` : `${fDay(dk)}, ${fT(o.dl)} IST`,
+        modeIcon: o.mode === 'online' ? ic.globe : ic.pin,
+        modeLabel: o.mode === 'online' ? 'Online' : o.mode === 'hybrid' ? `Hybrid · ${o.city}` : `Offline · ${o.city}`,
+        team: o.team.includes('–') ? `Team ${o.team}` : `Team of ${o.team}`,
+        fee: o.fee ? `${inr(o.fee)} entry` : 'Free entry',
+        prize: o.prize ? inr(o.prize) : '—', prizeTitle: o.prize ? 'Prize pool' : 'Not stated by organiser', prizeColor: o.prize ? '#0B1220' : '#667085',
+        tags: o.tags.slice(0, 2).concat(o.tags.length > 2 ? ['+' + (o.tags.length - 2)] : []),
+        clashLabel: cl.label, clashIcon: cl.icon, clashC: cl.c, clashBg: cl.bg, clashBd: cl.bd, clashBs: cl.bs,
+        whyOpen, why: cl.why, whyAction: cl.action || '', hasWhyAction: !!cl.action, whyChevron: whyOpen ? ic.chevU : ic.chevD,
+        onWhy: () => this.setState(p => ({ why: { ...p.why, [wk]: !p.why[wk] } })),
+        onWhyAction: () => cl.k === 'none' ? upload(ctx) : (go(ctx, 'shield'), this.toast(ctx, 'Add end-sem dates in Shield')),
+        saved, saveIcon: saved ? ic.bookmarkFill : ic.bookmark, saveColor: saved ? '#2557D6' : '#4A5468', saveLabel: saved ? `Remove ${o.title} from saved` : `Save ${o.title}`,
+        onSave: () => { this.setState(p => ({ saved: { ...p.saved, [o.id]: !p.saved[o.id] } })); this.toast(ctx, saved ? 'Removed from My Desk' : 'Saved · deadline added to your calendar'); },
+        onApply: e => { if (e && e.preventDefault) e.preventDefault(); this.toast(ctx, `Opens ${o.source} registration in a new tab ↗`); },
+      };
+    };
+
+    const items = k => {
+      const out = [];
+      if (tt) EXAMS.filter(e => e.d === k).forEach(e => out.push({ shape: 'tri', c: '#0B1220', title: e.name, meta: `Exam · ${e.t}` }));
+      OPPS.forEach(o => { if (istKey(Date.parse(o.dl)) === k) out.push({ shape: 'dot', c: COL[urg(o, now)], title: `${o.title} closes`, meta: `Deadline · ${fT(o.dl)}` }); });
+      OPPS.forEach(o => { if (s.saved[o.id] && k >= o.ev[0] && k <= o.ev[1]) out.push({ shape: 'dia', c: COL.brand, title: `${o.title} · day ${diffD(o.ev[0], k) + 1}`, meta: `Saved event · ${o.mode === 'online' ? 'Online' : o.city}` }); });
+      return out;
+    };
+    const aria = (k, its) => {
+      const d = kDate(k), n = t => its.filter(i => i.shape === t).length, parts = [];
+      const add = (c, w) => { if (c) parts.push(`${c} ${w}${c > 1 ? 's' : ''}`); };
+      add(n('tri'), 'exam'); add(n('dot'), 'deadline'); add(n('dia'), 'saved event');
+      return `${d.getUTCDate()} ${MONL[d.getUTCMonth()]}, ${parts.length ? parts.join(', ') : 'nothing scheduled'}`;
+    };
+    const strip = Array.from({ length: 14 }, (_, i) => {
+      const k = addD(todayK, i), its = items(k), sel = s.sel === k, d = kDate(k);
+      return { key: k, num: String(d.getUTCDate()), wd: k === todayK ? 'Today' : WD[d.getUTCDay()], sel, aria: aria(k, its),
+        marks: its.slice(0, 3).map(i => mark(i.shape, i.c)), onClick: () => this.setState({ sel: k }),
+        bg: sel ? '#EEF3FF' : '#FFFFFF', bd: sel ? '#2557D6' : '#E3E7EE', wdc: sel || k === todayK ? '#1D44B0' : '#667085' };
+    });
+    const calDays = Array.from({ length: 28 }, (_, i) => {
+      const k = addD('2026-11-08', i), its = items(k), sel = s.sel === k, d = kDate(k), today = k === todayK;
+      const muted = k < todayK || d.getUTCMonth() !== 10;
+      return { key: k, num: String(d.getUTCDate()), sel, aria: aria(k, its), marks: its.slice(0, 3).map(i => mark(i.shape, i.c)), more: its.length > 3 ? '+' + (its.length - 3) : '',
+        onClick: () => this.setState({ sel: k }), bg: sel ? '#EEF3FF' : 'transparent', bd: sel ? '#2557D6' : today ? '#0B1220' : 'transparent',
+        fg: sel ? '#1D44B0' : muted ? '#667085' : '#0B1220', fw: today || sel ? '700' : '500' };
+    });
+    const selIts = items(s.sel);
+    const selItems = selIts.map(i => ({ ...i, mb: mark(i.shape, i.c, true) }));
+    const selFirst = selIts.length ? { title: selIts[0].title, m: mark(selIts[0].shape, selIts[0].c, true) } : { title: tt ? 'Nothing scheduled' : 'No deadlines · exams not added', m: mark('none') };
+
+    const cn = { clear: 0, possible: 0, major: 0, beyond: 0 }; OPPS.forEach(o => { cn[o.clash]++; });
+    const shieldStats = [
+      { n: String(cn.clear), label: 'No clash', c: COL.clear, bg: '#ECFDF3', bd: '#ABEFC6', bs: 'solid' },
+      { n: String(cn.possible), label: 'Possible clash', c: COL.soon, bg: '#FFF6ED', bd: '#F9DBAF', bs: 'solid' },
+      { n: String(cn.major), label: 'Overlaps an exam', c: COL.urgent, bg: '#FEF3F2', bd: '#FECDCA', bs: 'solid' },
+      { n: String(cn.beyond), label: 'After timetable ends', c: '#4A5468', bg: '#FFFFFF', bd: '#858FA1', bs: 'dashed' },
+    ];
+
+    const savedList = OPPS.filter(o => s.saved[o.id]).sort((a, b) => Date.parse(a.dl) - Date.parse(b.dl));
+    const savedCount = savedList.length;
+    const TABS = [['discover', 'Discover', 'compass'], ['calendar', 'Calendar', 'calendar'], ['shield', 'Shield', 'shield'], ['desk', 'My Desk', 'briefcase']];
+    const nav = (cur, ctx) => TABS.map(([k, l, i]) => ({ label: l, icon: ic[i], cur: cur === k ? 'page' : 'false', color: cur === k ? '#2557D6' : '#4A5468', ind: cur === k ? '#2557D6' : 'transparent',
+      hasBadge: k === 'desk' && savedCount > 0, badge: String(savedCount), onClick: () => go(ctx, k) }));
+
+    const ist = new Date(now + 5.5 * HR);
+    const clock = `${ist.getUTCHours()}:${String(ist.getUTCMinutes()).padStart(2, '0')}`;
+    const tm = s.toast.m, td = s.toast.d;
+    const showLabel = `Show ${results.length} result${results.length === 1 ? '' : 's'}`;
+
+    return {
+      ic, tt, noTt: !tt, thumbZone: !!this.props.showThumbZone,
+      clock, clockLong: `${fDayW(todayK)} · ${clock} IST`,
+      q: s.q, hasQ: !!s.q, onSearch: e => this.setState({ q: e.target.value }), clearQ: () => this.setState({ q: '' }),
+      mQuick: quick('m'), dQuick: quick('d'), mGroups: groups('m'), dGroups: groups('d'),
+      active, hasActive: active.length > 0, activeN: String(activeN), hasActiveF: activeN > 0,
+      activeSummary: `${results.length} of ${OPPS.length}`,
+      clearAll: () => this.setState({ f: {}, dl: 'any', q: '' }), resetFilters: () => this.setState({ f: {}, dl: 'any' }),
+      resultCount: String(results.length), sortLabel: s.sort === 'prize' ? 'prize pool' : 'deadline', sortBtn: s.sort === 'prize' ? 'Highest prize' : 'Closing soon',
+      toggleSort: () => this.setState(p => ({ sort: p.sort === 'deadline' ? 'prize' : 'deadline' })),
+      mCards: results.map(o => card(o, 'm')), dCards: results.map(o => card(o, 'd')),
+      isEmpty: results.length === 0, emptyTitle: `No open listings match all ${active.length} filter${active.length === 1 ? '' : 's'}.`,
+      hasEmptyFix: !!best, emptyFix: best ? `Remove ‘${best.label}’ → ${best.n} result${best.n === 1 ? '' : 's'}` : '', emptyFixDo: () => best && best.remove(),
+      strip, calDays, selFirst, selItems, selEmpty: selIts.length === 0,
+      selShort: s.sel === todayK ? 'Today' : fDayW(s.sel).replace(/ \w+$/, ''),
+      selMore: selIts.length > 1 ? `+${selIts.length - 1} more` : '',
+      selTitle: fDayW(s.sel) + (s.sel === todayK ? ' · Today' : ''), selCount: `${selIts.length} item${selIts.length === 1 ? '' : 's'}`,
+      selEmptyText: tt ? 'Nothing scheduled on this day.' : 'No deadlines. Exams unknown until you add your timetable.',
+      goToday: () => this.setState({ sel: todayK }),
+      openCal: () => go('m', 'calendar'),
+      mDiscover: mTab === 'discover', mCalendar: mTab === 'calendar', mShield: mTab === 'shield', mDesk: mTab === 'desk',
+      mNav: nav(mTab, 'm'), dNav: nav(s.dTab, 'd'),
+      dDiscover: s.dTab !== 'desk', dDesk: s.dTab === 'desk',
+      shieldBd: s.dTab === 'shield' ? '#2557D6' : '#E3E7EE', calBd: s.dTab === 'calendar' ? '#2557D6' : '#E3E7EE',
+      ttStatus: tt ? 'Timetable added' : 'No timetable',
+      shieldStats, exams: EXAMS.map(e => ({ date: fDayW(e.d), name: e.name, t: e.t })),
+      mSaved: savedList.map(o => card(o, 'm')), dSaved: savedList.map(o => card(o, 'd')), noSaved: savedCount === 0,
+      deskSub: `${savedCount} saved · sorted by deadline`,
+      goDiscover: () => go('m', 'discover'), dGoDiscover: () => go('d', 'discover'),
+      openDrawer: () => this.setState({ drawer: true }), closeDrawer: () => this.setState({ drawer: false }),
+      drawerY: s.drawer ? 'translateY(0)' : 'translateY(105%)', drawerFade: s.drawer ? 1 : 0, drawerPE: s.drawer ? 'auto' : 'none',
+      pop: s.pop, togglePop: () => this.setState(p => ({ pop: !p.pop })), closePop: () => this.setState({ pop: false }),
+      popBd: s.pop ? '#2557D6' : '#858FA1', popBg: s.pop ? '#EEF3FF' : '#FFFFFF', showLabel,
+      mUpload: () => upload('m'), dUpload: () => upload('d'), mRemoveTt: () => removeTt('m'), dRemoveTt: () => removeTt('d'),
+      mReplace: () => this.toast('m', 'Choose a new PDF to replace this timetable'), mManual: () => upload('m'),
+      mSeeClear: () => seeClear('m'), dSeeClear: () => seeClear('d'),
+      mOd: () => this.toast('m', 'Opens My Desk › Attendance tools'),
+      mBell: () => this.toast('m', 'No new notifications'), dBell: () => this.toast('d', 'No new notifications'),
+      mAvatar: () => this.toast('m', 'Account menu: theme, feedback, tools'), dAvatar: () => this.toast('d', 'Account menu: theme, feedback, tools'),
+      mToastMsg: tm.msg, mToastOp: tm.on ? 1 : 0, mToastY: tm.on ? 'translateY(0)' : 'translateY(8px)',
+      dToastMsg: td.msg, dToastOp: td.on ? 1 : 0, dToastY: td.on ? 'translateY(0)' : 'translateY(8px)',
+    };
+  }
+}
+</script>
+</body>
+</html>

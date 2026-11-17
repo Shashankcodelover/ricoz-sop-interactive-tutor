@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500&amp;family=IBM+Plex+Sans:wght@400;500&amp;family=IBM+Plex+Mono:wght@500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#ECEAE4;-webkit-font-smoothing:antialiased;font-family:'IBM Plex Sans',system-ui,sans-serif}
+a{color:#B4532A;text-decoration:none}a:hover{color:#9A4523;text-decoration:underline}
+button{font-family:inherit}
+*:focus-visible{outline:2px solid var(--focus,#141413);outline-offset:2px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+</style>
+</helmet>
+<div style="--canvas:{{ t.canvas }};--card:{{ t.card }};--pill:{{ t.pill }};--ink:{{ t.ink }};--ink-2:{{ t.ink2 }};--ink-3:{{ t.ink3 }};--line:{{ t.line }};--line-strong:{{ t.ls }};--accent:{{ t.acc }};--accent-hover:{{ t.accH }};--accent-tint:{{ t.accT }};--on-accent:{{ t.onAcc }};--ok:{{ t.ok }};--ok-bg:{{ t.okBg }};--warn:{{ t.warn }};--warn-bg:{{ t.warnBg }};--clash:{{ t.clash }};--clash-bg:{{ t.clashBg }};--focus:{{ t.focus }};--shadow:{{ t.shadow }};--scrim:{{ t.scrim }};--lift:{{ t.lift }};--page:{{ t.page }};min-height:100vh;box-sizing:border-box;padding:40px 48px 72px;display:flex;flex-direction:column;gap:28px;background:var(--page);color:var(--ink);font-family:'IBM Plex Sans',system-ui,sans-serif;transition:background-color 160ms ease,color 160ms ease">
+  <header style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:24px;max-width:1711px">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span style="font:500 12px/16px 'IBM Plex Mono',monospace;letter-spacing:.02em;color:var(--ink-2)">TechPulse v2 · {{ themeName }}</span>
+      <h1 style="margin:0;font:500 30px/36px 'Newsreader',Georgia,serif;letter-spacing:-0.01em;color:var(--ink)">Explore, with exam clashes checked on every card</h1>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <p style="margin:0;max-width:520px;font:400 13px/19px 'IBM Plex Sans',sans-serif;color:var(--ink-2);text-wrap:pretty">Sample data: 14 listings, a 5th-sem CIE timetable (8 exams, till 5 Dec). Clock starts Sat 14 Nov 2026, 10:00 IST and ticks live. Theme, filters, tracking and overlays are shared across both artboards.</p>
+      <button type="button" onClick="{{ toggleTheme }}" style="flex:none;height:40px;padding:0 14px;border-radius:8px;border:1px solid var(--line-strong);background:var(--card);color:var(--ink);font:500 13px/18px 'IBM Plex Sans',sans-serif;display:inline-flex;align-items:center;gap:8px;cursor:pointer"><span style="display:flex;font-size:16px">{{ themeIcon }}</span>{{ themeBtn }}</button>
+    </div>
+  </header>
+
+  <div style="display:flex;gap:56px;align-items:flex-start">
+
+    <div style="flex:none;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:8px"><span style="font:500 12px/16px 'IBM Plex Sans',sans-serif;color:var(--ink)">Mobile</span><span style="font:500 12px/16px 'IBM Plex Mono',monospace;color:var(--ink-2)">375 × 812</span></div>
+      <div data-screen-label="Mobile 375" style="width:375px;height:812px;position:relative;overflow:hidden;border-radius:36px;background:var(--canvas);border:1px solid var(--line-strong);isolation:isolate;transition:background-color 160ms ease">
+
+        <div style="position:absolute;top:0;left:0;right:0;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 26px 0 34px;background:var(--canvas);font:500 15px/20px 'IBM Plex Sans',sans-serif;color:var(--ink);z-index:6;transition:background-color 160ms ease">
+          <span style="font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums">{{ clock }}</span>
+          <div aria-hidden="true" style="display:flex;align-items:center;gap:6px"><span style="font:500 12px/14px 'IBM Plex Sans',sans-serif">5G</span><span style="width:24px;height:12px;box-sizing:border-box;border:1.5px solid var(--ink);border-radius:4px;padding:1.5px;display:flex"><span style="width:70%;background:var(--ink);border-radius:1.5px"></span></span></div>
+        </div>
+
+        <div style="position:absolute;top:44px;left:0;right:0;height:52px;box-sizing:border-box;display:flex;align-items:center;gap:6px;padding:0 6px 0 14px;background:var(--canvas);border-bottom:1px solid var(--line);z-index:6;transition:background-color 160ms ease">
+          <div style="display:flex;align-items:center;gap:6px;flex:none">
+            <span style="display:flex;font-size:18px;color:var(--accent)">{{ ic.pulse }}</span>
+            <span style="font:500 20px/24px 'Newsreader',Georgia,serif;letter-spacing:-0.01em;color:var(--ink)">TechPulse</span>
+          </div>
+          <button type="button" onClick="{{ mOpenLoc }}" aria-haspopup="dialog" style="margin-left:auto;flex:none;height:44px;padding:0;border:0;background:transparent;display:flex;align-items:center;cursor:pointer">
+            <span style="height:30px;display:inline-flex;align-items:center;gap:4px;padding:0 8px 0 10px;border-radius:999px;border:1px solid var(--line);background:var(--pill);color:var(--ink);font:500 13px/16px 'IBM Plex Sans',sans-serif">{{ loc }}<span style="display:flex;font-size:14px;color:var(--ink-2)">{{ ic.chevD }}</span></span>
+          </button>
+          <button type="button" aria-label="Community and alerts" onClick="{{ mOpenBell }}" style="flex:none;width:40px;height:44px;border:0;background:transparent;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--ink-2);cursor:pointer"><span style="display:flex;font-size:20px">{{ ic.bell }}</span></button>
+          <button type="button" aria-label="{{ themeAria }}" onClick="{{ toggleTheme }}" style="flex:none;width:40px;height:44px;border:0;background:transparent;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--ink-2);cursor:pointer"><span style="display:flex;font-size:20px">{{ themeIcon }}</span></button>
+          <sc-if value="{{ signedIn }}" hint-placeholder-val="{{ true }}">
+            <button type="button" aria-label="Account, tools and settings" onClick="{{ mOpenAvatar }}" style="flex:none;width:44px;height:44px;border:0;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer"><span style="width:30px;height:30px;border-radius:50%;background:var(--accent-tint);color:var(--accent);font:500 12px/30px 'IBM Plex Mono',monospace;text-align:center">AR</span></button>
+          </sc-if>
+          <sc-if value="{{ signedOut }}" hint-placeholder-val="{{ false }}">
+            <button type="button" onClick="{{ signIn }}" style="flex:none;height:44px;padding:0 8px;border:0;background:transparent;color:var(--ink);font:500 13px/18px 'IBM Plex Sans',sans-serif;cursor:pointer">Sign in</button>
+          </sc-if>
+        </div>
+
+        <div style="position:absolute;top:96px;bottom:84px;left:0;right:0;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain">
+          <sc-if value="{{ mPulse }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-direction:column">
+              <div style="display:flex;align-items:center;gap:8px;height:44px;overflow-x:auto;scrollbar-width:none;padding:0 16px">
+                <button type="button" role="switch" aria-checked="{{ hide }}" onClick="{{ toggleHide }}" style="flex:none;height:44px;padding:0 4px 0 0;border:0;background:transparent;display:inline-flex;align-items:center;gap:8px;color:var(--ink);font:500 13px/16px 'IBM Plex Sans',sans-serif;cursor:pointer;white-space:nowrap">
+                  <span style="display:flex;font-size:16px;color:var(--ink-2)">{{ ic.shield }}</span>Hide exam clashes
+                  <span style="width:32px;height:20px;box-sizing:border-box;border-radius:999px;padding:2px;background:{{ sw.track }};display:flex;justify-content:{{ sw.pos }};transition:background-color 160ms ease"><span style="width:16px;height:16px;border-radius:50%;background:{{ sw.knob }}"></span></span>
+                </button>
+                <sc-for list="{{ pulsePills }}" as="p" hint-placeholder-count="2">
+                  <button type="button" aria-pressed="{{ p.on }}" onClick="{{ p.onClick }}" style="flex:none;height:44px;padding:0;border:0;background:transparent;display:flex;align-items:center;cursor:pointer">
+                    <span style="height:30px;display:inline-flex;align-items:center;gap:6px;padding:0 12px;border-radius:999px;border:1px solid {{ p.bd }};background:{{ p.bg }};color:{{ p.fg }};font:500 13px/16px 'IBM Plex Sans',sans-serif;white-space:nowrap;transition:background-color 160ms ease,color 160ms ease">{{ p.label }}<span style="font:500 12px/16px 'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums">· {{ p.count }}</span></span>
+                  </button>
+                </sc-for>
+              </div>
+              <div style="display:flex;align-items:stretch;height:44px;border-bottom:1px solid var(--line)">
+                <div style="flex:1;min-width:0;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;padding:0 8px 0 10px;-webkit-mask-image:linear-gradient(to right,#000 80%,transparent);mask-image:linear-gradient(to right,#000 80%,transparent)">
+                  <sc-for list="{{ cats }}" as="c" hint-placeholder-count="4">
+                    <button type="button" role="tab" aria-selected="{{ c.on }}" onClick="{{ c.onClick }}" style="position:relative;flex:none;height:44px;padding:0 8px;border:0;background:transparent;display:inline-flex;align-items:center;gap:6px;color:{{ c.fg }};font:500 13px/16px 'IBM Plex Sans',sans-serif;white-space:nowrap;cursor:pointer"><span style="display:flex;font-size:16px">{{ c.icon }}</span>{{ c.label }}<span style="position:absolute;left:8px;right:8px;bottom:-1px;height:2px;background:{{ c.ind }}"></span></button>
+                  </sc-for>
+                </div>
+                <button type="button" onClick="{{ mOpenFilters }}" aria-haspopup="dialog" style="flex:none;height:44px;padding:0 14px 0 10px;border:0;border-left:1px solid var(--line);background:var(--canvas);display:inline-flex;align-items:center;gap:6px;color:var(--ink);font:500 13px/16px 'IBM Plex Sans',sans-serif;cursor:pointer"><span style="display:flex;font-size:16px">{{ ic.sliders }}</span>Filters<sc-if value="{{ hasFCount }}" hint-placeholder-val="{{ false }}"><span style="min-width:18px;height:18px;box-sizing:border-box;padding:0 5px;border-radius:9px;background:var(--accent-tint);color:var(--accent);font:500 12px/18px 'IBM Plex Mono',monospace;text-align:center">{{ fCount }}</span></sc-if></button>
+              </div>
+              <sc-if value="{{ hasChips }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:10px 16px 0">
+                  <sc-for list="{{ chips }}" as="a">
+                    <button type="button" onClick="{{ a.rm }}" aria-label="{{ a.aria }}" style="height:32px;padding:0 6px 0 12px;border-radius:999px;border:1px solid var(--line);background:var(--pill);color:var(--ink);font:500 12.5px/16px 'IBM Plex Sans',sans-serif;display:inline-flex;align-items:center;gap:4px;cursor:pointer">{{ a.label }}<span style="display:flex;font-size:14px;color:var(--ink-2)">{{ ic.x }}</span></button>
+                  </sc-for>
+                  <button type="button" onClick="{{ clearAll }}" style="height:32px;padding:0 6px;border:0;background:transparent;color:var(--accent);font:500 12.5px/16px 'IBM Plex Sans',sans-serif;cursor:pointer">Clear all</button>
+                </div>
+              </sc-if>
+              <div style="padding:12px 16px 0">
+                <div role="group" aria-roledescription="carousel" aria-label="Featured" tabindex="0" onPointerDown="{{ featDown }}" onPointerUp="{{ mFeatUp }}" onKeyDown="{{ featKey }}" style="height:44px;box-sizing:border-box;display:flex;align-items:center;gap:10px;padding:0 12px 0 6px;border-radius:999px;border:1px solid var(--line);background:var(--card);cursor:pointer;touch-action:pan-y;user-select:none;transition:background-color 160ms ease">
+                  <span aria-hidden="true" style="flex:none;width:30px;height:30px;border-radius:50%;background:{{ feat.tileBg }};color:{{ feat.tileFg }};display:flex;align-items:center;justify-content:center;font:500 13px/1 'Newsreader',Georgia,serif">{{ feat.mono }}</span>
+                  <span style="flex:1;min-width:0;display:flex;flex-direction:column">
+                    <span style="font:500 13px/16px 'IBM Plex Sans',sans-serif;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ feat.title }}</span>
+                    <span style="font:500 11.5px/14px 'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;color:{{ feat.urgC }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ feat.urgShort }}</span>
+                  </span>
+                  <span aria-hidden="true" style="flex:none;display:flex;gap:4px">
+                    <sc-for list="{{ featDots }}" as="dt"><span style="width:6px;height:6px;border-radius:50%;background:{{ dt.c }};transition:background-color 160ms ease"></span></sc-for>
+                  </span>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:12px;padding:12px 16px 0">
+                <sc-for list="{{ mCards }}" as="c" hint-placeholder-count="2">
+                  <dc-import name="OppCard" o="{{ c }}" ic="{{ ic }}" hint-size="100%,300px"></dc-import>
+                </sc-for>
+                <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:24px 20px;border:1px dashed var(--line-strong);border-radius:12px">
+                    <span style="font:500 19px/25px 'Newsreader',Georgia,serif;color:var(--ink);text-wrap:pretty">{{ emptyTitle }}</span>
+                    <span style="font:400 14px/20px 'IBM Plex Sans',sans-serif;color:var(--ink-2)">Try Pan-India or widen the prize filter.</span>
+                    <button type="button" onClick="{{ clearAll }}" style="height:44px;padding:0 16px;border-radius:8px;border:1px solid var(--ink);background:transparent;color:var(--ink);font:500 14px/20px 'IBM Plex Sans',sans-serif;cursor:pointer">Reset filters</button>
+                  </div>
+                </sc-if>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:24px 16px 28px">
+                <sc-if value="{{ hasMore }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ showMore }}" style="height:44px;padding:0 18px;border-radius:8px;border:1px solid var(--line-strong);background:transparent;color:var(--ink);font:500 14px/20px 'IBM Plex Sans',sans-serif;cursor:pointer">{{ moreLabel }}</button></sc-if>
+                <span style="font:500 12px/16px 'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;color:var(--ink-3)">{{ showingLabel }}</span>
+              </div>
+              <footer style="display:flex;flex-direction:column;gap:20px;padding:24px 16px 28px;border-top:1px solid var(--line);font:400 13px/20px 'IBM Plex Sans',sans-serif;color:var(--ink-2)">
+                <div style="display:flex;flex-direction:column;gap:4px"><span style="font:500 12px/16px 'IBM Plex Sans',sans-serif;letter-spacing:.02em;color:var(--ink)">Platform radar</span><a href="#" style="color:var(--ink-2)">Hackathons feed</a><a href="#" style="color:var(--ink-2)">Anti-Ghosting Team Finder</a><a href="#" style="color:var(--ink-2)">Events calendar &amp; sync</a></div>
+                <div style="display:flex;flex-direction:column;gap:4px"><span style="font:500 12px/16px 'IBM Plex Sans',sans-serif;letter-spacing:.02em;color:var(--ink)">About</span><a href="#" style="color:var(--ink-2)">About us &amp; engineering team</a><a href="#" style="color:var(--ink-2)">Meet the creators</a><span>Support — <a href="mailto:techpulse.support247@gmail.com" style="color:var(--accent)">techpulse.support247@gmail.com</a></span></div>
+                <div style="display:flex;flex-direction:column;gap:6px"><span style="display:inline-flex;align-items:center;gap:8px"><span style="display:flex;font-size:15px">{{ ic.lock }}</span>On-device privacy first</span><span style="display:inline-flex;align-items:center;gap:8px"><span style="display:flex;font-size:15px">{{ ic.shield }}</span>Pan-India academic integrity</span><a href="#" style="color:var(--ink-3)">Admin operations portal →</a></div>
+                <span style="font:400 12px/16px 'IBM Plex Sans',sans-serif;color:var(--ink-3)">© 2026 TechPulse · Built by students in Karnataka</span>
+              </footer>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ mShield }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;padding:20px 16px 28px">
+              <h2 style="margin:0 0 4px;font:500 24px/30px 'Newsreader',Georgia,serif;letter-spacing:-0.01em">Academic Shield</h2>
+              <p style="margin:0 0 16px;font:400 14px/20px 'IBM Plex Sans',sans-serif;color:var(--ink-2);text-wrap:pretty">Every open listing checked against your exam dates. Unknown stays unknown.</p>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-top:1px solid var(--line)">
+                <span style="font:400 14px/20px 'IBM Plex Sans',sans-serif">5th Sem CIE timetable · <span style="font-family:'IBM Plex Mono',monospace;font-size:13px">8 exams · till 5 Dec</span></span>
+                <button type="button" onClick="{{ mReplace }}" style="height:44px;padding:0 4px;border:0;background:transparent;color:var(--accent);font:500 13px/18px 'IBM Plex Sans',sans-serif;cursor:pointer">Replace</button>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:14px 0;border-top:1px solid var(--line)">
+                <sc-for list="{{ shieldStats }}" as="x" hint-placeholder-count="3">
+                  <div style="display:flex;flex-direction:column;gap:2px"><span style="font:500 24px/30px 'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;color:{{ x.c }}">{{ x.n }}</span><span style="font:400 12px/16px 'IBM Plex Sans',sans-serif;color:var(--ink-2)">{{ x.label }}</span></div>
+                </sc-for>
+              </div>
+              <button type="button" role="switch" aria-checked="{{ hide }}" onClick="{{ toggleHide }}" style="height:52px;padding:0;border:0;border-top:1px solid var(--line);background:transparent;display:flex;align-items:center;justify-content:space-between;color:var(--ink);font:500 14px/20px 'IBM Plex Sans',sans-serif;cursor:pointer">Hide exam clashes in Pulse<span style="width:36px;height:22px;box-sizing:border-box;border-radius:999px;padding:2px;background:{{ sw.track }};display:flex;justify-content:{{ sw.pos }}"><span style="width:18px;height:18px;border-radius:50%;background:{{ sw.knob }}"></span></span></button>
+              <div style="display:flex;flex-direction:column;border-top:1px solid var(--line);padding-top:12px">
+                <span style="font:500 12px/16px 'IBM Plex Sans',sans-serif;letter-spacing:.02em;color:var(--ink-2);padding-bottom:4px">Exam dates found in your PDF</span>
+                <sc-for list="{{ exams }}" as="e" hint-placeholder-count="8">
+                  <div style="display:flex;align-items:center;gap:12px;min-height:44px;border-bottom:1px solid var(--line)">
+                    <span style="flex:none;width:92px;font:500 12.5px/16px 'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums">{{ e.date }}</span>
+                    <span style="flex:1;min-width:0;font:400 14px/20px 'IBM Plex Sans',sans-serif">{{ e.name }}</span>
+                    <span style="flex:none;font:500 12px/16px 'IBM Plex Mono',monospace;color:var(--ink-2)">{{ e.t }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ mCal }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;padding:20px 16px 28px">
+              <h2 style="margin:0 0 4px;font:500 24px/30px 'Newsreader',Georgia,serif;letter-spacing:-0.01em">Calendar</h2>
+              <p style="margin:0 0 12px;font:400 14px/20px 'IBM Plex Sans',sans-serif;color:var(--ink-2)">Next 3 weeks · tracked deadlines, event days and exams.</p>
+              <sc-for list="{{ agenda }}" as="g" hint-placeholder-count="4">
+                <div style="display:flex;flex-direction:column;padding:10px 0;border-top:1px solid var(--line)">
+                  <span style="font:500 12.5px/18px 'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;color:{{ g.hc }}">{{ g.day }}</span>
+                  <sc-for list="{{ g.rows }}" as="r">
+                    <div style="display:flex;align-items:center;gap:10px;min-height:40px">
+                      <span style="flex:none;display:flex;font-size:15px;color:{{ r.c }}">{{ r.icon }}</span>
+                      <span style="flex:1;min-width:0;font:400 14px/20px 'IBM Plex Sans',sans-serif;color:var(--ink)">{{ r.title }}</span>
+                      <span style="flex:none;font:500 12px/16px 'IBM Plex Mono',monospace;color:var(--ink-2)">{{ r.meta }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-for>
+              <button type="button" onClick="{{ mIcs }}" style="margin-top:12px;height:44px;border-radius:8px;border:1px solid var(--line-strong);background:transparent;color:var(--ink);font:500 14px/20px 'IBM Plex Sans',sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer"><span style="display:flex;font-size:16px">{{ ic.calendar }}</span>Sync to calendar (.ics)</button>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ mDesk }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;padding:20px 16px 28px;gap:16px">
+              <h2 style="margin:0;font:500 24px/30px 'Newsreader',Georgia,serif;letter-spacing:-0.01em">Desk</h2>
+              <div role="tablist" style="display:grid;grid-template-columns:1fr 1fr;padding:3px;border-radius:8px;background:var(--pill);border:1px solid var(--line)">
+                <sc-for list="{{ deskSegs }}" as="sg">
+                  <button type="button" role="tab" aria-selected="{{ sg.on }}" onClick="{{ sg.onClick }}" style="height:38px;border-radius:6px;border:1px solid {{ sg.bd }};background:{{ sg.bg }};color:{{ sg.fg }};font:500 13px/18px 'IBM Plex Sans',sans-serif;cursor:pointer">{{ sg.label }}</button>
+                </sc-for>
+              </div>
+              <sc-if value="{{ deskSaved }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;flex-direction:column">
+                  <sc-for list="{{ trackedRows }}" as="r">
+                    <button type="button" onClick="{{ r.onOpenM }}" style="display:flex;align-items:center;gap:12px;min-height:60px;padding:8px 0;border:0;border-bottom:1px solid var(--line);background:transparent;text-align:left;cursor:pointer;color:var(--ink)">
+                      <span aria-hidden="true" style="flex:none;width:32px;height:32px;border-radius:8px;background:{{ r.tileBg }};color:{{ r.tileFg }};display:flex;align-items:center;justify-content:center;font:500 14px/1 'Newsreader',Georgia,serif">{{ r.mono }}</span>
+                      <span style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font:500 14px/20px 'IBM Plex Sans',sans-serif">{{ r.title }}</span><span style="font:500 12px/16px 'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;color:{{ r.urgC }}">{{ r.urg }}</span></span>
+                      <span style="flex:none;display:flex;font-size:16px;color:var(--ink-3)">{{ ic.chevR }}</span>
+                    </button>
+                  </sc-for>
+                  <sc-if value="{{ noTracked }}" hint-placeholder-val="{{ false }}"><p style="margin:0;padding:12px 0;font:400 14px/20px 'IBM Plex Sans',sans-serif;color:var(--ink-2)">Nothing tracked yet. Tap Track on any card.</p></sc-if>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px">
+                  <div style="display:flex;align-items:center;justify-content:space-between"><span style="font:500 12px/16px 'IBM Plex Sans',sans-serif;letter-spacing:.02em;color:var(--ink-2)">Fast-apply readiness</span><span style="font:500 12.5px/16px 'IBM Plex Mono',monospace">{{ readyScore }}</span></div>
+                  <sc-for list="{{ ready }}" as="r"><div style="display:flex;align-items:center;gap:10px;min-height:36px;font:400 14px/20px 'IBM Plex Sans',sans-serif;color:{{ r.fg }}"><span style="display:flex;font-size:16px;color:{{ r.c }}">{{ r.icon }}</span>{{ r.label }}</div></sc-for>
+                  <button type="button" onClick="{{ mProfile }}" style="align-self:flex-start;height:44px;padding:0;border:0;background:transparent;color:var(--accent);font:500 14px/20px 'IBM Plex Sans',sans-serif;cursor:pointer">Finish profile →</button>
+                </div>
+              </sc-if>
+              <sc-if value="{{ deskTeams }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column">
+                  <sc-for list="{{ teams }}" as="tm">
+                    <div style="display:flex;flex-direction:column;gap:6px;padding:14px 0;border-bottom:1px solid var(--line)">
+                      <span style="font:500 12px/16px 'IBM Plex Mono',monospace;color:var(--ink-2)">{{ tm.event }}</span>
+                      <span style="font:500 15px/20px 'IBM Plex Sans',sans-serif;color:var(--ink)">Looking for: {{ tm.need }}</span>
+                      <span style="font:400 13px/18px 'IBM Plex Sans',sans-serif;color:var(--ink-2)">{{ tm.who }} · {{ tm.when }}</span>
+                      <button type="button" onClick="{{ tm.onClick }}" style="align-self:flex-start;height:40px;padding:0 14px;border-radius:8px;border:1px solid var(--line-strong);background:transparent;color:var(--ink);font:500 13px/18px 'IBM Plex Sans',sans-serif;cursor:pointer">Request to join</button>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+        </div>
+
+        <nav aria-label="Primary" style="position:absolute;left:0;right:0;bottom:0;height:84px;box-sizing:border-box;padding:0 4px 20px;background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));z-index:10;transition:background-color 160ms ease">
+          <sc-for list="{{ dock }}" as="n" hint-placeholder-count="4">
+            <button type="button" onClick="{{ n.onClick }}" aria-current="{{ n.cur }}" style="height:64px;border:0;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer">
+              <span style="position:relative;display:flex;font-size:22px;color:{{ n.ic }}">{{ n.icon }}<sc-if value="{{ n.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-4px;right:-12px;min-width:18px;height:18px;box-sizing:border-box;padding:0 5px;border-radius:9px;background:var(--accent-tint);color:var(--accent);font:500 11px/18px 'IBM Plex Mono',monospace;text-align:center">{{ n.badge }}</span></sc-if></span>
+              <span style="font:500 11px/14px 'IBM Plex Sans',sans-serif;color:{{ n.fg }}">{{ n.label }}</span>
+            </button>
+          </sc-for>
+          <span aria-hidden="true" style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:var(--ink)"></span>
+        </nav>
+
+        <div onClick="{{ closeAll }}" style="position:absolute;inset:0;z-index:30;background:var(--scrim);opacity:{{ mScrimOp }};pointer-events:{{ mScrimPE }};transition:opacity 240ms ease-out"></div>
+        <div role="dialog" aria-modal="true" aria-label="{{ mSheetLabel }}" style="position:absolute;left:0;right:0;bottom:0;z-index:31;height:{{ mSheetH }};max-height:92%;display:flex;flex-direction:column;background:var(--card);border-radius:16px 16px 0 0;border-top:1px solid var(--line);box-shadow:var(--shadow);overflow:hidden;transform:{{ mSheetY }};transition:transform 240ms ease-out,background-color 160ms ease">
+          <sc-if value="{{ mShowDetails }}" hint-placeholder-val="{{ false }}">
+            <dc-import name="OppDetails" d="{{ mDet }}" ic="{{ ic }}" style="height:100%" hint-size="100%,100%"></dc-import>
+          </sc-if>
+          <sc-if value="{{ mShowFilters }}" hint-placeholder-val="{{ false }}">
+            <span aria-hidden="true" style="align-self:center;margin-top:8px;width:36px;height:4px;border-radius:2px;background:var(--line-strong)"></span>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 8px 8px 20px"><h2 style="margin:0;font:500 22px/28px 'Newsreader',Georgia,serif">Filter &amp; sort</h2><button type="button" aria-label="Close" onClick="{{ closeAll }}" style="width:44px;height:44px;border:0;background:transparent;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--ink-2);cursor:pointer"><span style="display:flex;font-size:18px">{{ ic.x }}</span></button></div>
+            <div style="flex:1;min-height:0;overflow-y:auto;padding:0 20px">
+              <div style="display:flex;flex-direction:column;padding:12px 0;border-top:1px solid var(--line)">
+                <span style="font:500 12px/16px 'IBM Plex Sans',sans-serif;letter-spacing:.02em;color:var(--ink-2);padding-bottom:4px">Location</span>
+                <sc-for list="{{ fLocs }}" as="r">
+                  <button type="button" role="radio" aria-checked="{{ r.on }}" onClick="{{ r.onClick }}" style="display:flex;align-items:center;gap:12px;min-height:44px;padding:0;border:0;background:transparent;color:var(--ink);font:400 14px/20px 'IBM Plex Sans',sans-serif;text-align:left;cursor:pointer"><span style="flex:none;width:18px;height:18px;box-sizing:border-box;border-radius:50%;border:1.5px solid {{ r.ring }};display:flex;align-items:center;justify-content:center"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:{{ r.dot }}"></span></span><span style="flex:1">{{ r.label }}</span><span style="font:500 12px/16px 'IBM Plex Mono',monospace;color:var(--ink-3)">{{ r.count }}</span></button>
+                </sc-for>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px;padding:14px 0;border-top:1px solid var(--line)">
+                <span style="font:500 12px/16px 'IBM Plex Sans',sans-serif;letter-spacing:.02em;color:var(--ink-2)">Prize pool</span>
+                <div role="radiogroup" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">
+                  <sc-for list="{{ fPrizes }}" as="p"><button type="button" role="radio" aria-checked="{{ p.on }}" onClick="{{ p.onClick }}" style="height:44px;border-radius:8px;border:1px solid {{ p.bd }};background:{{ p.bg }};color:{{ p.fg }};font:500 13px/16px 'IBM Plex Mono',monospace;cursor:pointer">{{ p.label }}</button></sc-for>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;padding:12px 0;border-top:1px solid var(--line)">
+                <span style="font:500 12px/16px 'IBM Plex Sans',sans-serif;letter-spacing:.02em;color:var(--ink-2);padding-bottom:4px">Mode</span>
+                <sc-for list="{{ fModes }}" as="r">
+                  <button type="button" role="checkbox" aria-checked="{{ r.on }}" onClick="{{ r.onClick }}" style="display:flex;align-items:center;gap:12px;min-height:44px;padding:0;border:0;background:transparent;color:var(--ink);font:400 14px/20px 'IBM Plex Sans',sans-serif;text-align:left;cursor:pointer"><span style="flex:none;width:18px;height:18px;box-sizing:border-box;border-radius:4px;border:1.5px solid {{ r.ring }};background:{{ r.box }};color:var(--on-accent);display:flex;align-items:center;justify-content:center;font-size:13px">{{ r.check }}</span><span style="flex:1">{{ r.label }}</span><span style="font:500 12px/16px 'IBM Plex Mono',monospace;color:var(--ink-3)">{{ r.count }}</span></button>
+                </sc-for>
+              </div>
+              <div style="display:flex;flex-direction:column;padding:12px 0 20px;border-top:1px solid var(--line)">
+                <span style="font:500 12px/16px 'IBM Plex Sans',sans-serif;letter-spacing:.02em;color:var(--ink-2);padding-bottom:4px">Sort</span>
+                <sc-for list="{{ fSorts }}" as="r">
+                  <button type="button" role="radio" aria-checked="{{ r.on }}" onClick="{{ r.onClick }}" style="display:flex;align-items:center;gap:12px;min-height:44px;padding:0;border:0;background:transparent;color:var(--ink);font:400 14px/20px 'IBM Plex Sans',sans-serif;text-align:left;cursor:pointer"><span style="flex:none;width:18px;height:18px;box-sizing:border-box;border-radius:50%;border:1.5px solid {{ r.ring }};display:flex;align-items:center;justify-content:center"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:{{ r.dot }}"></span></span>{{ r.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 16px 28px 20px;border-top:1px solid var(--line)">
+              <button type="button" onClick="{{ clearAll }}" style="height:44px;padding:0 4px;border:0;background:transparent;color:var(--ink-2);font:500 14px/20px 'IBM Plex Sans',sans-serif;cursor:pointer">Reset</button>
+              <button type="button" onClick="{{ closeAll }}" style="flex:1;height:48px;border-radius:8px;border:1px solid var(--ink);background:transparent;color:var(--ink);font:500 15px/20px 'IBM Plex Sans',sans-serif;font-variant-numeric:tabular-nums;cursor:pointer">{{ showLabel }}</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{ mShowLoc }}" hint-placeholder-val="{{ false }}">
+            <span aria-hidden="true" style="align-self:center;margin-top:8px;width:36px;height:4px;border-radius:2px;background:var(--line-strong)"></span>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 8px 4px 20px"><h2 style="margin:0;font:500 22px/28px 'Newsreader',Georgia,serif">Location</h2><button type="button" aria-label="Close" onClick="{{ closeAll }}" style="width:44px;height:44px;border:0;background:transparent;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--ink-2);cursor:pointer"><span style="display:flex;font-size:18px">{{ ic.x }}</span></button></div>
+            <div style="flex:1;min-height:0;overflow-y:auto;padding:0 20px 28px">
+              <sc-for list="{{ locPick }}" as="r">
+                <button type="button" role="radio" aria-checked="{{ r.on }}" onClick="{{ r.onClick }}" style="width:100%;display:flex;align-items:center;gap:12px;min-height:48px;padding:0;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);font:400 15px/20px 'IBM Plex Sans',sans-serif;text-align:left;cursor:pointer"><span style="flex:none;display:flex;font-size:16px;color:{{ r.ring }}">{{ ic.pin }}</span><span style="flex:1">{{ r.label }}</span><span style="font:500 12px/16px 'IBM Plex Mono',monospace;color:var(--ink-3)">{{ r.count }}</span><span style="display:{{ r.dot }};font-size:16px;color:var(--accent)">{{ ic.check }}</span></button>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ mShowBell }}" hint-placeholder-val="{{ false }}">
+            <span aria-hidden="true" style="align-self:center;margin-top:8px;width:36px;height:4px;border-radius:2px;background:var(--line-strong)"></span>
+            <div style="display:flex;flex-direction:column;padding:8px 20px 32px">
+              <h2 style="margin:0 0 8px;font:500 22px/28px 'Newsreader',Georgia,serif">Community</h2>
+              <button type="button" onClick="{{ mWhatsapp }}" style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);font:400 15px/20px 'IBM Plex Sans',sans-serif;text-align:left;cursor:pointer"><span style="display:flex;font-size:18px;color:var(--ink-2)">{{ ic.msg }}</span><span style="flex:1">Join WhatsApp Hub</span><span style="display:flex;font-size:16px;color:var(--ink-2)">{{ ic.arrowUR }}</span></button>
+              <button type="button" role="switch" aria-checked="{{ alerts }}" onClick="{{ toggleAlerts }}" style="display:flex;align-items:center;gap:12px;min-height:60px;padding:0;border:0;background:transparent;color:var(--ink);text-align:left;cursor:pointer"><span style="display:flex;font-size:18px;color:var(--ink-2)">{{ ic.bell }}</span><span style="flex:1;display:flex;flex-direction:column"><span style="font:400 15px/20px 'IBM Plex Sans',sans-serif">Deadline alerts</span><span style="font:400 12px/16px 'IBM Plex Sans',sans-serif;color:var(--ink-2)">{{ alertsNote }}</span></span><span style="width:36px;height:22px;box-sizing:border-box;border-radius:999px;padding:2px;background:{{ swA.track }};display:flex;justify-content:{{ swA.pos }}"><span style="width:18px;height:18px;border-radius:50%;background:{{ swA.knob }}"></span></span></button>
+            </div>
+          </sc-if>
+          <sc-if value="{{ mShowAvatar }}" hint-placeholder-val="{{ false }}">
+            <span aria-hidden="true" style="align-self:center;margin-top:8px;flex:none;width:36px;height:4px;border-radius:2px;background:var(--line-strong)"></span>
+            <div style="flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;padding:8px 20px 32px">
+              <h2 style="margin:0;font:500 24px/30px 'Newsreader',Georgia,serif">{{ greeting }}, Asha</h2>
+              <span style="font:400 13px/18px 'IBM Plex Sans',sans-serif;color:var(--ink-2);padding-bottom:12px">5th Sem CSE · <span style="font-family:'IBM Plex Mono',monospace">{{ trackedCount }}</span> tracked</span>
+              <button type="button" onClick="{{ mInstall }}" style="display:flex;align-items:center;gap:12px;min-height:48px;padding:0;border:0;border-top:1px solid var(--line);background:transparent;color:var(--ink);font:400 15px/20px 'IBM Plex Sans',sans-serif;text-align:left;cursor:pointer"><span style="display:flex;font-size:18px;color:var(--ink-2)">{{ ic.download }}</span>Install TechPulse app</button>
+              <button type="button" onClick="{{ mSubmit }}" style="display:flex;align-items:center;gap:12px;min-height:48px;padding:0;border:0;border-top:1px solid var(--line);background:transparent;color:var(--ink);font:400 15px/20px 'IBM Plex Sans',sans-serif;text-align:left;cursor:pointer"><span style="display:flex;font-size:18px;color:var(--ink-2)">{{ ic.plus }}</span>Submit an opportunity</button>
+              <sc-for list="{{ mTools }}" as="g">
+                <div style="display:flex;flex-direction:column;padding-top:12px;border-top:1px solid var(--line)">
+                  <span style="font:500 12px/16px 'IBM Plex Sans',sans-serif;letter-spacing:.02em;color:var(--ink-2)">{{ g.label }}</span>
+                  <sc-for list="{{ g.items }}" as="it">
+                    <button type="button" onClick="{{ it.onClick }}" style="display:flex;align-items:flex-start;gap:12px;min-height:52px;padding:8px 0;border:0;background:transparent;color:var(--ink);text-align:left;cursor:pointer"><span style="display:flex;font-size:18px;color:var(--ink-2);padding-top:1px">{{ it.icon }}</span><span style="display:flex;flex-direction:column"><span style="font:500 14px/20px 'IBM Plex Sans',sans-serif">{{ it.name }}</span><span style="font:400 12.5px/17px 'IBM Plex Sans',sans-serif;color:var(--ink-2)">{{ it.hint }}</span></span></button>
+                  </sc-for>
+                </div>
+              </sc-for>
+              <sc-for list="{{ mAcct }}" as="it">
+                <button type="button" onClick="{{ it.onClick }}" style="display:flex;align-items:center;gap:12px;min-height:48px;padding:0;border:0;border-top:1px solid var(--line);background:transparent;color:{{ it.fg }};font:400 15px/20px 'IBM Plex Sans',sans-serif;text-align:left;cursor:pointer"><span style="display:flex;font-size:18px;color:var(--ink-2)">{{ it.icon }}</span>{{ it.label }}</button>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+
+        <div role="status" aria-live="polite" style="position:absolute;left:12px;right:12px;bottom:96px;z-index:40;display:flex;justify-content:center;pointer-events:none;opacity:{{ mT.op }};transform:{{ mT.y }};transition:opacity 200ms ease-out,transform 200ms ease-out">
+          <span style="display:flex;align-items:center;gap:12px;padding:6px 6px 6px 14px;border-radius:8px;background:var(--ink);color:var(--canvas);font:400 13px/18px 'IBM Plex Sans',sans-serif;pointer-events:{{ mT.pe }}"><span style="padding:6px 0">{{ mT.msg }}</span><sc-if value="{{ mT.hasUndo }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ mT.undo }}" style="flex:none;height:36px;padding:0 10px;border:0;border-radius:6px;background:transparent;color:var(--canvas);font:500 13px/18px 'IBM Plex Sans',sans-serif;text-decoration:underline;cursor:pointer">Undo</button></sc-if></span>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex:none;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:8px"><span style="font:500 12px/16px 'IBM Plex Sans',sans-serif;color:var(--ink)">Desktop</span><span style="font:500 12px/16px 'IBM Plex Mono',monospace;color:var(--ink-2)">1280 × 900</span></div>
+      <div data-screen-label="Desktop 1280" style="width:1280px;height:900px;position:relative;overflow:hidden;border-radius:14px;background:var(--canvas);border:1px solid var(--line-strong);isolation:isolate;transition:background-color 160ms ease">
+        <sc-if value="{{ dPopOpen }}" hint-placeholder-val="{{ false }}"><div onClick="{{ closeAll }}" style="position:absolute;inset:0;z-index:15"></div></sc-if>
+        <div style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:thin">
+          <header style="position:sticky;top:0;z-index:20;height:56px;box-sizing:border-box;display:flex;align-items:center;gap:28px;padding:0 24px;background:var(--canvas);border-bottom:1px solid var(--line);transition:background-color 160ms ease">
+            <div style="display:flex;align-items:center;gap:7px;flex:none">
+              <span style="display:flex;font-size:20px;color:var(--accent)">{{ ic.pulse }}</span>
+              <span style="font:500 20px/24px 'Newsreader',Georgia,serif;letter-spacing:-0.01em;color:var(--ink)">TechPulse</span>
+            </div>
+            <nav aria-label="Primary" style="display:flex;align-items:stretch;height:56px">
+              <sc-for list="{{ dNav }}" as="n" hint-placeholder-count="4">
+                <button type="button" onClick="{{ n.onClick }}" aria-current="{{ n.cur }}" style="position:relative;height:56px;padding:0 12px;border:0;background:transparent;display:flex;align-items:center;gap:6px;color:{{ n.fg }};font:500 14px/20px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="color:var(--ink)">{{ n.label }}<span style="position:absolute;left:12px;right:12px;bottom:-1px;height:2px;background:{{ n.ind }}"></span></button>
+              </sc-for>
+              <div style="position:relative;display:flex">
+                <button type="button" onClick="{{ dToggleTools }}" aria-expanded="{{ dToolsOpen }}" aria-haspopup="menu" style="height:56px;padding:0 12px;border:0;background:transparent;display:flex;align-items:center;gap:4px;color:{{ toolsFg }};font:500 14px/20px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="color:var(--ink)">More Tools<span style="display:flex;font-size:14px">{{ ic.chevD }}</span></button>
+                <sc-if value="{{ dToolsOpen }}" hint-placeholder-val="{{ false }}">
+                  <div role="menu" style="position:absolute;top:52px;left:-160px;width:780px;box-sizing:border-box;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;padding:20px 24px 16px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)">
+                    <sc-for list="{{ dTools }}" as="g">
+                      <div style="display:flex;flex-direction:column;gap:2px">
+                        <span style="font:500 12px/16px 'IBM Plex Sans',sans-serif;letter-spacing:.02em;color:var(--ink-2);padding:0 8px 6px">{{ g.label }}</span>
+                        <sc-for list="{{ g.items }}" as="it">
+                          <button type="button" role="menuitem" onClick="{{ it.onClick }}" style="display:flex;align-items:flex-start;gap:10px;padding:8px;border:0;border-radius:8px;background:transparent;color:var(--ink);text-align:left;cursor:pointer" style-hover="background:var(--pill)"><span style="display:flex;font-size:18px;color:var(--ink-2);padding-top:1px">{{ it.icon }}</span><span style="display:flex;flex-direction:column;gap:1px"><span style="font:500 14px/20px 'IBM Plex Sans',sans-serif">{{ it.name }}</span><span style="font:400 12.5px/17px 'IBM Plex Sans',sans-serif;color:var(--ink-2)">{{ it.hint }}</span></span></button>
+                        </sc-for>
+                      </div>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </div>
+            </nav>
+            <div style="margin-left:auto;display:flex;align-items:center;gap:4px">
+              <div style="position:relative">
+                <button type="button" onClick="{{ dToggleLoc }}" aria-expanded="{{ dLocOpen }}" aria-haspopup="dialog" style="height:34px;padding:0 10px 0 10px;border-radius:999px;border:1px solid var(--line);background:var(--pill);display:inline-flex;align-items:center;gap:6px;color:var(--ink);font:500 13px/16px 'IBM Plex Sans',sans-serif;cursor:pointer"><span style="display:flex;font-size:14px;color:var(--ink-2)">{{ ic.pin }}</span>{{ loc }}<span style="font:500 12px/16px 'IBM Plex Mono',monospace;color:var(--ink-3)">{{ locCount }}</span><span style="display:flex;font-size:14px;color:var(--ink-2)">{{ ic.chevD }}</span></button>
+                <sc-if value="{{ dLocOpen }}" hint-placeholder-val="{{ false }}">
+                  <div role="dialog" aria-label="Choose location" style="position:absolute;top:44px;right:0;width:260px;max-height:480px;overflow-y:auto;padding:6px;box-sizing:border-box;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)">
+                    <sc-for list="{{ locPick }}" as="r">
+                      <button type="button" role="radio" aria-checked="{{ r.on }}" onClick="{{ r.onClick }}" style="width:100%;display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border:0;border-radius:8px;background:transparent;color:var(--ink);font:400 14px/20px 'IBM Plex Sans',sans-serif;text-align:left;cursor:pointer" style-hover="background:var(--pill)"><span style="flex:1">{{ r.label }}</span><span style="font:500 12px/16px 'IBM Plex Mono',monospace;color:var(--ink-3)">{{ r.count }}</span><span style="display:{{ r.dot }};font-size:15px;color:var(--accent)">{{ ic.check }}</span></button>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </div>
+              <div style="position:relative">
+                <button type="button" aria-label="Community and alerts" onClick="{{ dToggleBell }}" aria-expanded="{{ dBellOpen }}" style="width:36px;height:36px;border:0;background:transparent;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--ink-2);cursor:pointer" style-hover="background:var(--pill);color:var(--ink)"><span style="display:flex;font-size:20px">{{ ic.bell }}</span></button>
+                <sc-if value="{{ dBellOpen }}" hint-placeholder-val="{{ false }}">
+                  <div role="dialog" aria-label="Community" style="position:absolute;top:44px;right:-8px;width:300px;padding:8px;box-sizing:border-box;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)">
+                    <button type="button" onClick="{{ dWhatsapp }}" style="width:100%;display:flex;align-items:center;gap:10px;height:44px;padding:0 10px;border:0;border-radius:8px;background:transparent;color:var(--ink);font:400 14px/20px 'IBM Plex Sans',sans-serif;text-align:left;cursor:pointer" style-hover="background:var(--pill)"><span style="display:flex;font-size:18px;color:var(--ink-2)">{{ ic.msg }}</span><span style="flex:1">Join WhatsApp Hub</span><span style="display:flex;font-size:15px;color:var(--ink-2)">{{ ic.arrowUR }}</span></button>
+                    <button type="button" role="switch" aria-checked="{{ alerts }}" onClick="{{ toggleAlerts }}" style="width:100%;display:flex;align-items:center;gap:10px;min-height:52px;padding:4px 10px;border:0;border-top:1px solid var(--line);background:transparent;color:var(--ink);text-align:left;cursor:pointer"><span style="display:flex;font-size:18px;color:var(--ink-2)">{{ ic.bell }}</span><span style="flex:1;display:flex;flex-direction:column"><span style="font:400 14px/20px 'IBM Plex Sans',sans-serif">Deadline alerts</span><span style="font:400 12px/16px 'IBM Plex Sans',sans-serif;color:var(--ink-2)">{{ alertsNote }}</span></span><span style="width:32px;height:20px;box-sizing:border-box;border-radius:999px;padding:2px;background:{{ swA.track }};display:flex;justify-content:{{ swA.pos }}"><span style="width:16px;height:16px;border-radius:50%;background:{{ swA.knob }}"></span></span></button>
+                  </div>
+                </sc-if>
+              </div>
+              <button type="button" aria-label="Install TechPulse app" title="Install TechPulse app" onClick="{{ dInstall }}" style="width:36px;height:36px;border:0;background:transparent;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--ink-2);cursor:pointer" style-hover="background:var(--pill);color:var(--ink)"><span style="display:flex;font-size:20px">{{ ic.download }}</span></button>
+              <button type="button" aria-label="{{ themeAria }}" title="{{ themeAria }}" onClick="{{ toggleTheme }}" style="width:36px;height:36px;border:0;background:transparent;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--ink-2);cursor:pointer" style-hover="background:var(--pill);color:var(--ink)"><span style="display:flex;font-size:20px">{{ themeIcon }}</span></button>
+              <button type="button" onClick="{{ dSubmit }}" style="height:36px;padding:0 10px;border:0;background:transparent;border-radius:8px;color:var(--ink);font:500 14px/20px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:var(--pill)">Submit</button>
+              <sc-if value="{{ signedIn }}" hint-placeholder-val="{{ true }}">
+                <div style="position:relative">
+                  <button type="button" aria-label="Account menu" aria-expanded="{{ dAvOpen }}" onClick="{{ dToggleAv }}" style="width:36px;height:36px;border:0;background:transparent;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer"><span style="width:32px;height:32px;border-radius:50%;background:var(--accent-tint);color:var(--accent);font:500 12px/32px 'IBM Plex Mono',monospace;text-align:center">AR</span></button>
+                  <sc-if value="{{ dAvOpen }}" hint-placeholder-val="{{ false }}">
+                    <div role="menu" style="position:absolute;top:44px;right:0;width:240px;padding:6px;box-sizing:border-box;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)">
+                      <div style="display:flex;flex-direction:column;padding:8px 10px 10px;border-bottom:1px solid var(--line);margin-bottom:4px"><span style="font:500 14px/20px 'IBM Plex Sans',sans-serif">Asha R.</span><span style="font:400 12px/16px 'IBM Plex Sans',sans-serif;color:var(--ink-2)">5th Sem CSE · <span style="font-family:'IBM Plex Mono',monospace">{{ trackedCount }}</span> tracked</span></div>
+                      <sc-for list="{{ dAcct }}" as="it">
+                        <button type="button" role="menuitem" onClick="{{ it.onClick }}" style="width:100%;display:flex;align-items:center;gap:10px;height:38px;padding:0 10px;border:0;border-radius:8px;background:transparent;color:{{ it.fg }};font:400 14px/20px 'IBM Plex Sans',sans-serif;text-align:left;cursor:pointer" style-hover="background:var(--pill)"><span style="display:flex;font-size:16px;color:var(--ink-2)">{{ it.icon }}</span>{{ it.label }}</button>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-if>
+              <sc-if value="{{ signedOut }}" hint-placeholder-val="{{ false }}">
+                <button type="button" onClick="{{ signIn }}" style="height:36px;padding:0 14px;border-radius:8px;border:1px solid var(--line-strong);background:transparent;color:var(--ink);font:500 14px/20px 'IBM Plex Sans',sans-serif;cursor:pointer">Sign in</button>
+              </sc-if>
+            </div>
+          </header>
+
+          <div style="display:flex;gap:24px;align-items:flex-start;padding:16px 24px 0">
+            <main style="width:888px;flex:none;display:flex;flex-direction:column">
+              <div style="display:flex;align-items:center;gap:8px;height:40px">
+                <span style="font:500 12px/16px 'IBM Plex Sans',sans-serif;letter-spacing:.02em;color:var(--ink-2);padding-right:6px">Your pulse today</span>
+                <button type="button" role="switch" aria-checked="{{ hide }}" onClick="{{ toggleHide }}" style="height:32px;padding:0 10px 0 10px;border-radius:999px;border:1px solid {{ hidePillBd }};background:{{ hidePillBg }};display:inline-flex;align-items:center;gap:8px;color:var(--ink);font:500 13px/16px 'IBM Plex Sans',sans-serif;cursor:pointer;transition:background-color 160ms ease"><span style="display:flex;font-size:15px;color:var(--ink-2)">{{ ic.shield }}</span>Hide exam clashes<span style="width:28px;height:16px;box-sizing:border-box;border-radius:999px;padding:2px;background:{{ sw.track }};display:flex;justify-content:{{ sw.pos }}"><span style="width:12px;height:12px;border-radius:50%;background:{{ sw.knob }}"></span></span></button>
+                <sc-for list="{{ pulsePills }}" as="p" hint-placeholder-count="2">
+                  <button type="button" aria-pressed="{{ p.on }}" onClick="{{ p.onClick }}" style="height:32px;padding:0 12px;border-radius:999px;border:1px solid {{ p.bd }};background:{{ p.bg }};color:{{ p.fg }};font:500 13px/16px 'IBM Plex Sans',sans-serif;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;cursor:pointer;transition:background-color 160ms ease,color 160ms ease">{{ p.label }}<span style="font:500 12px/16px 'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums">· {{ p.count }}</span></button>
+                </sc-for>
+              </div>
+              <div style="display:flex;align-items:stretch;height:40px;margin-top:8px;border-bottom:1px solid var(--line)">
+                <div role="tablist" style="flex:1;min-width:0;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;-webkit-mask-image:linear-gradient(to right,#000 88%,transparent);mask-image:linear-gradient(to right,#000 88%,transparent)">
+                  <sc-for list="{{ cats }}" as="c" hint-placeholder-count="6">
+                    <button type="button" role="tab" aria-selected="{{ c.on }}" onClick="{{ c.onClick }}" style="position:relative;flex:none;height:40px;padding:0 10px;border:0;background:transparent;display:inline-flex;align-items:center;gap:7px;color:{{ c.fg }};font:500 14px/20px 'IBM Plex Sans',sans-serif;white-space:nowrap;cursor:pointer" style-hover="color:var(--ink)"><span style="display:flex;font-size:16px">{{ c.icon }}</span>{{ c.label }}<span style="font:500 12px/16px 'IBM Plex Mono',monospace;color:var(--ink-3)">{{ c.count }}</span><span style="position:absolute;left:10px;right:10px;bottom:-1px;height:2px;background:{{ c.ind }}"></span></button>
+                  </sc-for>
+                </div>
+                <button type="button" onClick="{{ dOpenFilters }}" aria-haspopup="dialog" style="flex:none;height:40px;padding:0 4px 0 14px;border:0;background:transparent;display:inline-flex;align-items:center;gap:7px;color:var(--ink);font:500 14px/20px 'IBM Plex Sans',sans-serif;cursor:pointer"><span style="display:flex;font-size:16px">{{ ic.sliders }}</span>Filters<sc-if value="{{ hasFCount }}" hint-placeholder-val="{{ false }}"><span style="min-width:20px;height:20px;box-sizing:border-box;padding:0 6px;border-radius:10px;background:var(--accent-tint);color:var(--accent);font:500 12px/20px 'IBM Plex Mono',monospace;text-align:center">{{ fCount }}</span></sc-if></button>
+              </div>
+              <sc-if value="{{ hasChips }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-top:12px">
+                  <sc-for list="{{ chips }}" as="a">
+                    <button type="button" onClick="{{ a.rm }}" aria-label="{{ a.aria }}" style="height:28px;padding:0 6px 0 12px;border-radius:999px;border:1px solid var(--line);background:var(--pill);color:var(--ink);font:500 12.5px/16px 'IBM Plex Sans',sans-serif;display:inline-flex;align-items:center;gap:4px;cursor:pointer" style-hover="border-color:var(--line-strong)">{{ a.label }}<span style="display:flex;font-size:14px;color:var(--ink-2)">{{ ic.x }}</span></button>
+                  </sc-for>
+                  <button type="button" onClick="{{ clearAll }}" style="height:28px;padding:0 6px;border:0;background:transparent;color:var(--accent);font:500 12.5px/16px 'IBM Plex Sans',sans-serif;cursor:pointer">Clear all</button>
+                </div>
+              </sc-if>
+              <div onMouseEnter="{{ featIn }}" onMouseLeave="{{ featOut }}" aria-roledescription="carousel" aria-label="Featured" style="margin-top:14px;height:48px;box-sizing:border-box;display:flex;align-items:center;gap:12px;padding:0 6px 0 16px;background:var(--card);border:1px solid var(--line);border-radius:12px;transition:background-color 160ms ease">
+                <span style="flex:none;font:500 12px/16px 'IBM Plex Sans',sans-serif;letter-spacing:.02em;color:var(--accent)">Featured</span>
+                <span aria-hidden="true" style="flex:none;width:28px;height:28px;border-radius:6px;background:{{ feat.tileBg }};color:{{ feat.tileFg }};display:flex;align-items:center;justify-content:center;font:500 13px/1 'Newsreader',Georgia,serif">{{ feat.mono }}</span>
+                <span style="flex:1;min-width:0;font:400 14px/20px 'IBM Plex Sans',sans-serif;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span style="font-weight:500">{{ feat.title }}</span><span style="color:var(--ink-2)"> — {{ feat.org }}</span></span>
+                <span style="flex:none;font:500 12.5px/16px 'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;color:{{ feat.urgC }}">{{ feat.urgShort }}</span>
+                <button type="button" onClick="{{ dFeatOpen }}" style="flex:none;height:36px;padding:0 10px;border:0;border-radius:8px;background:transparent;color:var(--accent);font:500 13px/18px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:var(--accent-tint)">View details →</button>
+                <span style="flex:none;width:1px;height:20px;background:var(--line)"></span>
+                <span aria-live="polite" style="flex:none;font:500 12px/16px 'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;color:var(--ink-2)">{{ featPos }}</span>
+                <button type="button" aria-label="Previous featured" onClick="{{ featPrev }}" style="flex:none;width:32px;height:32px;border:0;border-radius:8px;background:transparent;color:var(--ink-2);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--pill);color:var(--ink)"><span style="display:flex;font-size:16px">{{ ic.chevL }}</span></button>
+                <button type="button" aria-label="Next featured" onClick="{{ featNext }}" style="flex:none;width:32px;height:32px;border:0;border-radius:8px;background:transparent;color:var(--ink-2);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--pill);color:var(--ink)"><span style="display:flex;font-size:16px">{{ ic.chevR }}</span></button>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:16px">
+                <sc-for list="{{ dCards }}" as="c" hint-placeholder-count="4">
+                  <dc-import name="OppCard" o="{{ c }}" ic="{{ ic }}" hint-size="100%,260px"></dc-import>
+                </sc-for>
+              </div>
+              <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:20px;padding:28px 28px;border:1px dashed var(--line-strong);border-radius:12px">
+                  <div style="flex:1;display:flex;flex-direction:column;gap:4px"><span style="font:500 21px/28px 'Newsreader',Georgia,serif;color:var(--ink)">{{ emptyTitle }}</span><span style="font:400 14px/20px 'IBM Plex Sans',sans-serif;color:var(--ink-2)">Try Pan-India or widen the prize filter.</span></div>
+                  <button type="button" onClick="{{ clearAll }}" style="height:44px;padding:0 16px;border-radius:8px;border:1px solid var(--ink);background:transparent;color:var(--ink);font:500 14px/20px 'IBM Plex Sans',sans-serif;cursor:pointer">Reset filters</button>
+                </div>
+              </sc-if>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:32px 0 40px">
+                <sc-if value="{{ hasMore }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ showMore }}" style="height:40px;padding:0 18px;border-radius:8px;border:1px solid var(--line-strong);background:transparent;color:var(--ink);font:500 14px/20px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="border-color:var(--ink-3)">{{ moreLabel }}</button></sc-if>
+                <span style="font:500 12px/16px 'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;color:var(--ink-3)">{{ showingLabel }}</span>
+              </div>
+            </main>
+
+            <aside aria-label="My Desk" style="width:320px;flex:none;position:sticky;top:72px;display:flex;flex-direction:column;padding-bottom:24px">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;padding:4px 0 12px"><span style="font:500 20px/26px 'Newsreader',Georgia,serif;color:var(--ink)">My Desk</span><span style="font:500 12px/16px 'IBM Plex Mono',monospace;color:var(--ink-3)">{{ clockLong }}</span></div>
+              <section aria-label="Academic Shield" style="display:flex;flex-direction:column;gap:12px;padding:14px 0 16px;border-top:1px solid var(--line)">
+                <div style="display:flex;align-items:center;gap:8px"><span style="display:flex;font-size:16px;color:var(--ink-2)">{{ ic.shield }}</span><span style="flex:1;font:500 14px/20px 'IBM Plex Sans',sans-serif">Academic Shield</span><button type="button" onClick="{{ dReplace }}" style="height:28px;padding:0 4px;border:0;background:transparent;color:var(--accent);font:500 13px/18px 'IBM Plex Sans',sans-serif;cursor:pointer">Replace</button></div>
+                <span style="font:400 13px/18px 'IBM Plex Sans',sans-serif;color:var(--ink-2)">5th Sem CIE timetable · <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px">8 exams · till 5 Dec</span></span>
+                <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">
+                  <sc-for list="{{ shieldStats }}" as="x" hint-placeholder-count="3">
+                    <div style="display:flex;flex-direction:column"><span style="font:500 22px/28px 'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;color:{{ x.c }}">{{ x.n }}</span><span style="font:400 12px/16px 'IBM Plex Sans',sans-serif;color:var(--ink-2)">{{ x.label }}</span></div>
+                  </sc-for>
+                </div>
+                <button type="button" role="switch" aria-checked="{{ hide }}" onClick="{{ toggleHide }}" style="height:36px;padding:0;border:0;background:transparent;display:flex;align-items:center;justify-content:space-between;color:var(--ink);font:400 14px/20px 'IBM Plex Sans',sans-serif;cursor:pointer">Hide exam clashes<span style="width:32px;height:20px;box-sizing:border-box;border-radius:999px;padding:2px;background:{{ sw.track }};display:flex;justify-content:{{ sw.pos }};transition:background-color 160ms ease"><span style="width:16px;height:16px;border-radius:50%;background:{{ sw.knob }}"></span></span></button>
+              </section>
+              <section aria-label="Deadline radar" style="display:flex;flex-direction:column;padding:14px 0 14px;border-top:1px solid var(--line)">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;padding-bottom:6px"><span style="font:500 14px/20px 'IBM Plex Sans',sans-serif">Deadline radar</span><span style="font:500 12px/16px 'IBM Plex Mono',monospace;color:var(--ink-3)">next 72h</span></div>
+                <sc-for list="{{ radar }}" as="r">
+                  <button type="button" onClick="{{ r.onOpenD }}" style="display:flex;align-items:center;gap:10px;min-height:44px;padding:4px 0;border:0;background:transparent;color:var(--ink);text-align:left;cursor:pointer" style-hover="color:var(--accent)">
+                    <span aria-hidden="true" style="flex:none;width:26px;height:26px;border-radius:6px;background:{{ r.tileBg }};color:{{ r.tileFg }};display:flex;align-items:center;justify-content:center;font:500 12px/1 'Newsreader',Georgia,serif">{{ r.mono }}</span>
+                    <span style="flex:1;min-width:0;font:400 13px/18px 'IBM Plex Sans',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.title }}</span>
+                    <span style="flex:none;font:500 12px/16px 'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;color:{{ r.urgC }}">{{ r.urgShort }}</span>
+                  </button>
+                </sc-for>
+                <sc-if value="{{ noRadar }}" hint-placeholder-val="{{ false }}"><p style="margin:0;padding:6px 0;font:400 13px/18px 'IBM Plex Sans',sans-serif;color:var(--ink-2)">Nothing tracked closes in the next 72h.</p></sc-if>
+                <button type="button" onClick="{{ dIcs }}" style="align-self:flex-start;height:32px;padding:0;border:0;background:transparent;color:var(--accent);font:500 13px/18px 'IBM Plex Sans',sans-serif;cursor:pointer">Sync to calendar (.ics)</button>
+              </section>
+              <section aria-label="Fast-apply readiness" style="display:flex;flex-direction:column;padding:14px 0 12px;border-top:1px solid var(--line)">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;padding-bottom:4px"><span style="font:500 14px/20px 'IBM Plex Sans',sans-serif">Fast-apply readiness</span><span style="font:500 12.5px/16px 'IBM Plex Mono',monospace">{{ readyScore }}</span></div>
+                <sc-for list="{{ ready }}" as="r"><div style="display:flex;align-items:center;gap:10px;min-height:28px;font:400 13px/18px 'IBM Plex Sans',sans-serif;color:{{ r.fg }}"><span style="display:flex;font-size:15px;color:{{ r.c }}">{{ r.icon }}</span>{{ r.label }}</div></sc-for>
+                <button type="button" onClick="{{ dProfile }}" style="align-self:flex-start;height:32px;padding:0;border:0;background:transparent;color:var(--accent);font:500 13px/18px 'IBM Plex Sans',sans-serif;cursor:pointer">Finish profile →</button>
+              </section>
+              <section aria-label="Teams" style="display:flex;flex-direction:column;gap:4px;padding:14px 0 0;border-top:1px solid var(--line)">
+                <span style="font:500 14px/20px 'IBM Plex Sans',sans-serif">Teams</span>
+                <button type="button" onClick="{{ dTeams }}" style="padding:4px 0;border:0;background:transparent;color:var(--ink-2);font:400 13px/19px 'IBM Plex Sans',sans-serif;text-align:left;cursor:pointer;text-wrap:pretty" style-hover="color:var(--ink)"><span style="font-family:'IBM Plex Mono',monospace;color:var(--ink)">{{ teamNeedCount }}</span> people looking for a backend dev for CodeFest '26 <span style="color:var(--accent)">→</span></button>
+              </section>
+            </aside>
+          </div>
+
+          <footer style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;padding:32px 24px 20px;border-top:1px solid var(--line);font:400 13px/20px 'IBM Plex Sans',sans-serif;color:var(--ink-2)">
+            <div style="display:flex;flex-direction:column;gap:4px"><span style="font:500 12px/16px 'IBM Plex Sans',sans-serif;letter-spacing:.02em;color:var(--ink);padding-bottom:4px">Platform radar</span><a href="#" style="color:var(--ink-2)">Hackathons feed</a><a href="#" style="color:var(--ink-2)">Anti-Ghosting Team Finder</a><a href="#" style="color:var(--ink-2)">Events calendar &amp; sync</a></div>
+            <div style="display:flex;flex-direction:column;gap:4px"><span style="font:500 12px/16px 'IBM Plex Sans',sans-serif;letter-spacing:.02em;color:var(--ink);padding-bottom:4px">About</span><a href="#" style="color:var(--ink-2)">About us &amp; engineering team</a><a href="#" style="color:var(--ink-2)">Meet the creators</a><span>Support — <a href="mailto:techpulse.support247@gmail.com" style="color:var(--accent)">techpulse.support247@gmail.com</a></span></div>
+            <div style="display:flex;flex-direction:column;gap:6px;padding-top:20px"><span style="display:inline-flex;align-items:center;gap:8px"><span style="display:flex;font-size:15px">{{ ic.lock }}</span>On-device privacy first</span><span style="display:inline-flex;align-items:center;gap:8px"><span style="display:flex;font-size:15px">{{ ic.shield }}</span>Pan-India academic integrity</span><a href="#" style="color:var(--ink-3)">Admin operations portal →</a></div>
+            <span style="grid-column:1 / -1;padding-top:16px;border-top:1px solid var(--line);font:400 12px/16px 'IBM Plex Sans',sans-serif;color:var(--ink-3)">© 2026 TechPulse · Built by students in Karnataka</span>
+          </footer>
+        </div>
+
+        <div onClick="{{ closeAll }}" style="position:absolute;inset:0;z-index:30;background:var(--scrim);opacity:{{ dScrimOp }};pointer-events:{{ dScrimPE }};transition:opacity 240ms ease-out"></div>
+        <div role="dialog" aria-modal="true" aria-label="{{ dDrawerLabel }}" style="position:absolute;top:0;right:0;bottom:0;z-index:31;width:{{ dDrawerW }};display:flex;flex-direction:column;background:var(--card);border-left:1px solid var(--line);box-shadow:var(--shadow);transform:{{ dDrawerX }};transition:transform 240ms ease-out,background-color 160ms ease">
+          <sc-if value="{{ dShowDetails }}" hint-placeholder-val="{{ false }}">
+            <dc-import name="OppDetails" d="{{ dDet }}" ic="{{ ic }}" style="height:100%" hint-size="100%,100%"></dc-import>
+          </sc-if>
+          <sc-if value="{{ dShowFilters }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 12px 10px 24px"><h2 style="margin:0;font:500 24px/30px 'Newsreader',Georgia,serif">Filter &amp; sort</h2><button type="button" aria-label="Close" onClick="{{ closeAll }}" style="width:40px;height:40px;border:0;background:transparent;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--ink-2);cursor:pointer"><span style="display:flex;font-size:18px">{{ ic.x }}</span></button></div>
+            <div style="flex:1;min-height:0;overflow-y:auto;padding:0 24px">
+              <div style="display:flex;flex-direction:column;padding:12px 0;border-top:1px solid var(--line)">
+                <span style="font:500 12px/16px 'IBM Plex Sans',sans-serif;letter-spacing:.02em;color:var(--ink-2);padding-bottom:4px">Location</span>
+                <div style="display:grid;grid-template-columns:1fr 1fr;column-gap:16px">
+                  <sc-for list="{{ fLocs }}" as="r">
+                    <button type="button" role="radio" aria-checked="{{ r.on }}" onClick="{{ r.onClick }}" style="display:flex;align-items:center;gap:10px;min-height:36px;padding:0;border:0;background:transparent;color:var(--ink);font:400 14px/20px 'IBM Plex Sans',sans-serif;text-align:left;cursor:pointer"><span style="flex:none;width:16px;height:16px;box-sizing:border-box;border-radius:50%;border:1.5px solid {{ r.ring }};display:flex;align-items:center;justify-content:center"><span style="width:7px;height:7px;border-radius:50%;background:var(--accent);display:{{ r.dot }}"></span></span><span style="flex:1">{{ r.label }}</span><span style="font:500 12px/16px 'IBM Plex Mono',monospace;color:var(--ink-3)">{{ r.count }}</span></button>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px;padding:14px 0;border-top:1px solid var(--line)">
+                <span style="font:500 12px/16px 'IBM Plex Sans',sans-serif;letter-spacing:.02em;color:var(--ink-2)">Prize pool</span>
+                <div role="radiogroup" style="display:flex;padding:3px;border-radius:8px;background:var(--pill);border:1px solid var(--line)">
+                  <sc-for list="{{ fPrizes }}" as="p"><button type="button" role="radio" aria-checked="{{ p.on }}" onClick="{{ p.onClick }}" style="flex:1;height:32px;border-radius:6px;border:1px solid {{ p.bd }};background:{{ p.bg }};color:{{ p.fg }};font:500 12px/16px 'IBM Plex Mono',monospace;cursor:pointer">{{ p.label }}</button></sc-for>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;padding:12px 0;border-top:1px solid var(--line)">
+                <span style="font:500 12px/16px 'IBM Plex Sans',sans-serif;letter-spacing:.02em;color:var(--ink-2);padding-bottom:4px">Mode</span>
+                <sc-for list="{{ fModes }}" as="r">
+                  <button type="button" role="checkbox" aria-checked="{{ r.on }}" onClick="{{ r.onClick }}" style="display:flex;align-items:center;gap:10px;min-height:36px;padding:0;border:0;background:transparent;color:var(--ink);font:400 14px/20px 'IBM Plex Sans',sans-serif;text-align:left;cursor:pointer"><span style="flex:none;width:16px;height:16px;box-sizing:border-box;border-radius:4px;border:1.5px solid {{ r.ring }};background:{{ r.box }};color:var(--on-accent);display:flex;align-items:center;justify-content:center;font-size:12px">{{ r.check }}</span><span style="flex:1">{{ r.label }}</span><span style="font:500 12px/16px 'IBM Plex Mono',monospace;color:var(--ink-3)">{{ r.count }}</span></button>
+                </sc-for>
+              </div>
+              <div style="display:flex;flex-direction:column;padding:12px 0 20px;border-top:1px solid var(--line)">
+                <span style="font:500 12px/16px 'IBM Plex Sans',sans-serif;letter-spacing:.02em;color:var(--ink-2);padding-bottom:4px">Sort</span>
+                <sc-for list="{{ fSorts }}" as="r">
+                  <button type="button" role="radio" aria-checked="{{ r.on }}" onClick="{{ r.onClick }}" style="display:flex;align-items:center;gap:10px;min-height:36px;padding:0;border:0;background:transparent;color:var(--ink);font:400 14px/20px 'IBM Plex Sans',sans-serif;text-align:left;cursor:pointer"><span style="flex:none;width:16px;height:16px;box-sizing:border-box;border-radius:50%;border:1.5px solid {{ r.ring }};display:flex;align-items:center;justify-content:center"><span style="width:7px;height:7px;border-radius:50%;background:var(--accent);display:{{ r.dot }}"></span></span>{{ r.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:14px 24px;border-top:1px solid var(--line)">
+              <button type="button" onClick="{{ clearAll }}" style="height:40px;padding:0 4px;border:0;background:transparent;color:var(--ink-2);font:500 14px/20px 'IBM Plex Sans',sans-serif;cursor:pointer">Reset</button>
+              <button type="button" onClick="{{ closeAll }}" style="flex:1;height:44px;border-radius:8px;border:1px solid var(--ink);background:transparent;color:var(--ink);font:500 14px/20px 'IBM Plex Sans',sans-serif;font-variant-numeric:tabular-nums;cursor:pointer">{{ showLabel }}</button>
+            </div>
+          </sc-if>
+        </div>
+
+        <div role="status" aria-live="polite" style="position:absolute;left:0;right:0;bottom:24px;z-index:40;display:flex;justify-content:center;pointer-events:none;opacity:{{ dT.op }};transform:{{ dT.y }};transition:opacity 200ms ease-out,transform 200ms ease-out">
+          <span style="display:flex;align-items:center;gap:12px;padding:6px 6px 6px 16px;border-radius:8px;background:var(--ink);color:var(--canvas);font:400 14px/20px 'IBM Plex Sans',sans-serif;pointer-events:{{ dT.pe }}"><span style="padding:4px 0">{{ dT.msg }}</span><sc-if value="{{ dT.hasUndo }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ dT.undo }}" style="flex:none;height:32px;padding:0 10px;border:0;border-radius:6px;background:transparent;color:var(--canvas);font:500 14px/20px 'IBM Plex Sans',sans-serif;text-decoration:underline;cursor:pointer">Undo</button></sc-if></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;initialTheme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const NOW0 = Date.parse('2026-11-14T10:00:00+05:30');
+const HR = 3600000, DAY = 86400000;
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const WD = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const THEMES = {
+  light: { canvas:'#FAF9F5', card:'#FFFFFF', pill:'#F2F0EA', ink:'#141413', ink2:'#5E5D59', ink3:'#75736B', line:'#E6E4DD', ls:'#D6D3C9', acc:'#B4532A', accH:'#9A4523', accT:'#F6E9E2', onAcc:'#FFFFFF', ok:'#1F7A55', okBg:'#E8F3EC', warn:'#9A6212', warnBg:'#FBF1DE', clash:'#B42318', clashBg:'#FBEAE8', focus:'#141413', shadow:'0 12px 32px rgba(20,20,19,0.10)', scrim:'rgba(20,20,19,0.32)', lift:'translateY(-1px)', page:'#ECEAE4', knobOff:'#FFFFFF', trackOff:'#D6D3C9' },
+  dark: { canvas:'#0E1013', card:'#16191E', pill:'#1F232A', ink:'#F3F4F6', ink2:'#9CA3AF', ink3:'#868C97', line:'rgba(255,255,255,0.08)', ls:'rgba(255,255,255,0.14)', acc:'#E0895F', accH:'#EBA07D', accT:'rgba(224,137,95,0.12)', onAcc:'#141413', ok:'#6FBF95', okBg:'rgba(111,191,149,0.12)', warn:'#D9A55B', warnBg:'rgba(217,165,91,0.12)', clash:'#E58A80', clashBg:'rgba(229,138,128,0.12)', focus:'#F3F4F6', shadow:'none', scrim:'rgba(0,0,0,0.5)', lift:'none', page:'#070809', knobOff:'#9CA3AF', trackOff:'#2A2F37' },
+};
+const TINTS = {
+  light: [['#F1E7D8','#6B4E2A'],['#E4ECE1','#3F5A3A'],['#E3E8EF','#39485C'],['#F2E3E1','#7A3B33'],['#F3EBD3','#6E5618'],['#DFEBEA','#2F5653']],
+  dark: [['rgba(214,180,130,0.14)','#E3C79E'],['rgba(140,180,130,0.14)','#B5CFAE'],['rgba(140,160,190,0.16)','#B4C2D6'],['rgba(220,140,130,0.14)','#E6B1A9'],['rgba(210,175,80,0.14)','#DCC27E'],['rgba(110,175,170,0.14)','#A6CFCB']],
+};
+const CATS = [['hack','Hackathons','code','hackathons'],['acad','Academic Events','cap','academic events'],['meetup','Tech Meetups','users','meetups'],['intern','Internships & Hiring','briefcase','internships'],['workshop','Workshops','wrench','workshops'],['all','All Opportunities','grid','opportunities']];
+const CITIES = ['Pan-India','Bengaluru','Mysuru','Mangaluru','Hubballi','Belagavi','Hyderabad','Mumbai','Delhi-NCR','Chennai','Pune','Kolkata'];
+const PRIZES = [[0,'Any'],[25000,'₹25K+'],[50000,'₹50K+'],[100000,'₹1L+'],[250000,'₹2.5L+'],[500000,'₹5L+']];
+const SORTS = [['soon','Deadline — soonest first'],['late','Deadline — latest first'],['new','Newly arrived'],['prize','Prize — highest first']];
+const SORT_CHIP = { late:'Deadline: latest', new:'Newly arrived', prize:'Prize: highest' };
+const TOOLS = [
+  ['Plan', [['file','Attendance & OD Letter Generator','Draft college OD letters for hackathons'],['shield','Exam Timetable Sync','Upload CIE PDF to spot clashes'],['calendar','.ics Calendar Export','Sync deadlines to Google/Apple Calendar']]],
+  ['Build', [['users','Anti-Ghosting Team Finder','Match with verified student builders'],['git','GitHub Repo Analyzer','Check project readiness before submission'],['zap','Fast Apply Profile','Reuse bio, links & resume in one click']]],
+  ['Stay updated', [['radar','Multi-Portal Feed Radar','Live index from Unstop, Devfolio & official sites'],['bell','Deadline Alert Rules','Custom 48h & 12h email reminders'],['bookmark','Saved & Deadlines','Track shortlisted events & team status']]],
+];
+const EXAMS = [
+  { d:'2026-11-19', name:'CIE-2 · Database Systems', t:'9:30 AM' },
+  { d:'2026-11-20', name:'CIE-2 · Operating Systems', t:'9:30 AM' },
+  { d:'2026-11-21', name:'CIE-2 · Computer Networks', t:'9:30 AM' },
+  { d:'2026-11-24', name:'CIE-2 · Software Engineering', t:'9:30 AM' },
+  { d:'2026-11-25', name:'CIE-2 · ML (elective)', t:'2:00 PM' },
+  { d:'2026-12-02', name:'OS Lab exam', t:'9:30 AM' },
+  { d:'2026-12-04', name:'DBMS Lab exam', t:'9:30 AM' },
+  { d:'2026-12-05', name:'CN Lab exam', t:'9:30 AM' },
+];
+const ITEMS = [
+  { id:'eth', cat:'hack', title:'ETHIndia Buidl Sprint', short:'ETHIndia', org:'ETHIndia', src:'Devfolio', mode:'online', team:'2–4', prize:150000, prizes:[['Winner',75000],['Runner-up',45000],['Best DeFi build',30000]], fee:0, dl:'2026-11-14T23:59:00+05:30', ev:['2026-11-20','2026-11-22'], clash:'major', clashText:'Overlaps 5th Sem CIE-2', why:'Sprint days 20–21 Nov fall on your CIE-2 Operating Systems (20 Nov) and Computer Networks (21 Nov) papers.', tags:['Web3','DeFi','Solidity','ZK'], added:'2026-11-02', elig:'UG and PG students from any college in India.', venue:'Online · Devfolio + Discord', tint:2, mono:'ET' },
+  { id:'sih', cat:'hack', title:'Smart India Hackathon 2026', short:'SIH 2026', org:'MoE Innovation Cell & AICTE', src:'sih.gov.in', mode:'offline', city:'Bengaluru', team:'6', prize:100000, prizes:[['Winner, per problem statement',100000]], fee:0, dl:'2026-11-17T00:30:00+05:30', ev:['2026-11-28','2026-11-29'], r1:['Internal college round','2026-11-23'], clash:'clear', why:'Internal round on 23 Nov and the finale on 28–29 Nov fall on exam-free days in your timetable.', tags:['AI/ML','GovTech','Open innovation'], added:'2026-10-28', elig:'Teams of 6 with at least one woman member, from AICTE-approved institutes.', venue:'Offline · Nodal centre, Bengaluru', tint:4, mono:'SI' },
+  { id:'codefest', cat:'hack', title:"CodeFest '26", org:'RV College of Engineering', src:'Unstop', mode:'offline', city:'Bengaluru', team:'1–3', prize:75000, prizes:[['Winner',40000],['Runner-up',25000],['Best first-year team',10000]], fee:200, dl:'2026-11-21T23:59:00+05:30', ev:['2026-12-19','2026-12-20'], clash:'unknown', why:'CodeFest is on 19–20 Dec; your CIE timetable runs till 5 Dec. Upload your end-sem timetable to check.', tags:['DSA','Web'], added:'2026-11-12', elig:'UG students, any year and branch.', venue:'Offline · RVCE campus, Mysuru Road, Bengaluru', tint:0, mono:'RV' },
+  { id:'h4b', cat:'hack', title:'Hack4Bharat AI Challenge', org:'Hack4Bharat Collective', src:'Unstop', mode:'online', team:'2–4', prize:200000, prizes:[['Winner',100000],['Runner-up',60000],['Best health use-case',40000]], fee:0, dl:'2026-11-23T18:00:00+05:30', ev:['2026-12-01','2026-12-02'], r1:['Online screening','2026-11-26'], clash:'possible', clashText:'Possible clash · OS Lab exam', why:'Final demos are on 2 Dec and your OS Lab exam is at 9:30 AM that day. Demo slot times are not stated by the organiser.', tags:['AI/ML','LLMs','HealthTech'], added:'2026-11-13', elig:'UG and PG students at Indian institutions.', venue:'Online', tint:5, mono:'HB' },
+  { id:'gdg', cat:'hack', title:'GenAI Build Weekend', org:'GDG Pune', src:'Commudle', mode:'offline', city:'Pune', team:'1–4', prize:null, fee:0, dl:'2026-11-25T23:59:00+05:30', ev:['2026-11-28','2026-11-29'], clash:'clear', why:'Event days 28–29 Nov have no exams in your timetable.', tags:['AI/ML','Gemini'], added:'2026-11-10', elig:'Students and early-career developers.', venue:'Offline · Pune (venue shared after selection)', tint:1, mono:'GP' },
+  { id:'shaastra', cat:'hack', title:'Smart Mobility Ideathon', org:'Shaastra, IIT Madras', src:null, mode:'hybrid', city:'Chennai', team:'2–5', prize:50000, prizes:[['Winner',30000],['Runner-up',20000]], fee:500, dl:'2026-11-27T23:59:00+05:30', ev:['2027-01-04','2027-01-05'], clash:'unknown', why:'Finals are on 4–5 Jan 2027, after your timetable ends on 5 Dec. Upload your next timetable to check.', tags:['Hardware','IoT','Mobility'], added:'2026-11-08', elig:'UG students; cross-college teams allowed.', venue:'Hybrid · online prelims, finals at IIT Madras, Chennai', tint:3, mono:'SH' },
+  { id:'ieee', cat:'acad', title:'IEEE Student Paper Contest — South', short:'IEEE paper contest', org:'IEEE Bangalore Section', src:'ieee.org', mode:'offline', city:'Bengaluru', team:'1–2', prize:25000, prizes:[['Best paper',15000],['Runner-up',10000]], fee:0, dl:'2026-11-16T23:59:00+05:30', ev:['2026-11-28','2026-11-28'], clash:'clear', why:'Presentations are on 28 Nov, an exam-free day for you.', tags:['Research','Signal processing'], added:'2026-11-05', elig:'IEEE student members, UG and PG.', venue:'Offline · IISc, Bengaluru', tint:2, mono:'IE' },
+  { id:'nitk', cat:'acad', title:'National Student Conclave on Robotics', org:'NIT Karnataka, Surathkal', src:'nitk.ac.in', mode:'offline', city:'Mangaluru', team:'Solo', prize:null, fee:0, dl:'2026-11-24T17:00:00+05:30', ev:['2026-12-05','2026-12-05'], clash:'major', clashText:'Overlaps CN Lab exam', why:'The conclave is on 5 Dec, the same day as your CN Lab exam.', tags:['Robotics','Research'], added:'2026-11-09', elig:'UG students in engineering programmes.', venue:'Offline · NITK campus, Mangaluru', tint:1, mono:'NK' },
+  { id:'rust', cat:'meetup', title:'Bengaluru Rust Meetup #42', org:'Rust Bangalore', src:'Meetup', mode:'offline', city:'Bengaluru', team:'Solo', prize:null, fee:0, dl:'2026-11-15T18:00:00+05:30', ev:['2026-11-15','2026-11-15'], clash:'clear', why:'Sunday 15 Nov is exam-free for you.', tags:['Rust','Systems'], added:'2026-11-11', elig:'Open to all; RSVP needed.', venue:'Offline · Indiranagar, Bengaluru', tint:0, mono:'RB' },
+  { id:'flutter', cat:'meetup', title:'Hyderabad Flutter Dev Day', org:'Flutter Hyderabad', src:'Commudle', mode:'offline', city:'Hyderabad', team:'Solo', prize:null, fee:0, dl:'2026-11-26T23:59:00+05:30', ev:['2026-11-29','2026-11-29'], clash:'clear', why:'29 Nov is exam-free for you.', tags:['Flutter','Mobile'], added:'2026-11-06', elig:'Open to all.', venue:'Offline · HITEC City, Hyderabad', tint:5, mono:'FH' },
+  { id:'kite', cat:'intern', title:'Backend Engineering Intern, Summer 2027', org:'Kite Ledger', src:'Internshala', mode:'offline', city:'Hyderabad', team:'Individual', prize:null, stipend:30000, fee:0, dl:'2026-11-30T23:59:00+05:30', ev:['2027-05-03','2027-07-30'], clash:'unknown', why:'Internship runs May–July 2027, beyond your uploaded timetable.', tags:['Backend','Go'], added:'2026-11-12', elig:'3rd-year UG students, CSE/ISE/ECE.', venue:'Offline · Hyderabad', tint:3, mono:'KL' },
+  { id:'iisc', cat:'intern', title:'ML Research Intern', org:'IISc · Computational & Data Sciences', src:'iisc.ac.in', mode:'hybrid', city:'Bengaluru', team:'Individual', prize:null, stipend:20000, fee:0, dl:'2026-12-03T17:00:00+05:30', ev:['2027-01-11','2027-04-30'], clash:'unknown', why:'Internship starts 11 Jan 2027, after your timetable ends on 5 Dec.', tags:['AI/ML','Research'], added:'2026-11-14', elig:'UG/PG with a linear algebra and Python background.', venue:'Hybrid · IISc, Bengaluru', tint:4, mono:'IC' },
+  { id:'embedded', cat:'workshop', title:'Hands-on Embedded Linux Workshop', org:'IEEE CAS Mysuru', src:'Unstop', mode:'offline', city:'Mysuru', team:'Solo', prize:null, fee:300, dl:'2026-11-15T23:59:00+05:30', ev:['2026-11-22','2026-11-22'], clash:'clear', why:'Sunday 22 Nov is exam-free for you.', tags:['Embedded','Linux'], added:'2026-11-07', elig:'Bring a laptop; basic C helps.', venue:'Offline · NIE, Mysuru', tint:1, mono:'EM' },
+  { id:'llm', cat:'workshop', title:'Prompt to Product: LLM Apps Bootcamp', org:'Hack4Bharat Collective', src:'Unstop', mode:'online', team:'Solo', prize:null, fee:0, dl:'2026-11-19T12:00:00+05:30', ev:['2026-11-24','2026-11-24'], clash:'possible', clashText:'Possible clash · SE CIE, 24 Nov', why:'The bootcamp runs on 24 Nov; your Software Engineering CIE is at 9:30 AM. Session time is not stated.', tags:['AI/ML','LLMs'], added:'2026-11-13', elig:'Open to all students.', venue:'Online', tint:5, mono:'HB' },
+];
+const BY = {}; ITEMS.forEach(o => { BY[o.id] = o; });
+const FEATURED = ['sih','eth','h4b','ieee','iisc'];
+const TEAMS = [
+  { event:"CodeFest '26", need:'Backend dev (Node or Go)', who:'Rohan K., 5th Sem ISE', when:'3h ago', backend:true },
+  { event:"CodeFest '26", need:'Backend dev (Django)', who:'Meera S., 7th Sem CSE', when:'yesterday', backend:true },
+  { event:'Smart Mobility Ideathon', need:'Firmware + hardware', who:'Arjun P., 3rd Sem ECE', when:'2d ago' },
+];
+const P24 = {
+  pulse:[['path',{d:'M2 12h4l2.5-6 4 12 2.5-6H22'}]],
+  bookmark:[['path',{d:'m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z'}]],
+  pin:[['path',{d:'M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z'}],['circle',{cx:12,cy:10,r:3}]],
+  globe:[['circle',{cx:12,cy:12,r:10}],['path',{d:'M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20'}],['path',{d:'M2 12h20'}]],
+  hybrid:[['circle',{cx:12,cy:12,r:9}],['path',{d:'M12 3v18'}],['path',{d:'M3 12h9'}]],
+  users:[['path',{d:'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'}],['circle',{cx:9,cy:7,r:4}],['path',{d:'M22 21v-2a4 4 0 0 0-3-3.87'}],['path',{d:'M16 3.13a4 4 0 0 1 0 7.75'}]],
+  award:[['circle',{cx:12,cy:8,r:6}],['path',{d:'M15.477 12.89 17 22l-5-3-5 3 1.523-9.11'}]],
+  shield:[['path',{d:'M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z'}]],
+  shieldCheck:[['path',{d:'M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z'}],['path',{d:'m9 12 2 2 4-4'}]],
+  alert:[['path',{d:'m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z'}],['path',{d:'M12 9v4'}],['path',{d:'M12 17h.01'}]],
+  check:[['path',{d:'M20 6 9 17l-5-5'}]],
+  minus:[['path',{d:'M6 12h12'}]],
+  x:[['path',{d:'M18 6 6 18'}],['path',{d:'m6 6 12 12'}]],
+  plus:[['path',{d:'M12 5v14'}],['path',{d:'M5 12h14'}]],
+  sliders:[['path',{d:'M21 4h-7'}],['path',{d:'M10 4H3'}],['path',{d:'M21 12h-9'}],['path',{d:'M8 12H3'}],['path',{d:'M21 20h-5'}],['path',{d:'M12 20H3'}],['path',{d:'M14 2v4'}],['path',{d:'M8 10v4'}],['path',{d:'M16 18v4'}]],
+  bell:[['path',{d:'M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9'}],['path',{d:'M10.3 21a1.94 1.94 0 0 0 3.4 0'}]],
+  calendar:[['rect',{x:3,y:4,width:18,height:18,rx:2}],['path',{d:'M16 2v4'}],['path',{d:'M8 2v4'}],['path',{d:'M3 10h18'}]],
+  briefcase:[['rect',{x:2,y:7,width:20,height:14,rx:2}],['path',{d:'M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16'}]],
+  upload:[['path',{d:'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'}],['path',{d:'m17 8-5-5-5 5'}],['path',{d:'M12 3v12'}]],
+  download:[['path',{d:'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'}],['path',{d:'m7 10 5 5 5-5'}],['path',{d:'M12 15V3'}]],
+  arrowUR:[['path',{d:'M7 7h10v10'}],['path',{d:'M7 17 17 7'}]],
+  arrowR:[['path',{d:'M5 12h14'}],['path',{d:'m13 6 6 6-6 6'}]],
+  chevR:[['path',{d:'m9 18 6-6-6-6'}]],
+  chevL:[['path',{d:'m15 18-6-6 6-6'}]],
+  chevD:[['path',{d:'m6 9 6 6 6-6'}]],
+  sun:[['circle',{cx:12,cy:12,r:4}],['path',{d:'M12 2v2'}],['path',{d:'M12 20v2'}],['path',{d:'m4.93 4.93 1.41 1.41'}],['path',{d:'m17.66 17.66 1.41 1.41'}],['path',{d:'M2 12h2'}],['path',{d:'M20 12h2'}],['path',{d:'m6.34 17.66-1.41 1.41'}],['path',{d:'m19.07 4.93-1.41 1.41'}]],
+  moon:[['path',{d:'M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z'}]],
+  code:[['path',{d:'m16 18 6-6-6-6'}],['path',{d:'m8 6-6 6 6 6'}]],
+  cap:[['path',{d:'M22 10 12 5 2 10l10 5 10-5Z'}],['path',{d:'M6 12v5c3 3 9 3 12 0v-5'}]],
+  wrench:[['path',{d:'M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z'}]],
+  grid:[['rect',{x:3,y:3,width:7,height:7,rx:1.5}],['rect',{x:14,y:3,width:7,height:7,rx:1.5}],['rect',{x:3,y:14,width:7,height:7,rx:1.5}],['rect',{x:14,y:14,width:7,height:7,rx:1.5}]],
+  file:[['path',{d:'M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z'}],['path',{d:'M14 2v4a2 2 0 0 0 2 2h4'}]],
+  git:[['circle',{cx:6,cy:6,r:2.5}],['circle',{cx:6,cy:18,r:2.5}],['circle',{cx:18,cy:8,r:2.5}],['path',{d:'M6 8.5v7'}],['path',{d:'M18 10.5c0 4-4 4.5-9.5 6.5'}]],
+  zap:[['path',{d:'M13 2 4 14h7l-1 8 9-12h-7l1-8Z'}]],
+  radar:[['circle',{cx:12,cy:12,r:2}],['path',{d:'M16.24 7.76a6 6 0 0 1 0 8.49'}],['path',{d:'M7.76 16.24a6 6 0 0 1 0-8.49'}],['path',{d:'M19.07 4.93a10 10 0 0 1 0 14.14'}],['path',{d:'M4.93 19.07a10 10 0 0 1 0-14.14'}]],
+  msg:[['path',{d:'M7.9 20A9 9 0 1 0 4 16.1L2 22Z'}]],
+  lock:[['rect',{x:4,y:11,width:16,height:10,rx:2}],['path',{d:'M8 11V7a4 4 0 0 1 8 0v4'}]],
+  user:[['circle',{cx:12,cy:8,r:4}],['path',{d:'M4 21a8 8 0 0 1 16 0'}]],
+  out:[['path',{d:'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'}],['path',{d:'m16 17 5-5-5-5'}],['path',{d:'M21 12H9'}]],
+  info:[['circle',{cx:12,cy:12,r:10}],['path',{d:'M12 16v-4'}],['path',{d:'M12 8h.01'}]],
+  desk:[['path',{d:'M3 7h18'}],['path',{d:'M5 7v13'}],['path',{d:'M19 7v13'}],['path',{d:'M5 13h14'}],['path',{d:'M9 3h6v4H9z'}]],
+};
+
+const istKey = ms => new Date(ms + 5.5 * HR).toISOString().slice(0, 10);
+const kDate = k => new Date(k + 'T00:00:00Z');
+const addD = (k, n) => new Date(kDate(k).getTime() + n * DAY).toISOString().slice(0, 10);
+const fDay = k => { const d = kDate(k); return d.getUTCDate() + ' ' + MON[d.getUTCMonth()]; };
+const fDayW = k => WD[kDate(k).getUTCDay()] + ' ' + fDay(k);
+const fT = iso => { let h = +iso.slice(11, 13); const m = iso.slice(14, 16); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return h + ':' + m + ' ' + ap; };
+const inr = n => '₹' + n.toLocaleString('en-IN');
+const range = ev => { if (ev[0] === ev[1]) return fDayW(ev[0]); const a = kDate(ev[0]), b = kDate(ev[1]); return a.getUTCMonth() === b.getUTCMonth() && a.getUTCFullYear() === b.getUTCFullYear() ? `${a.getUTCDate()}–${b.getUTCDate()} ${MON[b.getUTCMonth()]}` : `${fDay(ev[0])} – ${fDay(ev[1])}${b.getUTCFullYear() !== 2026 ? ' ' + b.getUTCFullYear() : ''}`; };
+const teamLabel = t => /–/.test(t) ? `Team ${t}` : /^\d+$/.test(t) ? `Team of ${t}` : t;
+
+class Component extends DCLogic {
+  state = { theme: null, cat: 'hack', loc: 'Bengaluru', prize: 0, modes: {}, sort: 'soon', c48: false, pools: false, hide: false, tracked: { eth: true, sih: true }, alerts: true, signedIn: true, page: 1, mTab: 'pulse', deskSeg: 'saved', mSheet: null, mDetail: 'eth', dDrawer: null, dDetail: 'eth', dPop: null, feat: 0, featHover: false, toast: { m: { msg: '', on: false, undo: null }, d: { msg: '', on: false, undo: null } }, tick: 0 };
+  t0 = Date.now();
+  lastM = 'filters';
+  lastD = 'filters';
+
+  componentDidMount() {
+    this.reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.iv = setInterval(() => this.setState(p => ({ tick: p.tick + 1 })), 20000);
+    this.fv = setInterval(() => {
+      const s = this.state;
+      if (this.reduce || s.featHover || s.mSheet || s.dDrawer || s.dPop) return;
+      this.setState(p => ({ feat: (p.feat + 1) % FEATURED.length }));
+    }, 6000);
+    this.onKey = e => { if (e.key === 'Escape') this.setState({ mSheet: null, dDrawer: null, dPop: null }); };
+    window.addEventListener('keydown', this.onKey);
+  }
+  componentWillUnmount() { clearInterval(this.iv); clearInterval(this.fv); window.removeEventListener('keydown', this.onKey); clearTimeout(this.tm_m); clearTimeout(this.tm_d); }
+  componentDidUpdate(pp) { if (pp.initialTheme !== this.props.initialTheme) this.setState({ theme: null }); }
+
+  toast(ctx, msg, undo) {
+    clearTimeout(this['tm_' + ctx]);
+    this.setState(p => ({ toast: { ...p.toast, [ctx]: { msg, on: true, undo: undo || null } } }));
+    this['tm_' + ctx] = setTimeout(() => this.setState(p => ({ toast: { ...p.toast, [ctx]: { ...p.toast[ctx], on: false } } })), 3000);
+  }
+  icons() {
+    const mk = (name, fill) => React.createElement('svg', { width: '1em', height: '1em', viewBox: '0 0 24 24', fill: fill || 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true, style: { display: 'block' } }, P24[name].map(([t, a], i) => React.createElement(t, { key: i, ...a })));
+    const ic = {}; Object.keys(P24).forEach(k => { ic[k] = mk(k); }); ic.bookmarkFill = mk('bookmark', 'currentColor');
+    return ic;
+  }
+
+  renderVals() {
+    const s = this.state;
+    const now = NOW0 + (Date.now() - this.t0);
+    const ic = this.ic || (this.ic = this.icons());
+    const theme = s.theme || this.props.initialTheme || 'light';
+    const T = THEMES[theme], TT = TINTS[theme];
+    const todayK = istKey(now);
+    const set = patch => this.setState({ ...patch, page: 1 });
+
+    const urgOf = o => {
+      const ms = Date.parse(o.dl) - now, k = istKey(Date.parse(o.dl));
+      if (ms <= 0) return { t: 'Closed', short: 'Closed', c: 'var(--ink-3)' };
+      const d = Math.floor(ms / DAY), h = Math.floor(ms % DAY / HR), m = Math.floor(ms % HR / 60000);
+      if (k === todayK) { const t = o.dl.slice(11, 16) === '23:59' ? 'Closes tonight' : 'Closes today'; return { t: `${t} · ${fT(o.dl)} IST`, short: `${h}h ${String(m).padStart(2, '0')}m left`, c: 'var(--clash)' }; }
+      if (ms < 7 * DAY) { const v = d ? `${d}d ${h}h` : `${h}h ${String(m).padStart(2, '0')}m`; return { t: `Closes in ${v}`, short: `Closes in ${v}`, c: 'var(--warn)' }; }
+      return { t: `Closes ${fDay(k)} · ${fT(o.dl)} IST`, short: `Closes ${fDay(k)}`, c: 'var(--ink-2)' };
+    };
+    const tint = o => TT[o.tint % TT.length];
+    const clashOf = o => o.clash === 'clear' ? { label: 'Clash-free', icon: ic.shieldCheck, c: 'var(--ok)', bg: 'var(--ok-bg)', bd: 'transparent', bs: 'solid' }
+      : o.clash === 'major' ? { label: o.clashText, icon: ic.alert, c: 'var(--clash)', bg: 'var(--clash-bg)', bd: 'transparent', bs: 'solid' }
+      : o.clash === 'possible' ? { label: o.clashText, icon: ic.alert, c: 'var(--warn)', bg: 'var(--warn-bg)', bd: 'transparent', bs: 'solid' }
+      : { label: 'Upload timetable to check', icon: ic.upload, c: 'var(--ink-2)', bg: 'transparent', bd: 'var(--line-strong)', bs: 'dashed' };
+    const modeLabel = o => o.mode === 'online' ? 'Online' : `${o.mode === 'hybrid' ? 'Hybrid' : 'Offline'} · ${o.city}`;
+    const modeIcon = o => o.mode === 'online' ? ic.globe : o.mode === 'hybrid' ? ic.hybrid : ic.pin;
+    const orgLine = o => o.src ? `${o.org} · via ${o.src}` : o.org;
+
+    const F = { cat: s.cat, loc: s.loc, prize: s.prize, modes: s.modes, c48: s.c48, pools: s.pools, hide: s.hide };
+    const match = (o, x) => {
+      const ms = Date.parse(o.dl) - now;
+      if (ms <= 0) return false;
+      if (x.cat !== 'all' && o.cat !== x.cat) return false;
+      if (x.loc !== 'Pan-India' && !(o.city === x.loc || o.mode !== 'offline')) return false;
+      if (x.prize && !(o.prize >= x.prize)) return false;
+      const ms2 = Object.keys(x.modes).filter(k => x.modes[k]); if (ms2.length && !ms2.includes(o.mode)) return false;
+      if (x.c48 && ms > 48 * HR) return false;
+      if (x.pools && !o.prize) return false;
+      if (x.hide && (o.clash === 'major' || o.clash === 'possible')) return false;
+      return true;
+    };
+    const run = patch => ITEMS.filter(o => match(o, { ...F, ...patch }));
+    const sortFn = { soon: (a, b) => Date.parse(a.dl) - Date.parse(b.dl), late: (a, b) => Date.parse(b.dl) - Date.parse(a.dl), new: (a, b) => b.added.localeCompare(a.added), prize: (a, b) => (b.prize || b.stipend || -1) - (a.prize || a.stipend || -1) }[s.sort];
+    const results = run({}).sort(sortFn);
+    const shown = results.slice(0, s.page * 8);
+    const catNoun = CATS.find(c => c[0] === s.cat)[3];
+
+    const open = (ctx, id) => ctx === 'm' ? this.setState({ mSheet: 'details', mDetail: id }) : this.setState({ dDrawer: 'details', dDetail: id, dPop: null });
+    const track = (id, ctx) => {
+      const was = !!this.state.tracked[id], o = BY[id];
+      this.setState(p => ({ tracked: { ...p.tracked, [id]: !was } }));
+      const undo = () => { this.setState(p => ({ tracked: { ...p.tracked, [id]: was }, toast: { ...p.toast, [ctx]: { ...p.toast[ctx], on: false } } })); };
+      this.toast(ctx, was ? `Stopped tracking ${o.short || o.title}` : `Tracking ${o.short || o.title} · reminders 24h and 2h before close`, undo);
+    };
+    const card = (o, ctx) => {
+      const u = urgOf(o), cl = clashOf(o), tr = !!s.tracked[o.id], tn = tint(o);
+      return {
+        title: o.title, orgLine: orgLine(o), mono: o.mono, tileBg: tn[0], tileFg: tn[1], pad: ctx === 'm' ? '20px' : '24px',
+        urg: u.t, urgC: u.c, modeIcon: modeIcon(o), modeLabel: modeLabel(o), team: teamLabel(o.team),
+        prize: o.prize ? inr(o.prize) : o.stipend ? `${inr(o.stipend)}/mo` : 'Not stated', prizeC: o.prize || o.stipend ? 'var(--ink)' : 'var(--ink-3)',
+        hasFee: !!o.fee, fee: `${inr(o.fee)} entry`,
+        clashLabel: cl.label, clashIcon: cl.icon, clashC: cl.c, clashBg: cl.bg, clashBd: cl.bd, clashBs: cl.bs,
+        tags: o.tags.slice(0, 2).join(' · '), tagMore: o.tags.length > 2 ? `+${o.tags.length - 2}` : '',
+        tracked: tr, trackLabel: tr ? 'Tracking' : 'Track', trackIcon: tr ? ic.bookmarkFill : ic.bookmark, trackC: tr ? 'var(--accent)' : 'var(--ink-2)', trackAria: tr ? `Stop tracking ${o.title}` : `Track ${o.title}`,
+        onTrack: e => { if (e && e.stopPropagation) e.stopPropagation(); track(o.id, ctx); },
+        onOpen: e => { if (e && e.stopPropagation) e.stopPropagation(); open(ctx, o.id); },
+      };
+    };
+    const det = (id, ctx) => {
+      const o = BY[id], u = urgOf(o), cl = clashOf(o), tr = !!s.tracked[o.id], tn = tint(o), dk = istKey(Date.parse(o.dl));
+      const timeline = [{ label: 'Registration closes', date: `${fDayW(dk)} · ${fT(o.dl)}` }];
+      if (o.r1) timeline.push({ label: o.r1[0], date: fDayW(o.r1[1]) });
+      timeline.push({ label: o.cat === 'intern' ? 'Internship period' : o.ev[0] === o.ev[1] ? 'Event day' : 'Finale', date: range(o.ev) });
+      return {
+        title: o.title, orgLine: orgLine(o), mono: o.mono, tileBg: tn[0], tileFg: tn[1], urg: u.t, urgC: u.c,
+        clashLabel: cl.label, clashIcon: cl.icon, clashC: cl.c, clashBg: cl.bg, clashBd: cl.bd, clashBs: cl.bs, why: o.why,
+        prizeHead: o.stipend ? 'Stipend' : 'Prize breakdown',
+        prizes: o.prizes ? o.prizes.map(([l, a]) => ({ label: l, amt: inr(a) })) : o.stipend ? [{ label: 'Monthly stipend', amt: inr(o.stipend) }] : [{ label: 'Not stated by organiser', amt: '—' }],
+        hasTotal: !!(o.prizes && o.prizes.length > 1), total: o.prize ? inr(o.prize) : '',
+        timeline, team: teamLabel(o.team), fee: o.fee ? inr(o.fee) : 'Free', venue: o.venue, elig: o.elig, tags: o.tags.join(' · '),
+        footPad: ctx === 'm' ? '28px' : '16px',
+        tracked: tr, trackLabel: tr ? 'Tracking' : 'Track', trackIcon: tr ? ic.bookmarkFill : ic.bookmark, trackC: tr ? 'var(--accent)' : 'var(--ink)',
+        onTrack: () => track(o.id, ctx), onIcs: () => this.toast(ctx, `${o.short || o.title} · .ics file ready to download`),
+        onPortal: () => this.toast(ctx, `Opens ${o.src || o.org} in a new tab ↗`), onClose: () => this.setState(ctx === 'm' ? { mSheet: null } : { dDrawer: null }),
+      };
+    };
+
+    const pill = on => on ? { bg: 'var(--accent-tint)', fg: 'var(--accent)', bd: 'var(--accent)' } : { bg: 'var(--pill)', fg: 'var(--ink-2)', bd: 'var(--line)' };
+    const pulsePills = [
+      { label: 'Closing <48h', on: s.c48, count: String(run({ c48: true }).length), onClick: () => set({ c48: !s.c48 }), ...pill(s.c48) },
+      { label: 'Live pools', on: s.pools, count: String(run({ pools: true }).length), onClick: () => set({ pools: !s.pools }), ...pill(s.pools) },
+    ];
+    const cats = CATS.map(([k, l, i]) => ({ label: l, icon: ic[i], on: s.cat === k, count: String(run({ cat: k }).length), fg: s.cat === k ? 'var(--ink)' : 'var(--ink-2)', ind: s.cat === k ? 'var(--accent)' : 'transparent', onClick: () => set({ cat: k }) }));
+
+    const chips = [];
+    if (s.loc !== 'Bengaluru') chips.push({ label: s.loc, rm: () => set({ loc: 'Bengaluru' }) });
+    if (s.prize) chips.push({ label: PRIZES.find(p => p[0] === s.prize)[1], rm: () => set({ prize: 0 }) });
+    Object.keys(s.modes).filter(k => s.modes[k]).forEach(k => chips.push({ label: k[0].toUpperCase() + k.slice(1), rm: () => set({ modes: { ...s.modes, [k]: false } }) }));
+    if (s.c48) chips.push({ label: 'Closing <48h', rm: () => set({ c48: false }) });
+    if (s.pools) chips.push({ label: 'Live pools', rm: () => set({ pools: false }) });
+    if (s.sort !== 'soon') chips.push({ label: SORT_CHIP[s.sort], rm: () => set({ sort: 'soon' }) });
+    chips.forEach(c => { c.aria = 'Remove ' + c.label; });
+    const fCount = (s.loc !== 'Bengaluru' ? 1 : 0) + (s.prize ? 1 : 0) + Object.values(s.modes).filter(Boolean).length + (s.sort !== 'soon' ? 1 : 0);
+    const clearAll = () => set({ loc: 'Bengaluru', prize: 0, modes: {}, sort: 'soon', c48: false, pools: false, hide: false });
+
+    const ring = on => on ? 'var(--accent)' : 'var(--line-strong)';
+    const fLocs = CITIES.map(c => ({ label: c, on: s.loc === c, count: String(run({ loc: c }).length), ring: ring(s.loc === c), dot: s.loc === c ? 'block' : 'none', onClick: () => set({ loc: c }) }));
+    const locPick = CITIES.map(c => ({ label: c, on: s.loc === c, count: String(run({ loc: c }).length), ring: s.loc === c ? 'var(--accent)' : 'var(--ink-3)', dot: s.loc === c ? 'flex' : 'none', onClick: () => this.setState({ loc: c, page: 1, mSheet: null, dPop: null }) }));
+    const fPrizes = PRIZES.map(([v, l]) => { const on = s.prize === v; return { label: l, on, onClick: () => set({ prize: v }), bg: on ? 'var(--card)' : 'transparent', fg: on ? 'var(--accent)' : 'var(--ink-2)', bd: on ? 'var(--accent)' : 'transparent' }; });
+    const fModes = [['online', 'Online'], ['offline', 'Offline'], ['hybrid', 'Hybrid']].map(([k, l]) => { const on = !!s.modes[k]; return { label: l, on, count: String(run({ modes: { [k]: true } }).length), ring: on ? 'var(--accent)' : 'var(--line-strong)', box: on ? 'var(--accent)' : 'transparent', check: on ? ic.check : null, onClick: () => set({ modes: { ...s.modes, [k]: !on } }) }; });
+    const fSorts = SORTS.map(([k, l]) => ({ label: l, on: s.sort === k, ring: ring(s.sort === k), dot: s.sort === k ? 'block' : 'none', onClick: () => set({ sort: k }) }));
+
+    const sw = s.hide ? { track: 'var(--accent)', pos: 'flex-end', knob: theme === 'dark' ? '#141413' : '#FFFFFF' } : { track: T.trackOff, pos: 'flex-start', knob: T.knobOff };
+    const swA = s.alerts ? { track: 'var(--accent)', pos: 'flex-end', knob: theme === 'dark' ? '#141413' : '#FFFFFF' } : { track: T.trackOff, pos: 'flex-start', knob: T.knobOff };
+
+    const fo = BY[FEATURED[s.feat]], fu = urgOf(fo), ft = tint(fo);
+    const feat = { title: fo.title, org: fo.org, mono: fo.mono, tileBg: ft[0], tileFg: ft[1], urgShort: fu.short, urgC: fu.c };
+    const featNext = () => this.setState(p => ({ feat: (p.feat + 1) % FEATURED.length }));
+    const featPrev = () => this.setState(p => ({ feat: (p.feat + FEATURED.length - 1) % FEATURED.length }));
+
+    const open_ = ITEMS.filter(o => Date.parse(o.dl) > now);
+    const shieldStats = [
+      { n: String(open_.filter(o => o.clash === 'clear').length), label: 'Clash-free', c: 'var(--ok)' },
+      { n: String(open_.filter(o => o.clash === 'major' || o.clash === 'possible').length), label: 'Overlaps', c: 'var(--clash)' },
+      { n: String(open_.filter(o => o.clash === 'unknown').length), label: 'Unchecked', c: 'var(--ink-2)' },
+    ];
+    const trackedList = ITEMS.filter(o => s.tracked[o.id] && Date.parse(o.dl) > now).sort((a, b) => Date.parse(a.dl) - Date.parse(b.dl));
+    const row = o => { const u = urgOf(o), tn = tint(o); return { title: o.title, mono: o.mono, tileBg: tn[0], tileFg: tn[1], urg: u.t, urgShort: u.short, urgC: u.c, onOpenM: () => open('m', o.id), onOpenD: () => open('d', o.id) }; };
+    const radar = trackedList.filter(o => Date.parse(o.dl) - now <= 72 * HR).map(row);
+    const READY = [['Resume uploaded', true], ['GitHub linked', true], ['College ID', true], ['Team formed', false], ['Portfolio link', false]];
+    const ready = READY.map(([l, ok]) => ({ label: l, icon: ok ? ic.check : ic.minus, c: ok ? 'var(--ok)' : 'var(--ink-3)', fg: ok ? 'var(--ink)' : 'var(--ink-2)' }));
+
+    const agenda = [];
+    for (let i = 0; i < 21; i++) {
+      const k = addD(todayK, i), rows = [];
+      EXAMS.filter(e => e.d === k).forEach(e => rows.push({ icon: ic.cap, c: 'var(--ink)', title: e.name, meta: e.t }));
+      trackedList.forEach(o => { if (istKey(Date.parse(o.dl)) === k) rows.push({ icon: ic.bookmarkFill, c: urgOf(o).c, title: `${o.short || o.title} closes`, meta: fT(o.dl) }); });
+      ITEMS.forEach(o => { if (s.tracked[o.id] && k >= o.ev[0] && k <= o.ev[1]) rows.push({ icon: ic.calendar, c: 'var(--accent)', title: `${o.short || o.title} · event`, meta: o.mode === 'online' ? 'Online' : o.city }); });
+      if (rows.length) agenda.push({ day: (k === todayK ? 'Today · ' : '') + fDayW(k), hc: k === todayK ? 'var(--accent)' : 'var(--ink-2)', rows });
+    }
+
+    const tabs = [['pulse', 'Pulse', 'pulse'], ['shield', 'Shield', 'shield'], ['cal', 'Calendar', 'calendar'], ['desk', 'Desk', 'desk']];
+    const dock = tabs.map(([k, l, i]) => ({ label: l, icon: ic[i], cur: s.mTab === k ? 'page' : 'false', ic: s.mTab === k ? 'var(--accent)' : 'var(--ink-2)', fg: s.mTab === k ? 'var(--ink)' : 'var(--ink-2)', hasBadge: k === 'desk' && trackedList.length > 0, badge: String(trackedList.length), onClick: () => this.setState({ mTab: k, mSheet: null }) }));
+    const NAV = ['Explore', 'Academic Shield', 'Calendar', 'Teams'];
+    const dNav = NAV.map((l, i) => ({ label: l, cur: i === 0 ? 'page' : 'false', fg: i === 0 ? 'var(--ink)' : 'var(--ink-2)', ind: i === 0 ? 'var(--accent)' : 'transparent', onClick: () => i ? this.toast('d', `${l} isn’t part of this prototype yet`) : this.setState({ dPop: null }) }));
+    const toolsFor = ctx => TOOLS.map(([g, its]) => ({ label: g, items: its.map(([i, n, h]) => ({ icon: ic[i], name: n, hint: h, onClick: () => { this.setState({ dPop: null, mSheet: null }); this.toast(ctx, `Opens ${n}`); } })) }));
+    const signOut = ctx => { this.setState({ signedIn: false, dPop: null, mSheet: null }); this.toast(ctx, 'Signed out'); };
+    const acct = ctx => [
+      { label: 'Profile', icon: ic.user, fg: 'var(--ink)', onClick: () => { this.setState({ dPop: null, mSheet: null }); this.toast(ctx, 'Opens Profile'); } },
+      { label: 'Saved & Deadlines', icon: ic.bookmark, fg: 'var(--ink)', onClick: () => { this.setState(ctx === 'm' ? { mSheet: null, mTab: 'desk', deskSeg: 'saved' } : { dPop: null }); if (ctx === 'd') this.toast('d', 'Tracked items are in Deadline radar →'); } },
+      { label: 'Sign out', icon: ic.out, fg: 'var(--ink)', onClick: () => signOut(ctx) },
+    ];
+    const pop = k => () => this.setState(p => ({ dPop: p.dPop === k ? null : k }));
+
+    if (s.mSheet) this.lastM = s.mSheet;
+    if (s.dDrawer) this.lastD = s.dDrawer;
+    const lm = this.lastM, ld = this.lastD;
+    const tm = s.toast.m, td = s.toast.d;
+    const tv = t => ({ msg: t.msg, op: t.on ? 1 : 0, y: t.on ? 'translateY(0)' : 'translateY(8px)', pe: t.on ? 'auto' : 'none', hasUndo: !!t.undo, undo: () => t.undo && t.undo() });
+    const ist = new Date(now + 5.5 * HR), hh = ist.getUTCHours();
+    const clock = `${hh}:${String(ist.getUTCMinutes()).padStart(2, '0')}`;
+    let downX = null;
+    const locPhrase = s.loc === 'Pan-India' ? 'across India' : `in ${s.loc}`;
+
+    return {
+      t: T, ic, themeName: theme === 'dark' ? 'Obsidian Studio (dark)' : 'Warm Paper & Ink (light)',
+      themeIcon: theme === 'dark' ? ic.sun : ic.moon, themeBtn: theme === 'dark' ? 'Light theme' : 'Dark theme', themeAria: theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme',
+      toggleTheme: () => this.setState({ theme: theme === 'dark' ? 'light' : 'dark' }),
+      clock, clockLong: `${fDayW(todayK)} · ${clock}`, greeting: hh < 12 ? 'Good morning' : hh < 17 ? 'Good afternoon' : 'Good evening',
+      signedIn: s.signedIn, signedOut: !s.signedIn, signIn: () => this.setState({ signedIn: true }),
+      loc: s.loc, locCount: String(run({ loc: s.loc }).length),
+      hide: s.hide, toggleHide: () => set({ hide: !s.hide }), sw, swA,
+      hidePillBg: s.hide ? 'var(--accent-tint)' : 'var(--pill)', hidePillBd: s.hide ? 'var(--accent)' : 'var(--line)',
+      pulsePills, cats, chips, hasChips: chips.length > 0, clearAll, fCount: String(fCount), hasFCount: fCount > 0,
+      fLocs, locPick, fPrizes, fModes, fSorts, showLabel: `Show ${results.length} result${results.length === 1 ? '' : 's'}`,
+      feat, featDots: FEATURED.map((_, i) => ({ c: i === s.feat ? 'var(--accent)' : 'var(--line-strong)' })), featPos: `${s.feat + 1} of ${FEATURED.length}`,
+      featNext, featPrev, featIn: () => this.setState({ featHover: true }), featOut: () => this.setState({ featHover: false }),
+      featDown: e => { downX = e.clientX; this.downX = e.clientX; },
+      mFeatUp: e => { const dx = e.clientX - (this.downX ?? e.clientX); this.downX = null; if (dx < -30) featNext(); else if (dx > 30) featPrev(); else open('m', fo.id); },
+      featKey: e => { if (e.key === 'ArrowRight') featNext(); else if (e.key === 'ArrowLeft') featPrev(); else if (e.key === 'Enter') open('m', fo.id); },
+      dFeatOpen: () => open('d', fo.id),
+      mCards: shown.map(o => card(o, 'm')), dCards: shown.map(o => card(o, 'd')),
+      isEmpty: results.length === 0, emptyTitle: `Nothing ${s.hide ? 'clash-free ' : ''}${locPhrase} matches right now.`,
+      hasMore: results.length > shown.length, moreLabel: `Show ${Math.min(8, results.length - shown.length)} more ${catNoun}`, showMore: () => this.setState(p => ({ page: p.page + 1 })),
+      showingLabel: results.length ? (results.length > shown.length ? `Showing ${shown.length} of ${results.length}` : `Showing all ${results.length} ${catNoun}`) : '',
+      shieldStats, exams: EXAMS.map(e => ({ date: fDayW(e.d), name: e.name, t: e.t })),
+      radar, noRadar: radar.length === 0, ready, readyScore: `${READY.filter(r => r[1]).length}/${READY.length}`,
+      trackedRows: trackedList.map(row), noTracked: trackedList.length === 0, trackedCount: String(trackedList.length),
+      teams: TEAMS.map(t => ({ ...t, onClick: () => this.toast('m', `Request sent to ${t.who.split(',')[0]}`) })), teamNeedCount: String(TEAMS.filter(t => t.backend).length),
+      agenda, mPulse: s.mTab === 'pulse', mShield: s.mTab === 'shield', mCal: s.mTab === 'cal', mDesk: s.mTab === 'desk', dock,
+      deskSegs: [['saved', 'Saved & deadlines'], ['teams', 'Teams']].map(([k, l]) => ({ label: l, on: s.deskSeg === k, bg: s.deskSeg === k ? 'var(--card)' : 'transparent', fg: s.deskSeg === k ? 'var(--ink)' : 'var(--ink-2)', bd: s.deskSeg === k ? 'var(--line)' : 'transparent', onClick: () => this.setState({ deskSeg: k }) })),
+      deskSaved: s.deskSeg === 'saved', deskTeams: s.deskSeg === 'teams',
+      dNav, dTools: toolsFor('d'), mTools: toolsFor('m'), dAcct: acct('d'), mAcct: acct('m'),
+      toolsFg: s.dPop === 'tools' ? 'var(--ink)' : 'var(--ink-2)',
+      dPopOpen: !!s.dPop, dToolsOpen: s.dPop === 'tools', dLocOpen: s.dPop === 'loc', dBellOpen: s.dPop === 'bell', dAvOpen: s.dPop === 'avatar',
+      dToggleTools: pop('tools'), dToggleLoc: pop('loc'), dToggleBell: pop('bell'), dToggleAv: pop('avatar'),
+      alerts: s.alerts, alertsNote: s.alerts ? '24h and 2h before tracked deadlines' : 'Off · you won’t get reminders',
+      toggleAlerts: () => { const v = !s.alerts; this.setState({ alerts: v }); },
+      closeAll: () => this.setState({ mSheet: null, dDrawer: null, dPop: null }),
+      mOpenFilters: () => this.setState({ mSheet: 'filters' }), mOpenLoc: () => this.setState({ mSheet: 'loc' }), mOpenBell: () => this.setState({ mSheet: 'bell' }), mOpenAvatar: () => this.setState({ mSheet: 'avatar' }),
+      dOpenFilters: () => this.setState({ dDrawer: 'filters', dPop: null }),
+      mScrimOp: s.mSheet ? 1 : 0, mScrimPE: s.mSheet ? 'auto' : 'none', mSheetY: s.mSheet ? 'translateY(0)' : 'translateY(102%)',
+      mSheetH: lm === 'details' ? '92%' : lm === 'filters' ? '88%' : 'auto',
+      mSheetLabel: { details: 'Opportunity details', filters: 'Filter and sort', loc: 'Location', bell: 'Community', avatar: 'Account' }[lm],
+      mShowDetails: lm === 'details', mShowFilters: lm === 'filters', mShowLoc: lm === 'loc', mShowBell: lm === 'bell', mShowAvatar: lm === 'avatar',
+      mDet: det(s.mDetail, 'm'), dDet: det(s.dDetail, 'd'),
+      dScrimOp: s.dDrawer ? 1 : 0, dScrimPE: s.dDrawer ? 'auto' : 'none', dDrawerX: s.dDrawer ? 'translateX(0)' : 'translateX(102%)',
+      dDrawerW: ld === 'details' ? '480px' : '400px', dDrawerLabel: ld === 'details' ? 'Opportunity details' : 'Filter and sort',
+      dShowDetails: ld === 'details', dShowFilters: ld === 'filters',
+      mT: tv(tm), dT: tv(td),
+      mReplace: () => this.toast('m', 'Choose a new timetable PDF'), dReplace: () => this.toast('d', 'Choose a new timetable PDF'),
+      mIcs: () => this.toast('m', `.ics with ${trackedList.length} tracked deadlines ready`), dIcs: () => this.toast('d', `.ics with ${trackedList.length} tracked deadlines ready`),
+      mProfile: () => this.toast('m', 'Opens Fast Apply Profile'), dProfile: () => this.toast('d', 'Opens Fast Apply Profile'),
+      dTeams: () => this.toast('d', 'Opens Anti-Ghosting Team Finder · CodeFest ’26'),
+      mWhatsapp: () => this.toast('m', 'Opens the WhatsApp Hub invite ↗'), dWhatsapp: () => { this.setState({ dPop: null }); this.toast('d', 'Opens the WhatsApp Hub invite ↗'); },
+      mInstall: () => this.toast('m', 'Install prompt would appear here'), dInstall: () => this.toast('d', 'Install prompt would appear here'),
+      mSubmit: () => this.toast('m', 'Opens Submit an opportunity'), dSubmit: () => this.toast('d', 'Opens Submit an opportunity'),
+    };
+  }
+}
+</script>
+</body>
+</html>

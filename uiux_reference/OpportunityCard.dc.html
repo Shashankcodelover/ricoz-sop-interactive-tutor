@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<article aria-label="{{ o.title }}" style="position:relative;box-sizing:border-box;width:100%;display:flex;flex-direction:column;gap:12px;background:#FFFFFF;border:1px solid #E3E7EE;border-radius:14px;padding:14px 12px 14px 18px;overflow:hidden;font-family:'Inter',system-ui,sans-serif;color:#0B1220">
+  <div aria-hidden="true" style="position:absolute;left:0;top:0;bottom:0;width:4px;background:{{ o.accent }}"></div>
+  <div style="display:flex;align-items:flex-start;gap:4px">
+    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;padding-top:2px">
+      <div style="display:flex;align-items:center;flex-wrap:wrap;column-gap:8px;row-gap:2px;font-family:'JetBrains Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:12.5px;line-height:16px">
+        <span style="display:inline-flex;align-items:center;gap:5px;font-weight:600;color:{{ o.accent }}"><span style="display:flex;font-size:14px">{{ ic.clock }}</span>{{ o.countdown }}</span>
+        <span style="color:#667085;font-size:12px">{{ o.closesAt }}</span>
+      </div>
+      <a href="#" onClick="{{ o.onApply }}" style="font-size:17px;line-height:24px;font-weight:600;letter-spacing:-0.012em;color:#0B1220;text-decoration:none;text-wrap:pretty" style-hover="text-decoration:underline;color:#0B1220">{{ o.title }}</a>
+      <div style="font-size:14px;line-height:20px;color:#4A5468">{{ o.org }} <span style="color:#667085">· via {{ o.source }}</span></div>
+    </div>
+    <button type="button" aria-label="{{ o.saveLabel }}" aria-pressed="{{ o.saved }}" onClick="{{ o.onSave }}" style="flex:none;width:44px;height:44px;margin:-6px -4px 0 0;display:flex;align-items:center;justify-content:center;border:0;border-radius:10px;background:transparent;color:{{ o.saveColor }};cursor:pointer;transition:background 120ms cubic-bezier(.2,.8,.2,1)" style-hover="background:#F0F2F5"><span style="display:flex;font-size:20px">{{ o.saveIcon }}</span></button>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;align-items:center;column-gap:14px;row-gap:8px;font-size:13px;line-height:18px;color:#0B1220">
+    <span style="display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 8px;border-radius:6px;background:#F0F2F5;font-weight:500"><span style="display:flex;font-size:14px;color:#4A5468">{{ o.modeIcon }}</span>{{ o.modeLabel }}</span>
+    <span style="display:inline-flex;align-items:center;gap:5px"><span style="display:flex;font-size:15px;color:#4A5468">{{ ic.users }}</span>{{ o.team }}</span>
+    <span style="display:inline-flex;align-items:center;gap:5px"><span style="display:flex;font-size:15px;color:#4A5468">{{ ic.ticket }}</span>{{ o.fee }}</span>
+    <span title="{{ o.prizeTitle }}" style="display:inline-flex;align-items:center;gap:5px"><span style="display:flex;font-size:15px;color:#4A5468">{{ ic.award }}</span><span style="font-family:'JetBrains Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums;font-weight:600;color:{{ o.prizeColor }}">{{ o.prize }}</span></span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:6px;margin:-6px 0">
+    <button type="button" onClick="{{ o.onWhy }}" aria-expanded="{{ o.whyOpen }}" style="align-self:flex-start;max-width:100%;min-height:44px;padding:0;border:0;background:transparent;display:flex;align-items:center;cursor:pointer;font-family:inherit">
+      <span style="display:inline-flex;align-items:center;gap:6px;min-height:30px;padding:4px 8px 4px 10px;box-sizing:border-box;border-radius:999px;border:1px {{ o.clashBs }} {{ o.clashBd }};background:{{ o.clashBg }};color:{{ o.clashC }};font-size:13px;line-height:16px;font-weight:600;text-align:left">
+        <span style="display:flex;flex:none;font-size:15px">{{ o.clashIcon }}</span>{{ o.clashLabel }}<span style="display:flex;flex:none;font-size:14px;opacity:.75">{{ o.whyChevron }}</span>
+      </span>
+    </button>
+    <sc-if value="{{ o.whyOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin-bottom:6px;padding:10px 12px;border-radius:10px;background:#F6F7F9;font-size:13px;line-height:19px;color:#4A5468;text-wrap:pretty">
+        <span>{{ o.why }}</span>
+        <sc-if value="{{ o.hasWhyAction }}" hint-placeholder-val="{{ false }}">
+          <button type="button" onClick="{{ o.onWhyAction }}" style="min-height:36px;padding:0 12px;border-radius:10px;border:1px solid #858FA1;background:#FFFFFF;color:#0B1220;font:600 13px/16px 'Inter',sans-serif;display:inline-flex;align-items:center;gap:6px;cursor:pointer" style-hover="background:#F0F2F5"><span style="display:flex;font-size:15px">{{ ic.upload }}</span>{{ o.whyAction }}</button>
+        </sc-if>
+      </div>
+    </sc-if>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;padding-top:12px;border-top:1px solid #E3E7EE">
+    <div style="flex:1;min-width:0;display:flex;flex-wrap:wrap;gap:6px">
+      <sc-for list="{{ o.tags }}" as="t" hint-placeholder-count="2">
+        <span style="font-size:12px;line-height:16px;font-weight:500;color:#4A5468;padding:4px 8px;border-radius:6px;background:#F0F2F5">{{ t }}</span>
+      </sc-for>
+    </div>
+    <button type="button" onClick="{{ o.onApply }}" style="flex:none;height:44px;padding:0 14px 0 16px;border:0;border-radius:10px;background:#2557D6;color:#FFFFFF;font:600 14px/20px 'Inter',sans-serif;display:inline-flex;align-items:center;gap:6px;cursor:pointer;transition:background 120ms cubic-bezier(.2,.8,.2,1)" style-hover="background:#1D44B0" style-active="background:#1D44B0">View &amp; Apply<span style="display:flex;font-size:16px">{{ ic.arrowUR }}</span></button>
+  </div>
+</article>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:375,&quot;height&quot;:320},&quot;o&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object&quot;},&quot;ic&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object&quot;}}"></script>
+</body>
+</html>

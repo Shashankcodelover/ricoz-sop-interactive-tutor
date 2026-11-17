@@ -126,3 +126,4 @@ code = code.replace(/border-b border-\[#27272a\] bg-\[#121215\] px-6 py-2 flex i
 
 fs.writeFileSync(filePath, code, 'utf8');
 console.log('Successfully updated page.tsx with theme toggle and light theme styling.');
+

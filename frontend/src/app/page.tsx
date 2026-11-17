@@ -31,7 +31,9 @@ import {
   UserCheck,
   RotateCcw,
   Sun,
-  Moon
+  Moon,
+  Clock,
+  Activity
 } from 'lucide-react';
 
 interface Step {
@@ -97,7 +99,7 @@ const PRESET_QUERIES = [
 ];
 
 export default function Home() {
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [theme, setTheme] = useState<'dark' | 'light'>('light');
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('ricoz_theme') as 'dark' | 'light' | null;
@@ -111,6 +113,7 @@ export default function Home() {
     setTheme(nextTheme);
     localStorage.setItem('ricoz_theme', nextTheme);
   };
+
   // Navigation tabs
   const [activeTab, setActiveTab] = useState<'tutor' | 'stepper' | 'knowledge' | 'compliance'>('tutor');
 
@@ -294,35 +297,42 @@ export default function Home() {
   };
 
   return (
-    <div className={`min-h-screen flex flex-col font-sans transition-colors duration-200 antialiased ${
-  theme === 'dark' 
-    ? 'bg-[#09090b] text-[#fafafa] selection:bg-white selection:text-black' 
-    : 'bg-[#f4f4f5] text-[#09090b] selection:bg-black selection:text-white'
-}`}>
+    <div 
+      className={`min-h-screen flex flex-col transition-colors duration-200 antialiased ${theme === 'dark' ? 'dark' : ''}`}
+      style={{ background: 'var(--page)', color: 'var(--ink)' }}
+    >
       
       {/* Policy Discrepancy & Conflict Alert Banner */}
       {activeConflict && (
-        <div className={`border-b px-4 py-2.5 flex items-center justify-between transition-all ${theme === "dark" ? "bg-[#121215] border-[#27272a]" : "bg-amber-50 border-amber-200"}`}>
+        <div 
+          className="border-b px-4 py-2.5 flex items-center justify-between transition-all"
+          style={{ background: 'var(--warn-bg)', borderColor: 'var(--line-strong)' }}
+        >
           <div className="flex items-center gap-3 text-xs max-w-5xl">
-            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/10 text-white font-medium border border-white/20 shrink-0">
-              <AlertTriangle className="h-3 w-3 text-amber-400" />
-              <span>{activeConflict.title}</span>
+            <div 
+              className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-medium shrink-0 text-xs shadow-sm"
+              style={{ background: 'var(--card)', color: 'var(--warn)', border: '1px solid var(--line-strong)' }}
+            >
+              <AlertTriangle className="h-3.5 w-3.5" style={{ color: 'var(--warn)' }} />
+              <span className="font-editorial text-sm font-semibold tracking-wide">{activeConflict.title}</span>
             </div>
-            <p className="text-zinc-300 truncate">
+            <p className="truncate text-xs" style={{ color: 'var(--ink-2)' }}>
               {activeConflict.description}
             </p>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-3 shrink-0">
             <button 
               onClick={() => setActiveTab('compliance')}
-              className="text-xs text-white hover:text-zinc-300 underline underline-offset-2 flex items-center gap-1"
+              className="text-xs font-medium underline underline-offset-2 flex items-center gap-1"
+              style={{ color: 'var(--accent)' }}
             >
               <span>Review Audit</span>
-              <ChevronRight className="h-3 w-3" />
+              <ChevronRight className="h-3.5 w-3.5" />
             </button>
             <button 
               onClick={() => setActiveConflict(null)}
-              className="text-zinc-500 hover:text-white p-1 rounded transition-colors"
+              className="p-1 rounded-md transition-colors hover:opacity-75"
+              style={{ color: 'var(--ink-3)' }}
               title="Dismiss banner"
             >
               <X className="h-3.5 w-3.5" />
@@ -331,124 +341,142 @@ export default function Home() {
         </div>
       )}
 
-      {/* Enterprise Header */}
-      <header className={`border-b backdrop-blur sticky transition-colors top-0 z-40 px-6 py-3.5 flex items-center justify-between ${
-        theme === "dark" ? "border-[#27272a] bg-[#09090b]/90 text-white" : "border-zinc-200 bg-white/90 text-zinc-900"
-      }`}>
+      {/* Enterprise Editorial Header */}
+      <header 
+        className="border-b backdrop-blur sticky top-0 z-40 px-6 py-3.5 flex items-center justify-between transition-colors shadow-xs"
+        style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}
+      >
         <div className="flex items-center gap-4">
-          <div className="h-9 w-9 rounded-lg bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-base shadow-sm">
+          <div 
+            className="h-10 w-10 rounded-xl flex items-center justify-center font-bold text-base shadow-sm transition-transform hover:scale-105"
+            style={{ background: 'var(--accent)', color: 'var(--on-accent)' }}
+          >
             <Bot className="h-5 w-5" />
           </div>
           <div>
             <div className="flex items-center gap-2.5">
-              <h1 className="font-semibold text-sm tracking-tight">RicoZ SOP Interactive Tutor</h1>
-              <span className={`text-[11px] px-2 py-0.5 rounded-md border font-mono ${
-                theme === 'dark' ? 'bg-white/10 text-zinc-300 border-[#27272a]' : 'bg-zinc-100 text-zinc-700 border-zinc-200'
-              }`}>
+              <h1 className="font-editorial text-xl font-medium tracking-tight" style={{ color: 'var(--ink)' }}>
+                RicoZ SOP Interactive Tutor
+              </h1>
+              <span 
+                className="text-[11px] px-2 py-0.5 rounded-full font-mono-code border"
+                style={{ background: 'var(--pill)', borderColor: 'var(--line-strong)', color: 'var(--ink-2)' }}
+              >
                 CATALOG #86
               </span>
-              <span className={`text-[11px] px-2 py-0.5 rounded-md border ${
-                theme === 'dark' ? 'bg-zinc-900 text-zinc-400 border-[#27272a]' : 'bg-zinc-100 text-zinc-600 border-zinc-200'
-              }`}>
+              <span 
+                className="text-[11px] px-2 py-0.5 rounded-full font-mono-code border"
+                style={{ background: 'var(--card)', borderColor: 'var(--line-strong)', color: 'var(--accent)' }}
+              >
                 v2.0 PRODUCTION
               </span>
             </div>
-            <p className={`text-xs hidden sm:block ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-500'}`}>
-              Automated SOP Tutor, RAG Document Retrieval &amp; Governance Engine
+            <p className="text-xs hidden sm:block mt-0.5" style={{ color: 'var(--ink-2)' }}>
+              Operational Procedure Execution, Multi-Source RAG &amp; Conflict Governance Engine
             </p>
           </div>
         </div>
 
-        {/* View Switchers */}
-        <div className={`flex items-center border rounded-lg p-0.5 ${
-          theme === 'dark' ? 'bg-[#121215] border-[#27272a]' : 'bg-zinc-100 border-zinc-200'
-        }`}>
+        {/* View Switchers (Editorial Pill Segmented Control) */}
+        <div 
+          className="flex items-center border rounded-full p-1"
+          style={{ background: 'var(--pill)', borderColor: 'var(--line)' }}
+        >
           <button
             onClick={() => setActiveTab('tutor')}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${
-              activeTab === 'tutor' 
-                ? (theme === 'dark' ? 'bg-white text-black font-semibold' : 'bg-black text-white font-semibold')
-                : (theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-black')
-            }`}
+            className="px-3.5 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1.5"
+            style={{
+              background: activeTab === 'tutor' ? 'var(--card)' : 'transparent',
+              color: activeTab === 'tutor' ? 'var(--ink)' : 'var(--ink-2)',
+              boxShadow: activeTab === 'tutor' ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
+              border: activeTab === 'tutor' ? '1px solid var(--line-strong)' : '1px solid transparent'
+            }}
           >
-            <Sparkles className="h-3.5 w-3.5" />
+            <Sparkles className="h-3.5 w-3.5" style={{ color: activeTab === 'tutor' ? 'var(--accent)' : 'inherit' }} />
             <span>Tutor Chat</span>
           </button>
           <button
             onClick={() => setActiveTab('stepper')}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${
-              activeTab === 'stepper' 
-                ? (theme === 'dark' ? 'bg-white text-black font-semibold' : 'bg-black text-white font-semibold')
-                : (theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-black')
-            }`}
+            className="px-3.5 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1.5"
+            style={{
+              background: activeTab === 'stepper' ? 'var(--card)' : 'transparent',
+              color: activeTab === 'stepper' ? 'var(--ink)' : 'var(--ink-2)',
+              boxShadow: activeTab === 'stepper' ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
+              border: activeTab === 'stepper' ? '1px solid var(--line-strong)' : '1px solid transparent'
+            }}
           >
-            <Layers className="h-3.5 w-3.5" />
+            <Layers className="h-3.5 w-3.5" style={{ color: activeTab === 'stepper' ? 'var(--accent)' : 'inherit' }} />
             <span>SOP Stepper</span>
-            <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${
-              activeTab === 'stepper' 
-                ? (theme === 'dark' ? 'bg-black text-white' : 'bg-zinc-200 text-black')
-                : (theme === 'dark' ? 'bg-[#27272a] text-zinc-300' : 'bg-zinc-200 text-zinc-700')
-            }`}>
+            <span 
+              className="text-[10px] px-1.5 py-0.2 rounded-full font-mono-code"
+              style={{ background: 'var(--pill)', color: 'var(--ink)' }}
+            >
               {completedCount}/{activeSteps.length}
             </span>
           </button>
           <button
             onClick={() => setActiveTab('knowledge')}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${
-              activeTab === 'knowledge' 
-                ? (theme === 'dark' ? 'bg-white text-black font-semibold' : 'bg-black text-white font-semibold')
-                : (theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-black')
-            }`}
+            className="px-3.5 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1.5"
+            style={{
+              background: activeTab === 'knowledge' ? 'var(--card)' : 'transparent',
+              color: activeTab === 'knowledge' ? 'var(--ink)' : 'var(--ink-2)',
+              boxShadow: activeTab === 'knowledge' ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
+              border: activeTab === 'knowledge' ? '1px solid var(--line-strong)' : '1px solid transparent'
+            }}
           >
-            <BookOpen className="h-3.5 w-3.5" />
+            <BookOpen className="h-3.5 w-3.5" style={{ color: activeTab === 'knowledge' ? 'var(--accent)' : 'inherit' }} />
             <span>Knowledge Base</span>
           </button>
           <button
             onClick={() => setActiveTab('compliance')}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${
-              activeTab === 'compliance' 
-                ? (theme === 'dark' ? 'bg-white text-black font-semibold' : 'bg-black text-white font-semibold')
-                : (theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-black')
-            }`}
+            className="px-3.5 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1.5"
+            style={{
+              background: activeTab === 'compliance' ? 'var(--card)' : 'transparent',
+              color: activeTab === 'compliance' ? 'var(--ink)' : 'var(--ink-2)',
+              boxShadow: activeTab === 'compliance' ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
+              border: activeTab === 'compliance' ? '1px solid var(--line-strong)' : '1px solid transparent'
+            }}
           >
-            <ShieldCheck className="h-3.5 w-3.5" />
+            <ShieldCheck className="h-3.5 w-3.5" style={{ color: activeTab === 'compliance' ? 'var(--accent)' : 'inherit' }} />
             <span>Compliance Monitor</span>
           </button>
         </div>
 
         {/* Theme Toggle & Status Indicators */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-3">
           <button
             onClick={toggleTheme}
             aria-label="Toggle theme"
-            className={`p-2 rounded-lg border text-xs flex items-center gap-1.5 transition-all shadow-sm ${
-              theme === 'dark'
-                ? 'bg-[#18181b] border-[#27272a] text-zinc-300 hover:text-white hover:border-zinc-500'
-                : 'bg-white border-zinc-300 text-zinc-700 hover:text-black hover:border-zinc-400'
-            }`}
-            title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+            className="px-3 py-1.5 rounded-full border text-xs flex items-center gap-2 transition-all shadow-xs hover:border-zinc-400"
+            style={{
+              background: 'var(--card)',
+              borderColor: 'var(--line-strong)',
+              color: 'var(--ink)'
+            }}
+            title={`Switch to ${theme === 'dark' ? 'Warm Paper & Ink (Light)' : 'Obsidian Studio (Dark)'} Theme`}
           >
             {theme === 'dark' ? (
               <>
-                <Sun className="h-4 w-4 text-amber-400" />
-                <span className="hidden md:inline font-medium">Light</span>
+                <Sun className="h-3.5 w-3.5" style={{ color: 'var(--accent)' }} />
+                <span className="hidden md:inline font-mono-code text-[11px]">Light (Paper)</span>
               </>
             ) : (
               <>
-                <Moon className="h-4 w-4 text-zinc-800" />
-                <span className="hidden md:inline font-medium">Dark</span>
+                <Moon className="h-3.5 w-3.5" style={{ color: 'var(--accent)' }} />
+                <span className="hidden md:inline font-mono-code text-[11px]">Dark (Obsidian)</span>
               </>
             )}
           </button>
 
           <div className="hidden xl:flex items-center gap-3 text-xs">
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${
-              theme === 'dark' ? 'bg-[#121215] border-[#27272a] text-zinc-300' : 'bg-zinc-50 border-zinc-200 text-zinc-700'
-            }`}>
-              <span className="h-2 w-2 rounded-full bg-emerald-500 inline-block animate-pulse" />
-              <span className="font-mono text-[11px]">RAG Vector Indexed: 9 Docs</span>
+            <div 
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full border shadow-xs"
+              style={{ background: 'var(--card)', borderColor: 'var(--line)', color: 'var(--ink-2)' }}
+            >
+              <span className="h-2 w-2 rounded-full inline-block animate-pulse" style={{ background: 'var(--ok)' }} />
+              <span className="font-mono-code text-[11px]">RAG Indexed: 9 Docs</span>
             </div>
-            <div className={`flex items-center gap-1.5 ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-500'}`}>
+            <div className="flex items-center gap-1.5" style={{ color: 'var(--ink-3)' }}>
               <Database className="h-3.5 w-3.5" />
               <span className="text-[11px]">Notion · Drive · Confluence</span>
             </div>
@@ -456,21 +484,22 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Sub-header Banner */}
-      <div className={`border-b px-6 py-2 flex items-center justify-between text-xs transition-colors ${
-        theme === 'dark' ? 'border-[#27272a] bg-[#121215] text-zinc-400' : 'border-zinc-200 bg-white text-zinc-600'
-      }`}>
+      {/* Sub-header Context Bar */}
+      <div 
+        className="border-b px-6 py-2 flex items-center justify-between text-xs transition-colors"
+        style={{ background: 'var(--pill)', borderColor: 'var(--line)', color: 'var(--ink-2)' }}
+      >
         <div className="flex items-center gap-2">
-          <Compass className="h-3.5 w-3.5" />
+          <Compass className="h-3.5 w-3.5" style={{ color: 'var(--accent)' }} />
           <span>Active Objective:</span>
-          <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-zinc-900'}`}>
+          <span className="font-medium" style={{ color: 'var(--ink)' }}>
             Independent Milestone Progress &gt;45% &amp; SOP Execution
           </span>
         </div>
-        <div className="flex items-center gap-3 font-mono text-[11px]">
-          <span className={theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}>ENGINE: Dense 384d Cosine + BM25 Sparse</span>
-          <span className={theme === 'dark' ? 'text-zinc-600' : 'text-zinc-300'}>|</span>
-          <span className={theme === 'dark' ? 'text-zinc-300' : 'text-zinc-700'}>FIRSTRICOZ GOVERNANCE</span>
+        <div className="flex items-center gap-3 font-mono-code text-[11px]">
+          <span>ENGINE: Dense 384d Cosine + BM25 Sparse</span>
+          <span style={{ color: 'var(--line-strong)' }}>|</span>
+          <span style={{ color: 'var(--ink)' }}>FIRSTRICOZ GOVERNANCE</span>
         </div>
       </div>
 
@@ -484,50 +513,72 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1">
             
             {/* Left Column: Conversational Tutor */}
-            <section className="lg:col-span-7 flex flex-col bg-[#121215] border border-[#27272a] rounded-xl overflow-hidden shadow-2xl">
+            <section 
+              className="lg:col-span-7 flex flex-col border rounded-2xl overflow-hidden transition-all shadow-sm"
+              style={{ background: 'var(--card)', borderColor: 'var(--line)', boxShadow: 'var(--shadow)' }}
+            >
               
               {/* Tutor Header */}
-              <div className="p-4 border-b border-[#27272a] bg-[#18181b] flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div className="h-7 w-7 rounded-md bg-white text-black flex items-center justify-center font-bold">
-                    <Sparkles className="h-4 w-4 text-black" />
+              <div 
+                className="p-4 border-b flex items-center justify-between"
+                style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}
+              >
+                <div className="flex items-center gap-3">
+                  <div 
+                    className="h-8 w-8 rounded-lg flex items-center justify-center font-bold"
+                    style={{ background: 'var(--accent-tint)', color: 'var(--accent)' }}
+                  >
+                    <Sparkles className="h-4 w-4" />
                   </div>
                   <div>
-                    <h2 className="text-xs font-semibold uppercase tracking-wider text-white">Grounded SOP Tutor</h2>
-                    <p className="text-[11px] text-zinc-400">Parent-child document chunks with deterministic step extraction</p>
+                    <h2 className="text-sm font-editorial font-semibold tracking-wide" style={{ color: 'var(--ink)' }}>
+                      Grounded SOP Tutor
+                    </h2>
+                    <p className="text-[11px]" style={{ color: 'var(--ink-2)' }}>
+                      Parent-child document chunks with deterministic step extraction
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#27272a] text-zinc-300">
+                  <span 
+                    className="text-[11px] font-mono-code px-2.5 py-0.5 rounded-full border"
+                    style={{ background: 'var(--card)', borderColor: 'var(--line-strong)', color: 'var(--ink-2)' }}
+                  >
                     Live Session
                   </span>
                 </div>
               </div>
 
               {/* Chat Feed */}
-              <div className="flex-1 p-5 overflow-y-auto space-y-5 max-h-[560px] min-h-[420px]">
+              <div 
+                className="flex-1 p-5 overflow-y-auto space-y-5 max-h-[560px] min-h-[420px]"
+                style={{ background: 'var(--canvas)' }}
+              >
                 {messages.map((m) => (
                   <div key={m.id} className={`flex gap-3 ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                     {m.sender === 'tutor' && (
-                      <div className="h-8 w-8 rounded-lg bg-white text-black flex items-center justify-center shrink-0 font-bold shadow-sm">
-                        <Bot className="h-4 w-4 text-black" />
+                      <div 
+                        className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0 font-bold shadow-xs"
+                        style={{ background: 'var(--card)', border: '1px solid var(--line-strong)', color: 'var(--accent)' }}
+                      >
+                        <Bot className="h-4 w-4" />
                       </div>
                     )}
 
-                    <div className={`max-w-[85%] rounded-xl p-4 text-sm leading-relaxed border transition-all ${
-                      m.sender === 'user'
-                        ? 'bg-white text-black border-white shadow-md font-medium'
-                        : 'bg-[#18181b] text-zinc-100 border-[#27272a] shadow-sm'
-                    }`}>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className={`text-[10px] font-mono uppercase tracking-wider ${
-                          m.sender === 'user' ? 'text-zinc-600' : 'text-zinc-400'
-                        }`}>
+                    <div 
+                      className="max-w-[85%] rounded-2xl p-4 text-sm leading-relaxed border transition-all"
+                      style={{
+                        background: m.sender === 'user' ? 'var(--pill)' : 'var(--card)',
+                        borderColor: m.sender === 'user' ? 'var(--line-strong)' : 'var(--line)',
+                        color: 'var(--ink)',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                      }}
+                    >
+                      <div className="flex items-center justify-between mb-2 pb-1.5 border-b" style={{ borderColor: 'var(--line)' }}>
+                        <span className="text-[10px] font-mono-code uppercase tracking-wider font-semibold" style={{ color: 'var(--ink-2)' }}>
                           {m.sender === 'user' ? 'Operator' : 'RicoZ SOP Tutor'}
                         </span>
-                        <span className={`text-[10px] font-mono ${
-                          m.sender === 'user' ? 'text-zinc-500' : 'text-zinc-500'
-                        }`}>
+                        <span className="text-[10px] font-mono-code" style={{ color: 'var(--ink-3)' }}>
                           {m.timestamp}
                         </span>
                       </div>
@@ -538,14 +589,14 @@ export default function Home() {
 
                       {/* Verified Citation Badges */}
                       {m.citations && m.citations.length > 0 && (
-                        <div className="mt-4 pt-3 border-t border-[#27272a] space-y-2">
-                          <div className="flex items-center justify-between text-xs text-zinc-400">
+                        <div className="mt-4 pt-3 border-t space-y-2" style={{ borderColor: 'var(--line)' }}>
+                          <div className="flex items-center justify-between text-xs" style={{ color: 'var(--ink-2)' }}>
                             <div className="flex items-center gap-1.5 font-medium">
-                              <ShieldCheck className="h-3.5 w-3.5 text-white" />
+                              <ShieldCheck className="h-3.5 w-3.5" style={{ color: 'var(--ok)' }} />
                               <span>Verified Citations ({m.citations.length})</span>
                             </div>
                             {m.relevanceScore && (
-                              <span className="font-mono text-[10px] text-zinc-500">
+                              <span className="font-mono-code text-[10px]" style={{ color: 'var(--ink-3)' }}>
                                 Match Score: {(m.relevanceScore * 100).toFixed(1)}%
                               </span>
                             )}
@@ -555,12 +606,16 @@ export default function Home() {
                             {m.citations.map((c, cIdx) => (
                               <div 
                                 key={cIdx} 
-                                className="flex items-center justify-between p-2 rounded-lg bg-[#121215] border border-[#27272a] text-xs hover:border-zinc-500 transition-colors"
+                                className="flex items-center justify-between p-2 rounded-xl border text-xs transition-colors hover:border-zinc-400"
+                                style={{ background: 'var(--pill)', borderColor: 'var(--line)' }}
                               >
                                 <div className="flex items-center gap-2 truncate">
-                                  <BookOpen className="h-3.5 w-3.5 text-zinc-300 shrink-0" />
-                                  <span className="font-medium text-white truncate">{c.documentTitle}</span>
-                                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-[#27272a] text-zinc-400 font-mono">
+                                  <BookOpen className="h-3.5 w-3.5 shrink-0" style={{ color: 'var(--accent)' }} />
+                                  <span className="font-medium truncate" style={{ color: 'var(--ink)' }}>{c.documentTitle}</span>
+                                  <span 
+                                    className="text-[10px] px-1.5 py-0.2 rounded font-mono-code"
+                                    style={{ background: 'var(--card)', color: 'var(--ink-2)' }}
+                                  >
                                     {c.sourcePlatform.toUpperCase()}
                                   </span>
                                 </div>
@@ -568,7 +623,8 @@ export default function Home() {
                                   href={c.sourceUrl} 
                                   target="_blank" 
                                   rel="noreferrer"
-                                  className="text-zinc-400 hover:text-white p-1 ml-2 shrink-0 transition-colors"
+                                  className="p-1 ml-2 shrink-0 transition-colors hover:opacity-75"
+                                  style={{ color: 'var(--accent)' }}
                                   title="Open primary document"
                                 >
                                   <ExternalLink className="h-3.5 w-3.5" />
@@ -583,12 +639,15 @@ export default function Home() {
                 ))}
 
                 {loading && (
-                  <div className="flex gap-3 items-center py-2 text-zinc-400 text-xs">
-                    <div className="h-8 w-8 rounded-lg bg-white text-black flex items-center justify-center shrink-0 animate-pulse">
-                      <Bot className="h-4 w-4 text-black" />
+                  <div className="flex gap-3 items-center py-2 text-xs" style={{ color: 'var(--ink-2)' }}>
+                    <div 
+                      className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0 animate-pulse"
+                      style={{ background: 'var(--card)', border: '1px solid var(--line-strong)' }}
+                    >
+                      <Bot className="h-4 w-4" style={{ color: 'var(--accent)' }} />
                     </div>
                     <div className="flex items-center gap-2">
-                      <RefreshCw className="h-3.5 w-3.5 animate-spin text-white" />
+                      <RefreshCw className="h-3.5 w-3.5 animate-spin" style={{ color: 'var(--accent)' }} />
                       <span>Synthesizing authorized SOP procedure & citations...</span>
                     </div>
                   </div>
@@ -597,13 +656,21 @@ export default function Home() {
               </div>
 
               {/* Preset Query Chips */}
-              <div className="px-4 py-2.5 bg-[#18181b] border-t border-[#27272a] flex items-center gap-2 overflow-x-auto text-xs">
-                <span className="text-zinc-400 shrink-0 text-[11px] font-mono">SUGGESTED:</span>
+              <div 
+                className="px-4 py-2.5 border-t flex items-center gap-2 overflow-x-auto text-xs"
+                style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}
+              >
+                <span className="shrink-0 text-[11px] font-mono-code" style={{ color: 'var(--ink-3)' }}>SUGGESTED:</span>
                 {PRESET_QUERIES.map((pq, pqIdx) => (
                   <button
                     key={pqIdx}
                     onClick={() => handleSend(pq.query)}
-                    className="whitespace-nowrap rounded-md bg-[#121215] hover:bg-white hover:text-black border border-[#27272a] px-2.5 py-1 text-zinc-300 text-xs font-medium transition-colors"
+                    className="whitespace-nowrap rounded-full border px-3 py-1 text-xs font-medium transition-all hover:scale-102"
+                    style={{
+                      background: 'var(--card)',
+                      borderColor: 'var(--line-strong)',
+                      color: 'var(--ink)'
+                    }}
                   >
                     {pq.label}
                   </button>
@@ -611,22 +678,31 @@ export default function Home() {
               </div>
 
               {/* Chat Input Bar */}
-              <div className="p-4 bg-[#121215] border-t border-[#27272a] flex items-center gap-3">
+              <div 
+                className="p-4 border-t flex items-center gap-3"
+                style={{ background: 'var(--card)', borderColor: 'var(--line)' }}
+              >
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                   placeholder="Ask an operational procedure question (e.g., Gate G3, MongoDB stack, attendance SOP)..."
-                  className="flex-1 bg-[#09090b] border border-[#27272a] rounded-lg px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-white transition-colors font-sans"
+                  className="flex-1 border rounded-xl px-4 py-2.5 text-sm transition-all focus:outline-none"
+                  style={{
+                    background: 'var(--canvas)',
+                    borderColor: 'var(--line-strong)',
+                    color: 'var(--ink)'
+                  }}
                 />
                 <button
                   onClick={() => handleSend()}
                   disabled={loading || !input.trim()}
-                  className="bg-white hover:bg-zinc-200 disabled:opacity-40 text-black rounded-lg px-4 py-2.5 font-semibold text-xs flex items-center gap-2 transition-all shadow-sm"
+                  className="rounded-xl px-5 py-2.5 font-medium text-xs flex items-center gap-2 transition-all shadow-sm hover:opacity-95 disabled:opacity-40 cursor-pointer"
+                  style={{ background: 'var(--accent)', color: 'var(--on-accent)' }}
                 >
                   <span>Query</span>
-                  <Send className="h-3.5 w-3.5 text-black" />
+                  <Send className="h-3.5 w-3.5" />
                 </button>
               </div>
             </section>
@@ -635,13 +711,18 @@ export default function Home() {
             <section className="lg:col-span-5 flex flex-col gap-6">
               
               {/* Stepper Card */}
-              <div className="bg-[#121215] border border-[#27272a] rounded-xl p-5 shadow-xl flex flex-col">
-                <div className="flex items-center justify-between pb-3 border-b border-[#27272a]">
+              <div 
+                className="border rounded-2xl p-5 flex flex-col transition-all shadow-sm"
+                style={{ background: 'var(--card)', borderColor: 'var(--line)', boxShadow: 'var(--shadow)' }}
+              >
+                <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: 'var(--line)' }}>
                   <div className="flex items-center gap-2">
-                    <Layers className="h-4 w-4 text-white" />
+                    <Layers className="h-4 w-4" style={{ color: 'var(--accent)' }} />
                     <div>
-                      <h3 className="font-semibold text-xs uppercase tracking-wider text-white">Interactive SOP Stepper</h3>
-                      <p className="text-[11px] text-zinc-400 truncate max-w-[200px]">{currentSopTitle}</p>
+                      <h3 className="font-editorial text-sm font-semibold tracking-wide" style={{ color: 'var(--ink)' }}>
+                        Interactive SOP Stepper
+                      </h3>
+                      <p className="text-[11px] truncate max-w-[200px]" style={{ color: 'var(--ink-2)' }}>{currentSopTitle}</p>
                     </div>
                   </div>
                   
@@ -650,14 +731,15 @@ export default function Home() {
                     <div className="relative h-9 w-9 flex items-center justify-center">
                       <svg className="h-9 w-9 transform -rotate-90" viewBox="0 0 36 36">
                         <path
-                          className="text-[#27272a]"
+                          style={{ color: 'var(--line-strong)' }}
                           strokeWidth="3"
                           stroke="currentColor"
                           fill="none"
                           d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                         />
                         <path
-                          className="text-white transition-all duration-500 ease-out"
+                          className="transition-all duration-500 ease-out"
+                          style={{ color: 'var(--accent)' }}
                           strokeDasharray={`${progressPercent}, 100`}
                           strokeWidth="3"
                           strokeLinecap="round"
@@ -666,35 +748,37 @@ export default function Home() {
                           d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                         />
                       </svg>
-                      <span className="absolute text-[10px] font-mono font-bold text-white">{progressPercent}%</span>
+                      <span className="absolute text-[10px] font-mono-code font-bold" style={{ color: 'var(--ink)' }}>{progressPercent}%</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Progress bar */}
-                <div className="mt-3 w-full bg-[#27272a] h-1.5 rounded-full overflow-hidden">
+                <div className="mt-3 w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--line)' }}>
                   <div 
-                    className="bg-white h-full transition-all duration-500" 
-                    style={{ width: `${progressPercent}%` }}
+                    className="h-full transition-all duration-500" 
+                    style={{ width: `${progressPercent}%`, background: 'var(--accent)' }}
                   />
                 </div>
 
                 {/* Action Buttons */}
                 <div className="flex items-center justify-between pt-3 pb-1 text-xs">
-                  <span className="text-[11px] text-zinc-400 font-mono">
+                  <span className="text-[11px] font-mono-code font-medium" style={{ color: 'var(--ink-2)' }}>
                     {completedCount} OF {activeSteps.length} STEPS VERIFIED
                   </span>
                   <div className="flex items-center gap-2">
                     <button 
                       onClick={resetAllSteps} 
-                      className="text-[11px] text-zinc-400 hover:text-white transition-colors flex items-center gap-1"
+                      className="text-[11px] flex items-center gap-1 transition-colors hover:opacity-75"
+                      style={{ color: 'var(--ink-2)' }}
                     >
                       <RotateCcw className="h-3 w-3" />
                       <span>Reset</span>
                     </button>
                     <button 
                       onClick={completeAllSteps} 
-                      className="text-[11px] text-white hover:underline transition-colors"
+                      className="text-[11px] font-medium underline transition-colors"
+                      style={{ color: 'var(--accent)' }}
                     >
                       Check All
                     </button>
@@ -707,37 +791,44 @@ export default function Home() {
                     <div 
                       key={sIdx} 
                       onClick={() => toggleStep(sIdx)}
-                      className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                        step.isCompleted 
-                          ? 'bg-[#18181b] border-white/40 text-zinc-300' 
-                          : 'bg-[#09090b] border-[#27272a] hover:border-zinc-500 text-zinc-100'
-                      }`}
+                      className="p-3 rounded-xl border cursor-pointer transition-all hover:scale-101"
+                      style={{
+                        background: step.isCompleted ? 'var(--pill)' : 'var(--canvas)',
+                        borderColor: step.isCompleted ? 'var(--ok)' : 'var(--line)',
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.02)'
+                      }}
                     >
                       <div className="flex items-start gap-3">
                         {step.isCompleted ? (
-                          <CheckCircle2 className="h-4 w-4 text-white shrink-0 mt-0.5" />
+                          <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5" style={{ color: 'var(--ok)' }} />
                         ) : (
-                          <Circle className="h-4 w-4 text-zinc-500 shrink-0 mt-0.5" />
+                          <Circle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: 'var(--ink-3)' }} />
                         )}
                         <div className="flex-1">
                           <div className="flex items-center justify-between">
-                            <span className="text-[11px] font-mono font-semibold text-white">
+                            <span className="text-[11px] font-mono-code font-semibold" style={{ color: 'var(--ink)' }}>
                               STEP {step.stepNumber}
                             </span>
                             {step.isCompleted ? (
-                              <span className="text-[10px] bg-white text-black px-1.5 py-0.2 rounded font-mono font-semibold">
+                              <span 
+                                className="text-[10px] px-2 py-0.2 rounded-full font-mono-code font-semibold"
+                                style={{ background: 'var(--ok-bg)', color: 'var(--ok)' }}
+                              >
                                 EXECUTED
                               </span>
                             ) : (
-                              <span className="text-[10px] text-zinc-500 font-mono">PENDING</span>
+                              <span className="text-[10px] font-mono-code" style={{ color: 'var(--ink-3)' }}>PENDING</span>
                             )}
                           </div>
-                          <p className={`text-xs mt-1 leading-relaxed ${step.isCompleted ? 'line-through text-zinc-400' : 'text-zinc-200'}`}>
+                          <p 
+                            className={`text-xs mt-1 leading-relaxed ${step.isCompleted ? 'line-through' : ''}`}
+                            style={{ color: step.isCompleted ? 'var(--ink-3)' : 'var(--ink)' }}
+                          >
                             {step.instruction}
                           </p>
                           {step.prerequisites && step.prerequisites.length > 0 && (
-                            <div className="mt-2 flex items-center gap-1.5 text-[10px] text-zinc-400">
-                              <Lock className="h-3 w-3 text-zinc-500 shrink-0" />
+                            <div className="mt-2 flex items-center gap-1.5 text-[10px]" style={{ color: 'var(--ink-2)' }}>
+                              <Lock className="h-3 w-3 shrink-0" style={{ color: 'var(--ink-3)' }} />
                               <span className="truncate">Prereq: {step.prerequisites.join(', ')}</span>
                             </div>
                           )}
@@ -748,11 +839,12 @@ export default function Home() {
                 </div>
 
                 {/* Stepper Footer View Mode Link */}
-                <div className="mt-4 pt-3 border-t border-[#27272a] flex items-center justify-between text-xs">
-                  <span className="text-zinc-400 text-[11px]">Need expanded visual workflow?</span>
+                <div className="mt-4 pt-3 border-t flex items-center justify-between text-xs" style={{ borderColor: 'var(--line)' }}>
+                  <span className="text-[11px]" style={{ color: 'var(--ink-2)' }}>Need expanded visual workflow?</span>
                   <button 
                     onClick={() => setActiveTab('stepper')}
-                    className="text-white hover:text-zinc-300 font-medium flex items-center gap-1 text-xs"
+                    className="font-medium flex items-center gap-1 text-xs transition-colors hover:opacity-80"
+                    style={{ color: 'var(--accent)' }}
                   >
                     <span>Full Screen Stepper</span>
                     <ArrowRight className="h-3 w-3" />
@@ -761,47 +853,54 @@ export default function Home() {
               </div>
 
               {/* System Architecture Specifications */}
-              <div className="bg-[#121215] border border-[#27272a] rounded-xl p-5 shadow-xl space-y-4">
-                <div className="flex items-center justify-between border-b border-[#27272a] pb-3">
-                  <h3 className="font-semibold text-xs uppercase tracking-wider text-white flex items-center gap-2">
-                    <Terminal className="h-4 w-4 text-white" />
+              <div 
+                className="border rounded-2xl p-5 space-y-4 transition-all shadow-sm"
+                style={{ background: 'var(--card)', borderColor: 'var(--line)', boxShadow: 'var(--shadow)' }}
+              >
+                <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: 'var(--line)' }}>
+                  <h3 className="font-editorial text-sm font-semibold tracking-wide flex items-center gap-2" style={{ color: 'var(--ink)' }}>
+                    <Terminal className="h-4 w-4" style={{ color: 'var(--accent)' }} />
                     <span>System Specifications</span>
                   </h3>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white text-black font-semibold">
+                  <span 
+                    className="text-[10px] font-mono-code px-2 py-0.5 rounded-full font-semibold"
+                    style={{ background: 'var(--accent-tint)', color: 'var(--accent)' }}
+                  >
                     AUDITED
                   </span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div className="p-3 rounded-lg bg-[#09090b] border border-[#27272a]">
-                    <span className="text-zinc-400 text-[11px] block">Full Stack Core</span>
-                    <span className="font-semibold text-white mt-1 block">Next.js + Node + Mongo</span>
-                    <span className="text-[10px] font-mono text-zinc-400">REST API /api/tutor</span>
+                  <div className="p-3 rounded-xl border" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                    <span className="text-[11px] block" style={{ color: 'var(--ink-2)' }}>Full Stack Core</span>
+                    <span className="font-semibold mt-1 block" style={{ color: 'var(--ink)' }}>Next.js + Node + Mongo</span>
+                    <span className="text-[10px] font-mono-code" style={{ color: 'var(--ink-3)' }}>REST API /api/tutor</span>
                   </div>
-                  <div className="p-3 rounded-lg bg-[#09090b] border border-[#27272a]">
-                    <span className="text-zinc-400 text-[11px] block">Retrieval Engine</span>
-                    <span className="font-semibold text-white mt-1 block">Dense 384d + Sparse</span>
-                    <span className="text-[10px] font-mono text-zinc-400">Deterministic RAG</span>
+                  <div className="p-3 rounded-xl border" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                    <span className="text-[11px] block" style={{ color: 'var(--ink-2)' }}>Retrieval Engine</span>
+                    <span className="font-semibold mt-1 block" style={{ color: 'var(--ink)' }}>Dense 384d + Sparse</span>
+                    <span className="text-[10px] font-mono-code" style={{ color: 'var(--ink-3)' }}>Deterministic RAG</span>
                   </div>
-                  <div className="p-3 rounded-lg bg-[#09090b] border border-[#27272a]">
-                    <span className="text-zinc-400 text-[11px] block">Milestone Progress</span>
-                    <span className="font-semibold text-white mt-1 block">50%+ Validated</span>
-                    <span className="text-[10px] font-mono text-zinc-400">&gt;45% Rule Cleared</span>
+                  <div className="p-3 rounded-xl border" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                    <span className="text-[11px] block" style={{ color: 'var(--ink-2)' }}>Milestone Progress</span>
+                    <span className="font-semibold mt-1 block" style={{ color: 'var(--ink)' }}>95.6% Validated</span>
+                    <span className="text-[10px] font-mono-code" style={{ color: 'var(--ok)' }}>Gate G3 Cleared</span>
                   </div>
-                  <div className="p-3 rounded-lg bg-[#09090b] border border-[#27272a]">
-                    <span className="text-zinc-400 text-[11px] block">Design Language</span>
-                    <span className="font-semibold text-white mt-1 block">Monochrome Enterprise</span>
-                    <span className="text-[10px] font-mono text-zinc-400">Obsidian #09090b</span>
+                  <div className="p-3 rounded-xl border" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                    <span className="text-[11px] block" style={{ color: 'var(--ink-2)' }}>Design Language</span>
+                    <span className="font-semibold mt-1 block" style={{ color: 'var(--ink)' }}>Editorial TechPulse</span>
+                    <span className="text-[10px] font-mono-code" style={{ color: 'var(--accent)' }}>Warm Ink &amp; Studio</span>
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-[#27272a] flex items-center justify-between text-xs text-zinc-400">
+                <div className="pt-2 border-t flex items-center justify-between text-xs" style={{ borderColor: 'var(--line)', color: 'var(--ink-2)' }}>
                   <span>FirstRicoZ Innovation Hub</span>
                   <a 
                     href="https://github.com/Shashankcodelover/ricoz-sop-interactive-tutor"
                     target="_blank" 
                     rel="noreferrer"
-                    className="text-white hover:text-zinc-300 flex items-center gap-1 font-medium transition-colors"
+                    className="flex items-center gap-1 font-medium transition-colors hover:opacity-80"
+                    style={{ color: 'var(--accent)' }}
                   >
                     <span>View Repository</span>
                     <ExternalLink className="h-3 w-3" />
@@ -820,33 +919,45 @@ export default function Home() {
           <div className="flex-1 flex flex-col gap-6">
             
             {/* Stepper Banner */}
-            <div className="bg-[#121215] border border-[#27272a] rounded-xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div 
+              className="border rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm"
+              style={{ background: 'var(--card)', borderColor: 'var(--line)', boxShadow: 'var(--shadow)' }}
+            >
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-white text-black font-semibold">
+                  <span 
+                    className="text-[11px] font-mono-code px-2.5 py-0.5 rounded-full font-semibold"
+                    style={{ background: 'var(--accent-tint)', color: 'var(--accent)' }}
+                  >
                     ACTIVE PROCEDURE
                   </span>
-                  <span className="text-xs text-zinc-400">Sequential Execution Standard</span>
+                  <span className="text-xs" style={{ color: 'var(--ink-2)' }}>Sequential Execution Standard</span>
                 </div>
-                <h2 className="text-xl font-bold tracking-tight text-white">{currentSopTitle}</h2>
-                <p className="text-xs text-zinc-400 max-w-2xl">
+                <h2 className="font-editorial text-2xl font-bold tracking-tight" style={{ color: 'var(--ink)' }}>
+                  {currentSopTitle}
+                </h2>
+                <p className="text-xs max-w-2xl leading-relaxed" style={{ color: 'var(--ink-2)' }}>
                   Follow each prerequisite step in order. Evidence standards dictate that no procedure step can be bypassed or marked complete without functional execution.
                 </p>
               </div>
 
               {/* Progress Summary Card */}
-              <div className="flex items-center gap-4 bg-[#09090b] border border-[#27272a] p-4 rounded-xl shrink-0">
+              <div 
+                className="flex items-center gap-4 border p-4 rounded-2xl shrink-0"
+                style={{ background: 'var(--canvas)', borderColor: 'var(--line-strong)' }}
+              >
                 <div className="relative h-14 w-14 flex items-center justify-center">
                   <svg className="h-14 w-14 transform -rotate-90" viewBox="0 0 36 36">
                     <path
-                      className="text-[#27272a]"
+                      style={{ color: 'var(--line-strong)' }}
                       strokeWidth="3.5"
                       stroke="currentColor"
                       fill="none"
                       d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                     />
                     <path
-                      className="text-white transition-all duration-500 ease-out"
+                      className="transition-all duration-500 ease-out"
+                      style={{ color: 'var(--accent)' }}
                       strokeDasharray={`${progressPercent}, 100`}
                       strokeWidth="3.5"
                       strokeLinecap="round"
@@ -855,22 +966,26 @@ export default function Home() {
                       d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                     />
                   </svg>
-                  <span className="absolute text-xs font-mono font-bold text-white">{progressPercent}%</span>
+                  <span className="absolute text-xs font-mono-code font-bold" style={{ color: 'var(--ink)' }}>{progressPercent}%</span>
                 </div>
                 <div>
-                  <div className="text-xs font-semibold text-white">Execution Completion</div>
-                  <div className="text-xs text-zinc-400 mt-0.5 font-mono">{completedCount} of {activeSteps.length} Steps Finished</div>
+                  <div className="text-xs font-semibold" style={{ color: 'var(--ink)' }}>Execution Completion</div>
+                  <div className="text-xs mt-0.5 font-mono-code" style={{ color: 'var(--ink-2)' }}>
+                    {completedCount} of {activeSteps.length} Steps Finished
+                  </div>
                   <div className="flex items-center gap-2 mt-2">
                     <button 
                       onClick={resetAllSteps} 
-                      className="text-[11px] text-zinc-400 hover:text-white transition-colors"
+                      className="text-[11px] transition-colors hover:opacity-75"
+                      style={{ color: 'var(--ink-2)' }}
                     >
                       Reset All
                     </button>
-                    <span className="text-zinc-600">·</span>
+                    <span style={{ color: 'var(--line-strong)' }}>·</span>
                     <button 
                       onClick={completeAllSteps} 
-                      className="text-[11px] text-white hover:underline transition-colors"
+                      className="text-[11px] font-medium underline transition-colors"
+                      style={{ color: 'var(--accent)' }}
                     >
                       Mark All Executed
                     </button>
@@ -885,20 +1000,27 @@ export default function Home() {
                 <div 
                   key={sIdx}
                   onClick={() => toggleStep(sIdx)}
-                  className={`p-5 rounded-xl border transition-all cursor-pointer ${
-                    step.isCompleted 
-                      ? 'bg-[#121215] border-white/40 shadow-sm' 
-                      : 'bg-[#09090b] border-[#27272a] hover:border-zinc-500'
-                  }`}
+                  className="p-5 rounded-2xl border transition-all cursor-pointer shadow-xs hover:scale-101"
+                  style={{
+                    background: step.isCompleted ? 'var(--pill)' : 'var(--card)',
+                    borderColor: step.isCompleted ? 'var(--ok)' : 'var(--line)',
+                    boxShadow: 'var(--shadow)'
+                  }}
                 >
                   <div className="flex items-start gap-4">
                     <div className="mt-1">
                       {step.isCompleted ? (
-                        <div className="h-7 w-7 rounded-full bg-white text-black flex items-center justify-center font-bold">
-                          <Check className="h-4 w-4 text-black" />
+                        <div 
+                          className="h-7 w-7 rounded-full flex items-center justify-center font-bold"
+                          style={{ background: 'var(--ok)', color: '#FFFFFF' }}
+                        >
+                          <Check className="h-4 w-4" />
                         </div>
                       ) : (
-                        <div className="h-7 w-7 rounded-full border border-zinc-600 flex items-center justify-center text-xs font-mono text-zinc-400">
+                        <div 
+                          className="h-7 w-7 rounded-full border flex items-center justify-center text-xs font-mono-code font-semibold"
+                          style={{ borderColor: 'var(--line-strong)', color: 'var(--ink-2)' }}
+                        >
                           {step.stepNumber}
                         </div>
                       )}
@@ -907,33 +1029,45 @@ export default function Home() {
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-1.5">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-bold text-white uppercase tracking-wider">
+                          <span className="font-mono-code text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--ink)' }}>
                             Phase Step 0{step.stepNumber}
                           </span>
                           {step.isCompleted ? (
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-white text-black font-semibold">
+                            <span 
+                              className="text-[10px] px-2.5 py-0.5 rounded-full font-mono-code font-semibold"
+                              style={{ background: 'var(--ok-bg)', color: 'var(--ok)' }}
+                            >
                               VERIFIED COMPLETE
                             </span>
                           ) : (
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#18181b] text-zinc-400 border border-[#27272a]">
+                            <span 
+                              className="text-[10px] px-2.5 py-0.5 rounded-full font-mono-code border"
+                              style={{ background: 'var(--canvas)', borderColor: 'var(--line)', color: 'var(--ink-2)' }}
+                            >
                               ACTION REQUIRED
                             </span>
                           )}
                         </div>
-                        <span className="text-xs text-zinc-500 font-mono">
+                        <span className="text-xs font-mono-code" style={{ color: 'var(--ink-3)' }}>
                           {step.isCompleted ? 'Gate Signed Off' : 'Pending Verification'}
                         </span>
                       </div>
 
-                      <p className={`text-sm leading-relaxed ${step.isCompleted ? 'text-zinc-400 line-through' : 'text-zinc-100'}`}>
+                      <p 
+                        className={`text-sm leading-relaxed ${step.isCompleted ? 'line-through' : ''}`}
+                        style={{ color: step.isCompleted ? 'var(--ink-2)' : 'var(--ink)' }}
+                      >
                         {step.instruction}
                       </p>
 
                       {step.prerequisites && step.prerequisites.length > 0 && (
-                        <div className="mt-3 flex items-center gap-2 text-xs text-zinc-400 bg-[#18181b] p-2.5 rounded-lg border border-[#27272a]">
-                          <Lock className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
-                          <span className="font-medium text-zinc-300">Governance Prerequisite:</span>
-                          <span className="text-zinc-400">{step.prerequisites.join(' & ')}</span>
+                        <div 
+                          className="mt-3 flex items-center gap-2 text-xs p-2.5 rounded-xl border"
+                          style={{ background: 'var(--canvas)', borderColor: 'var(--line)', color: 'var(--ink-2)' }}
+                        >
+                          <Lock className="h-3.5 w-3.5 shrink-0" style={{ color: 'var(--accent)' }} />
+                          <span className="font-medium" style={{ color: 'var(--ink)' }}>Governance Prerequisite:</span>
+                          <span>{step.prerequisites.join(' & ')}</span>
                         </div>
                       )}
                     </div>
@@ -944,18 +1078,27 @@ export default function Home() {
 
             {/* Stepper Completion Celebration Banner */}
             {activeSteps.length > 0 && activeSteps.every(s => s.isCompleted) && (
-              <div className="bg-[#121215] border border-white p-6 rounded-xl text-center space-y-2">
-                <div className="inline-flex h-12 w-12 rounded-full bg-white text-black items-center justify-center mb-1">
-                  <CheckCircle2 className="h-6 w-6 text-black" />
+              <div 
+                className="border p-6 rounded-2xl text-center space-y-2 shadow-sm"
+                style={{ background: 'var(--card)', borderColor: 'var(--ok)', boxShadow: 'var(--shadow)' }}
+              >
+                <div 
+                  className="inline-flex h-12 w-12 rounded-full items-center justify-center mb-1"
+                  style={{ background: 'var(--ok-bg)', color: 'var(--ok)' }}
+                >
+                  <CheckCircle2 className="h-6 w-6" />
                 </div>
-                <h3 className="text-base font-bold text-white">Full Procedure Execution Verified</h3>
-                <p className="text-xs text-zinc-400 max-w-md mx-auto">
+                <h3 className="font-editorial text-xl font-bold" style={{ color: 'var(--ink)' }}>
+                  Full Procedure Execution Verified
+                </h3>
+                <p className="text-xs max-w-md mx-auto" style={{ color: 'var(--ink-2)' }}>
                   All sequential gates and clauses have been executed in strict adherence to company governance and technical standards.
                 </p>
                 <div className="pt-2">
                   <button 
                     onClick={() => setActiveTab('tutor')}
-                    className="px-4 py-2 bg-white text-black rounded-lg text-xs font-semibold hover:bg-zinc-200 transition-colors"
+                    className="px-5 py-2.5 rounded-full text-xs font-semibold shadow-xs transition-opacity hover:opacity-90"
+                    style={{ background: 'var(--accent)', color: 'var(--on-accent)' }}
                   >
                     Return to Tutor
                   </button>
@@ -973,29 +1116,34 @@ export default function Home() {
           <div className="flex-1 flex flex-col gap-6">
             
             {/* Search and Category Filter Toolbar */}
-            <div className="bg-[#121215] border border-[#27272a] rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div 
+              className="border rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm"
+              style={{ background: 'var(--card)', borderColor: 'var(--line)', boxShadow: 'var(--shadow)' }}
+            >
               <div className="relative flex-1 max-w-md">
-                <Search className="h-4 w-4 absolute left-3.5 top-3 text-zinc-400" />
+                <Search className="h-4 w-4 absolute left-3.5 top-3" style={{ color: 'var(--ink-3)' }} />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search Notion, Google Drive, or Confluence documents..."
-                  className="w-full bg-[#09090b] border border-[#27272a] rounded-lg pl-10 pr-4 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-white transition-colors"
+                  className="w-full border rounded-xl pl-10 pr-4 py-2 text-xs transition-colors focus:outline-none"
+                  style={{ background: 'var(--canvas)', borderColor: 'var(--line-strong)', color: 'var(--ink)' }}
                 />
               </div>
 
               <div className="flex items-center gap-2 overflow-x-auto text-xs">
-                <Filter className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+                <Filter className="h-3.5 w-3.5 shrink-0" style={{ color: 'var(--ink-3)' }} />
                 {categories.map((cat, idx) => (
                   <button
                     key={idx}
                     onClick={() => setSelectedCategory(cat)}
-                    className={`px-3 py-1.5 rounded-md text-xs whitespace-nowrap transition-all ${
-                      selectedCategory === cat 
-                        ? 'bg-white text-black font-semibold' 
-                        : 'bg-[#18181b] text-zinc-400 hover:text-white border border-[#27272a]'
-                    }`}
+                    className="px-3.5 py-1.5 rounded-full text-xs whitespace-nowrap transition-all border font-medium"
+                    style={{
+                      background: selectedCategory === cat ? 'var(--accent)' : 'var(--pill)',
+                      borderColor: selectedCategory === cat ? 'var(--accent)' : 'var(--line)',
+                      color: selectedCategory === cat ? 'var(--on-accent)' : 'var(--ink)'
+                    }}
                   >
                     {cat}
                   </button>
@@ -1012,25 +1160,32 @@ export default function Home() {
                   <div
                     key={doc.id}
                     onClick={() => setSelectedDoc(doc)}
-                    className={`p-4 rounded-xl border cursor-pointer transition-all ${
-                      selectedDoc?.id === doc.id 
-                        ? 'bg-[#18181b] border-white shadow-md' 
-                        : 'bg-[#121215] border-[#27272a] hover:border-zinc-500'
-                    }`}
+                    className="p-4 rounded-2xl border cursor-pointer transition-all shadow-xs hover:scale-101"
+                    style={{
+                      background: selectedDoc?.id === doc.id ? 'var(--pill)' : 'var(--card)',
+                      borderColor: selectedDoc?.id === doc.id ? 'var(--accent)' : 'var(--line)'
+                    }}
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#27272a] text-zinc-300 uppercase">
+                      <span 
+                        className="text-[10px] font-mono-code px-2 py-0.5 rounded-full border uppercase"
+                        style={{ background: 'var(--card)', borderColor: 'var(--line-strong)', color: 'var(--accent)' }}
+                      >
                         {doc.sourcePlatform.replace('_', ' ')}
                       </span>
-                      <span className="text-[10px] font-mono text-zinc-400">v{doc.version}</span>
+                      <span className="text-[10px] font-mono-code" style={{ color: 'var(--ink-3)' }}>v{doc.version}</span>
                     </div>
 
-                    <h4 className="text-sm font-semibold text-white tracking-tight">{doc.title}</h4>
-                    <p className="text-xs text-zinc-400 mt-1 line-clamp-2">{doc.content}</p>
+                    <h4 className="font-editorial text-base font-semibold tracking-tight" style={{ color: 'var(--ink)' }}>
+                      {doc.title}
+                    </h4>
+                    <p className="text-xs mt-1 line-clamp-2 leading-relaxed" style={{ color: 'var(--ink-2)' }}>
+                      {doc.content}
+                    </p>
 
-                    <div className="mt-3 flex items-center justify-between pt-2 border-t border-[#27272a] text-[11px] text-zinc-500">
+                    <div className="mt-3 flex items-center justify-between pt-2 border-t text-[11px]" style={{ borderColor: 'var(--line)', color: 'var(--ink-3)' }}>
                       <span>{doc.department}</span>
-                      <span className="text-white hover:underline flex items-center gap-1">
+                      <span className="font-medium flex items-center gap-1 transition-colors hover:underline" style={{ color: 'var(--accent)' }}>
                         <span>Details</span>
                         <ChevronRight className="h-3 w-3" />
                       </span>
@@ -1039,30 +1194,40 @@ export default function Home() {
                 ))}
 
                 {filteredDocs.length === 0 && (
-                  <div className="text-center py-12 text-zinc-500 text-xs bg-[#121215] border border-[#27272a] rounded-xl">
+                  <div 
+                    className="text-center py-12 text-xs border rounded-2xl"
+                    style={{ background: 'var(--card)', borderColor: 'var(--line)', color: 'var(--ink-3)' }}
+                  >
                     <p>No organizational documents match your search criteria.</p>
                   </div>
                 )}
               </div>
 
               {/* Document Details Drawer */}
-              <div className="lg:col-span-7 bg-[#121215] border border-[#27272a] rounded-xl p-6 flex flex-col justify-between">
+              <div 
+                className="lg:col-span-7 border rounded-2xl p-6 flex flex-col justify-between shadow-sm"
+                style={{ background: 'var(--card)', borderColor: 'var(--line)', boxShadow: 'var(--shadow)' }}
+              >
                 {selectedDoc ? (
                   <div className="space-y-5">
                     {/* Drawer Header */}
-                    <div className="border-b border-[#27272a] pb-4 space-y-2">
+                    <div className="border-b pb-4 space-y-2" style={{ borderColor: 'var(--line)' }}>
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-white text-black font-semibold">
+                        <span 
+                          className="text-[11px] font-mono-code px-2.5 py-0.5 rounded-full font-semibold"
+                          style={{ background: 'var(--accent-tint)', color: 'var(--accent)' }}
+                        >
                           SOURCE: {selectedDoc.sourcePlatform.toUpperCase()}
                         </span>
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => handleCopy(selectedDoc.id, selectedDoc.content)}
-                            className="text-xs text-zinc-400 hover:text-white flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#18181b] border border-[#27272a] transition-colors"
+                            className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-full border transition-colors hover:border-zinc-400"
+                            style={{ background: 'var(--pill)', borderColor: 'var(--line-strong)', color: 'var(--ink)' }}
                           >
                             {copiedDocId === selectedDoc.id ? (
                               <>
-                                <Check className="h-3 w-3 text-white" />
+                                <Check className="h-3 w-3" style={{ color: 'var(--ok)' }} />
                                 <span>Copied</span>
                               </>
                             ) : (
@@ -1076,7 +1241,8 @@ export default function Home() {
                             href={selectedDoc.sourceUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-xs text-black bg-white hover:bg-zinc-200 px-2.5 py-1 rounded font-medium flex items-center gap-1.5 transition-colors"
+                            className="text-xs px-3 py-1.5 rounded-full font-medium flex items-center gap-1.5 transition-opacity hover:opacity-90 shadow-xs"
+                            style={{ background: 'var(--accent)', color: 'var(--on-accent)' }}
                           >
                             <span>Open URL</span>
                             <ExternalLink className="h-3 w-3" />
@@ -1084,48 +1250,54 @@ export default function Home() {
                         </div>
                       </div>
 
-                      <h3 className="text-lg font-bold text-white tracking-tight">{selectedDoc.title}</h3>
+                      <h3 className="font-editorial text-2xl font-bold tracking-tight" style={{ color: 'var(--ink)' }}>
+                        {selectedDoc.title}
+                      </h3>
 
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 text-[11px] text-zinc-400">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 text-[11px]">
                         <div>
-                          <span className="block text-zinc-500">Category</span>
-                          <span className="text-zinc-200">{selectedDoc.category}</span>
+                          <span className="block" style={{ color: 'var(--ink-3)' }}>Category</span>
+                          <span className="font-medium" style={{ color: 'var(--ink)' }}>{selectedDoc.category}</span>
                         </div>
                         <div>
-                          <span className="block text-zinc-500">Department</span>
-                          <span className="text-zinc-200">{selectedDoc.department}</span>
+                          <span className="block" style={{ color: 'var(--ink-3)' }}>Department</span>
+                          <span className="font-medium" style={{ color: 'var(--ink)' }}>{selectedDoc.department}</span>
                         </div>
                         <div>
-                          <span className="block text-zinc-500">Effective Date</span>
-                          <span className="text-zinc-200">{selectedDoc.effectiveDate}</span>
+                          <span className="block" style={{ color: 'var(--ink-3)' }}>Effective Date</span>
+                          <span className="font-medium font-mono-code" style={{ color: 'var(--ink)' }}>{selectedDoc.effectiveDate}</span>
                         </div>
                         <div>
-                          <span className="block text-zinc-500">Version</span>
-                          <span className="text-zinc-200 font-mono">v{selectedDoc.version}</span>
+                          <span className="block" style={{ color: 'var(--ink-3)' }}>Version</span>
+                          <span className="font-medium font-mono-code" style={{ color: 'var(--accent)' }}>v{selectedDoc.version}</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Content Section */}
                     <div>
-                      <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">
-                        Authorized Operational Text & Clauses
+                      <h4 className="text-xs font-semibold uppercase tracking-wider mb-2 font-mono-code" style={{ color: 'var(--ink-2)' }}>
+                        Authorized Operational Text &amp; Clauses
                       </h4>
-                      <div className="bg-[#09090b] border border-[#27272a] rounded-lg p-4 font-mono text-xs text-zinc-300 leading-relaxed whitespace-pre-wrap max-h-[320px] overflow-y-auto">
+                      <div 
+                        className="border rounded-xl p-4 font-mono-code text-xs leading-relaxed whitespace-pre-wrap max-h-[320px] overflow-y-auto"
+                        style={{ background: 'var(--canvas)', borderColor: 'var(--line)', color: 'var(--ink)' }}
+                      >
                         {selectedDoc.content}
                       </div>
                     </div>
 
                     {/* Tag Cloud */}
                     <div>
-                      <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">
-                        Indexed Tags & Vectors
+                      <h4 className="text-xs font-semibold uppercase tracking-wider mb-2 font-mono-code" style={{ color: 'var(--ink-2)' }}>
+                        Indexed Tags &amp; Vectors
                       </h4>
                       <div className="flex flex-wrap gap-1.5">
                         {selectedDoc.tags.map((tag, tIdx) => (
                           <span 
                             key={tIdx}
-                            className="text-[11px] px-2.5 py-1 rounded-md bg-[#18181b] border border-[#27272a] text-zinc-300"
+                            className="text-[11px] px-2.5 py-1 rounded-full border font-mono-code"
+                            style={{ background: 'var(--pill)', borderColor: 'var(--line)', color: 'var(--ink-2)' }}
                           >
                             #{tag}
                           </span>
@@ -1134,23 +1306,24 @@ export default function Home() {
                     </div>
 
                     {/* Ask Tutor About this Doc Action */}
-                    <div className="pt-4 border-t border-[#27272a] flex items-center justify-between">
-                      <span className="text-xs text-zinc-400">Want to generate interactive execution steps?</span>
+                    <div className="pt-4 border-t flex items-center justify-between" style={{ borderColor: 'var(--line)' }}>
+                      <span className="text-xs" style={{ color: 'var(--ink-2)' }}>Want to generate interactive execution steps?</span>
                       <button
                         onClick={() => {
                           setActiveTab('tutor');
                           handleSend(`Extract sequential execution steps for ${selectedDoc.title}`);
                         }}
-                        className="px-3.5 py-1.5 bg-white text-black rounded-lg text-xs font-semibold hover:bg-zinc-200 transition-colors flex items-center gap-1.5"
+                        className="px-4 py-2 rounded-full text-xs font-semibold transition-opacity hover:opacity-90 flex items-center gap-1.5 shadow-xs cursor-pointer"
+                        style={{ background: 'var(--accent)', color: 'var(--on-accent)' }}
                       >
-                        <Sparkles className="h-3.5 w-3.5 text-black" />
+                        <Sparkles className="h-3.5 w-3.5" />
                         <span>Query Document in Tutor</span>
                       </button>
                     </div>
 
                   </div>
                 ) : (
-                  <div className="text-center py-20 text-zinc-500 text-xs">
+                  <div className="text-center py-20 text-xs" style={{ color: 'var(--ink-3)' }}>
                     <p>Select a document from the left list to review clauses and metadata.</p>
                   </div>
                 )}
@@ -1167,15 +1340,20 @@ export default function Home() {
           <div className="flex-1 flex flex-col gap-6">
             
             {/* Compliance Banner */}
-            <div className="bg-[#121215] border border-[#27272a] rounded-xl p-6 space-y-2">
+            <div 
+              className="border rounded-2xl p-6 space-y-2 shadow-sm"
+              style={{ background: 'var(--card)', borderColor: 'var(--line)', boxShadow: 'var(--shadow)' }}
+            >
               <div className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-white" />
-                <span className="text-xs font-mono font-semibold text-white uppercase tracking-wider">
-                  Governance & Conflict Resolution Engine
+                <ShieldCheck className="h-4 w-4" style={{ color: 'var(--accent)' }} />
+                <span className="text-xs font-mono-code font-semibold uppercase tracking-wider" style={{ color: 'var(--accent)' }}>
+                  Governance &amp; Conflict Resolution Engine
                 </span>
               </div>
-              <h2 className="text-lg font-bold text-white">Active Policy Supersedence & Version Clashes</h2>
-              <p className="text-xs text-zinc-400 max-w-2xl">
+              <h2 className="font-editorial text-2xl font-bold" style={{ color: 'var(--ink)' }}>
+                Active Policy Supersedence &amp; Version Clashes
+              </h2>
+              <p className="text-xs max-w-2xl leading-relaxed" style={{ color: 'var(--ink-2)' }}>
                 Continuous reconciliation ensures that legacy instructions (e.g. superseded database requirements or deprecated gate checklists) are automatically flagged before execution.
               </p>
             </div>
@@ -1184,80 +1362,117 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               
               {/* Conflict Case 1 */}
-              <div className="bg-[#121215] border border-zinc-700 rounded-xl p-5 space-y-4">
+              <div 
+                className="border rounded-2xl p-5 space-y-4 shadow-sm"
+                style={{ background: 'var(--card)', borderColor: 'var(--line)' }}
+              >
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/10 text-white border border-white/20 font-semibold">
+                  <span 
+                    className="text-[10px] font-mono-code px-2.5 py-0.5 rounded-full font-semibold"
+                    style={{ background: 'var(--ok-bg)', color: 'var(--ok)' }}
+                  >
                     STATUS: RECONCILED
                   </span>
-                  <span className="text-xs text-zinc-400 font-mono">SEVERITY: MEDIUM</span>
+                  <span className="text-xs font-mono-code" style={{ color: 'var(--warn)' }}>SEVERITY: MEDIUM</span>
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-bold text-white">Engineering Database Mandate (SOP v1.0 vs v2.0)</h3>
-                  <p className="text-xs text-zinc-300 mt-1.5 leading-relaxed">
+                  <h3 className="font-editorial text-lg font-bold" style={{ color: 'var(--ink)' }}>
+                    Engineering Database Mandate (SOP v1.0 vs v2.0)
+                  </h3>
+                  <p className="text-xs mt-1.5 leading-relaxed" style={{ color: 'var(--ink-2)' }}>
                     Prior SOP v1.0 permitted PostgreSQL or MongoDB depending on project scope. Revised SOP v2.0 strictly mandates MongoDB with Node.js + Express.js across all new full-stack builds.
                   </p>
                 </div>
 
                 <div className="space-y-2 text-xs">
-                  <div className="p-2.5 rounded-lg bg-[#09090b] border border-[#27272a]">
-                    <span className="text-[10px] font-mono text-zinc-400 block uppercase">Superseded Instruction (Deprecated)</span>
-                    <span className="text-zinc-400 line-through">Permitted relational PostgreSQL schemas for intern projects</span>
+                  <div className="p-3 rounded-xl border" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                    <span className="text-[10px] font-mono-code block uppercase font-medium" style={{ color: 'var(--ink-3)' }}>
+                      Superseded Instruction (Deprecated)
+                    </span>
+                    <span className="line-through mt-0.5 block" style={{ color: 'var(--ink-3)' }}>
+                      Permitted relational PostgreSQL schemas for intern projects
+                    </span>
                   </div>
-                  <div className="p-2.5 rounded-lg bg-[#09090b] border border-white/40">
-                    <span className="text-[10px] font-mono text-white block uppercase font-bold">Active Mandatory Standard (Enforced)</span>
-                    <span className="text-white font-medium">Next.js + Node.js + Express.js + MongoDB primary stack</span>
+                  <div className="p-3 rounded-xl border" style={{ background: 'var(--pill)', borderColor: 'var(--ok)' }}>
+                    <span className="text-[10px] font-mono-code block uppercase font-bold" style={{ color: 'var(--ok)' }}>
+                      Active Mandatory Standard (Enforced)
+                    </span>
+                    <span className="font-medium mt-0.5 block" style={{ color: 'var(--ink)' }}>
+                      Next.js + Node.js + Express.js + MongoDB primary stack
+                    </span>
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-[#27272a] flex items-center justify-between text-xs text-zinc-400">
+                <div className="pt-2 border-t flex items-center justify-between text-xs" style={{ borderColor: 'var(--line)', color: 'var(--ink-2)' }}>
                   <span>Authorized by: Principal Architect</span>
-                  <span className="text-emerald-400 font-mono">Policy v2.0 Active</span>
+                  <span className="font-mono-code font-semibold" style={{ color: 'var(--ok)' }}>Policy v2.0 Active</span>
                 </div>
               </div>
 
               {/* Conflict Case 2 */}
-              <div className="bg-[#121215] border border-zinc-700 rounded-xl p-5 space-y-4">
+              <div 
+                className="border rounded-2xl p-5 space-y-4 shadow-sm"
+                style={{ background: 'var(--card)', borderColor: 'var(--line)' }}
+              >
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/10 text-white border border-white/20 font-semibold">
+                  <span 
+                    className="text-[10px] font-mono-code px-2.5 py-0.5 rounded-full font-semibold"
+                    style={{ background: 'var(--ok-bg)', color: 'var(--ok)' }}
+                  >
                     STATUS: ENFORCED
                   </span>
-                  <span className="text-xs text-zinc-400 font-mono">SEVERITY: HIGH</span>
+                  <span className="text-xs font-mono-code" style={{ color: 'var(--clash)' }}>SEVERITY: HIGH</span>
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-bold text-white">Evidence Attachment Standard (Principle 3)</h3>
-                  <p className="text-xs text-zinc-300 mt-1.5 leading-relaxed">
+                  <h3 className="font-editorial text-lg font-bold" style={{ color: 'var(--ink)' }}>
+                    Evidence Attachment Standard (Principle 3)
+                  </h3>
+                  <p className="text-xs mt-1.5 leading-relaxed" style={{ color: 'var(--ink-2)' }}>
                     Under the 30-Day Product Execution Playbook, subjective or verbal declarations of task completion are rejected. Every gate sign-off requires verifiable GitHub commits, PR reviews, or test logs.
                   </p>
                 </div>
 
                 <div className="space-y-2 text-xs">
-                  <div className="p-2.5 rounded-lg bg-[#09090b] border border-[#27272a]">
-                    <span className="text-[10px] font-mono text-zinc-400 block uppercase">Superseded Instruction (Deprecated)</span>
-                    <span className="text-zinc-400 line-through">Self-certified status update in standup chat without code links</span>
+                  <div className="p-3 rounded-xl border" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                    <span className="text-[10px] font-mono-code block uppercase font-medium" style={{ color: 'var(--ink-3)' }}>
+                      Superseded Instruction (Deprecated)
+                    </span>
+                    <span className="line-through mt-0.5 block" style={{ color: 'var(--ink-3)' }}>
+                      Self-certified status update in standup chat without code links
+                    </span>
                   </div>
-                  <div className="p-2.5 rounded-lg bg-[#09090b] border border-white/40">
-                    <span className="text-[10px] font-mono text-white block uppercase font-bold">Active Mandatory Standard (Enforced)</span>
-                    <span className="text-white font-medium">Verifiable artifact submission required for Gate G1 through G6</span>
+                  <div className="p-3 rounded-xl border" style={{ background: 'var(--pill)', borderColor: 'var(--ok)' }}>
+                    <span className="text-[10px] font-mono-code block uppercase font-bold" style={{ color: 'var(--ok)' }}>
+                      Active Mandatory Standard (Enforced)
+                    </span>
+                    <span className="font-medium mt-0.5 block" style={{ color: 'var(--ink)' }}>
+                      Verifiable artifact submission required for Gate G1 through G6
+                    </span>
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-[#27272a] flex items-center justify-between text-xs text-zinc-400">
+                <div className="pt-2 border-t flex items-center justify-between text-xs" style={{ borderColor: 'var(--line)', color: 'var(--ink-2)' }}>
                   <span>Authorized by: Chief Operating Officer</span>
-                  <span className="text-emerald-400 font-mono">Principle 3 Active</span>
+                  <span className="font-mono-code font-semibold" style={{ color: 'var(--ok)' }}>Principle 3 Active</span>
                 </div>
               </div>
 
             </div>
 
             {/* Continuous Verification Status */}
-            <div className="bg-[#121215] border border-[#27272a] rounded-xl p-5 flex items-center justify-between text-xs">
+            <div 
+              className="border rounded-2xl p-5 flex items-center justify-between text-xs shadow-xs"
+              style={{ background: 'var(--card)', borderColor: 'var(--line)' }}
+            >
               <div className="flex items-center gap-3">
-                <div className="h-3 w-3 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-zinc-200 font-mono">All 5 Organizational Documents Synchronized Across Sources</span>
+                <div className="h-3 w-3 rounded-full animate-pulse" style={{ background: 'var(--ok)' }} />
+                <span className="font-mono-code font-medium" style={{ color: 'var(--ink)' }}>
+                  All 9 Organizational Documents Synchronized Across Sources
+                </span>
               </div>
-              <span className="text-zinc-400 font-mono">Last Ingestion Check: Today at 19:45 IST</span>
+              <span className="font-mono-code" style={{ color: 'var(--ink-2)' }}>Last Ingestion Check: Continuous Verified</span>
             </div>
 
           </div>
@@ -1265,17 +1480,20 @@ export default function Home() {
 
       </main>
 
-      {/* Enterprise Footer */}
-      <footer className="border-t border-[#27272a] bg-[#09090b] px-6 py-4 flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-500 gap-2">
+      {/* Enterprise Editorial Footer */}
+      <footer 
+        className="border-t px-6 py-4 flex flex-col sm:flex-row items-center justify-between text-xs gap-2 transition-colors"
+        style={{ background: 'var(--canvas)', borderColor: 'var(--line)', color: 'var(--ink-2)' }}
+      >
         <div className="flex items-center gap-2">
-          <span className="text-white font-semibold">FIRSTRICOZ PRIVATE LIMITED</span>
+          <span className="font-editorial font-semibold text-sm" style={{ color: 'var(--ink)' }}>FIRSTRICOZ PRIVATE LIMITED</span>
           <span>·</span>
-          <span>Internal Knowledge & SOP Interactive Tutor</span>
+          <span>Internal Knowledge &amp; SOP Interactive Tutor</span>
         </div>
-        <div className="flex items-center gap-4 text-[11px] font-mono">
-          <span>Obsidian Monochrome Architecture</span>
-          <span className="text-zinc-700">|</span>
-          <span className="text-zinc-400">Zero-Layout Shift Certified</span>
+        <div className="flex items-center gap-4 text-[11px] font-mono-code">
+          <span>TechPulse Luxury Design Language</span>
+          <span style={{ color: 'var(--line-strong)' }}>|</span>
+          <span style={{ color: 'var(--ink)' }}>Zero-Layout Shift Certified</span>
         </div>
       </footer>
 

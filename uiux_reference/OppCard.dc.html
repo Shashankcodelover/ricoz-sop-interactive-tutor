@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div role="article" aria-label="{{ o.title }}" onClick="{{ o.onOpen }}" style="position:relative;box-sizing:border-box;width:100%;height:100%;display:flex;flex-direction:column;gap:12px;padding:{{ o.pad }};background:var(--card);border:1px solid var(--line);border-radius:12px;cursor:pointer;font-family:'IBM Plex Sans',system-ui,sans-serif;color:var(--ink);transition:border-color 160ms ease,transform 160ms ease,background-color 160ms ease" style-hover="border-color:var(--line-strong);transform:var(--lift)">
+  <div style="display:flex;align-items:center;gap:12px">
+    <span aria-hidden="true" style="flex:none;width:40px;height:40px;border-radius:8px;background:{{ o.tileBg }};color:{{ o.tileFg }};display:flex;align-items:center;justify-content:center;font:500 17px/1 'Newsreader',Georgia,serif;letter-spacing:0.01em;transition:background-color 160ms ease,color 160ms ease">{{ o.mono }}</span>
+    <span style="flex:1;min-width:0;font:500 12.5px/17px 'IBM Plex Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums;color:{{ o.urgC }};text-wrap:pretty">{{ o.urg }}</span>
+    <button type="button" onClick="{{ o.onTrack }}" aria-pressed="{{ o.tracked }}" aria-label="{{ o.trackAria }}" style="flex:none;height:44px;margin:-8px -10px -8px 0;padding:0 10px;border:0;border-radius:8px;background:transparent;display:inline-flex;align-items:center;gap:6px;color:{{ o.trackC }};font:500 13px/18px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:var(--pill)"><span style="display:flex;font-size:16px">{{ o.trackIcon }}</span>{{ o.trackLabel }}</button>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:4px">
+    <button type="button" onClick="{{ o.onOpen }}" style="padding:0;border:0;background:transparent;text-align:left;font:500 19px/25px 'Newsreader',Georgia,serif;letter-spacing:-0.01em;color:var(--ink);cursor:pointer;text-wrap:pretty">{{ o.title }}</button>
+    <span style="font:400 13px/18px 'IBM Plex Sans',sans-serif;color:var(--ink-2)">{{ o.orgLine }}</span>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;align-items:center;column-gap:12px;row-gap:6px;font:400 13px/18px 'IBM Plex Sans',sans-serif;color:var(--ink-2)">
+    <span style="display:inline-flex;align-items:center;gap:5px"><span style="display:flex;font-size:14px">{{ o.modeIcon }}</span>{{ o.modeLabel }}</span>
+    <span style="display:inline-flex;align-items:center;gap:5px"><span style="display:flex;font-size:14px">{{ ic.users }}</span><span style="font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:12.5px;font-variant-numeric:tabular-nums">{{ o.team }}</span></span>
+    <span style="display:inline-flex;align-items:center;gap:5px"><span style="display:flex;font-size:14px">{{ ic.award }}</span><span style="font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:12.5px;font-variant-numeric:tabular-nums;color:{{ o.prizeC }}">{{ o.prize }}</span></span>
+    <sc-if value="{{ o.hasFee }}" hint-placeholder-val="{{ false }}"><span style="font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:12.5px;font-variant-numeric:tabular-nums">{{ o.fee }}</span></sc-if>
+  </div>
+  <div style="display:flex">
+    <span style="display:inline-flex;align-items:center;gap:6px;min-height:26px;box-sizing:border-box;padding:3px 10px;border-radius:999px;border:1px {{ o.clashBs }} {{ o.clashBd }};background:{{ o.clashBg }};color:{{ o.clashC }};font:500 12.5px/16px 'IBM Plex Sans',sans-serif"><span style="display:flex;flex:none;font-size:14px">{{ o.clashIcon }}</span>{{ o.clashLabel }}</span>
+  </div>
+  <div style="margin-top:auto;display:flex;align-items:center;gap:8px">
+    <span style="flex:1;min-width:0;font:400 13px/18px 'IBM Plex Sans',sans-serif;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ o.tags }}<span style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding-left:6px">{{ o.tagMore }}</span></span>
+    <button type="button" onClick="{{ o.onOpen }}" style="flex:none;height:36px;margin:-8px -8px -8px 0;padding:0 8px;border:0;border-radius:8px;background:transparent;display:inline-flex;align-items:center;gap:4px;color:var(--accent);font:500 13px/18px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:var(--accent-tint)">Details<span style="display:flex;font-size:14px">{{ ic.arrowR }}</span></button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:375,&quot;height&quot;:300},&quot;o&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object&quot;},&quot;ic&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object&quot;}}"></script>
+</body>
+</html>

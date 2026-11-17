@@ -1,47 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #09090b;
-  --foreground: #fafafa;
+  /* Warm Paper & Ink (Editorial Luxury Light Palette) */
+  --canvas: #FAF9F5;
+  --card: #FFFFFF;
+  --pill: #F2F0EA;
+  --ink: #141413;
+  --ink-2: #5E5D59;
+  --ink-3: #75736B;
+  --line: #E6E4DD;
+  --line-strong: #D6D3C9;
+  --accent: #B4532A;
+  --accent-hover: #9A4523;
+  --accent-tint: #F6E9E2;
+  --on-accent: #FFFFFF;
+  --ok: #1F7A55;
+  --ok-bg: #E8F3EC;
+  --warn: #9A6212;
+  --warn-bg: #FBF1DE;
+  --clash: #B42318;
+  --clash-bg: #FBEAE8;
+  --page: #ECEAE4;
+  --shadow: 0 12px 32px rgba(20,20,19,0.08);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.dark {
+  /* Obsidian Studio (Editorial Cyber Dark Palette) */
+  --canvas: #0E1013;
+  --card: #16191E;
+  --pill: #1F232A;
+  --ink: #F3F4F6;
+  --ink-2: #9CA3AF;
+  --ink-3: #868C97;
+  --line: rgba(255,255,255,0.08);
+  --line-strong: rgba(255,255,255,0.14);
+  --accent: #E0895F;
+  --accent-hover: #EBA07D;
+  --accent-tint: rgba(224,137,95,0.12);
+  --on-accent: #141413;
+  --ok: #6FBF95;
+  --ok-bg: rgba(111,191,149,0.12);
+  --warn: #D9A55B;
+  --warn-bg: rgba(217,165,91,0.12);
+  --clash: #E58A80;
+  --clash-bg: rgba(229,138,128,0.12);
+  --page: #070809;
+  --shadow: 0 16px 40px rgba(0,0,0,0.45);
 }
 
 body {
-  background: #09090b;
-  color: #fafafa;
-  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--page);
+  color: var(--ink);
+  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   overflow-x: hidden;
-  selection-background-color: #ffffff;
-  selection-color: #000000;
+  transition: background-color 180ms ease, color 180ms ease;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Custom Scrollbar for Sleek Enterprise Finish */
+.font-editorial {
+  font-family: 'Newsreader', Georgia, serif;
+}
+
+.font-mono-code {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #09090b;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #27272a;
+  background: var(--line-strong);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46;
-}
-
-/* Subtle dot background grid for deep monochrome polish */
-.bg-grid-pattern {
-  background-size: 24px 24px;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background: var(--ink-3);
 }
