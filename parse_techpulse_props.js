@@ -8,3 +8,4 @@ if (scriptMatch) {
   if (props.t) console.log('Theme tokens (t):', JSON.stringify(props.t, null, 2));
   if (props.themes) console.log('Available themes:', Object.keys(props.themes));
 }
+

@@ -14,3 +14,4 @@ for (let i = 0; i < lines.length; i++) {
 
 console.log('Theme references found:', themeLines.length);
 themeLines.slice(0, 30).forEach(t => console.log('L' + t.line + ': ' + t.text));
+

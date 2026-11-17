@@ -10,3 +10,4 @@ const lines = scriptContent.split('\n');
 const themeDefs = lines.filter(l => l.includes('canvas:') || l.includes('card:') || l.includes('palette') || l.includes('themes =') || l.includes('theme ='));
 console.log('Theme definitions in script:');
 themeDefs.forEach(l => console.log(l.trim()));
+

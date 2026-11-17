@@ -92,3 +92,4 @@ code = code.replace(
 
 fs.writeFileSync(pageFile, code, 'utf8');
 console.log('Successfully injected TechPulse luxury tokens into page.tsx header & banners');
+

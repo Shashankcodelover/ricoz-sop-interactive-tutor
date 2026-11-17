@@ -107,3 +107,4 @@ code = code.replace(
 
 fs.writeFileSync(pageFile, code, 'utf8');
 console.log('Successfully upgraded cards, chat feed, inputs, and stepper to TechPulse luxury tokens.');
+

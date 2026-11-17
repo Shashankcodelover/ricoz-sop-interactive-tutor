@@ -11,3 +11,4 @@ console.log('Script tags count:', scriptTags ? scriptTags.length : 0);
 if (scriptTags) {
   scriptTags.forEach((s, idx) => console.log('Script ' + idx + ' length:', s.length));
 }
+

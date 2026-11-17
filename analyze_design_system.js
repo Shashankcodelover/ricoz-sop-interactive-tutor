@@ -43,3 +43,4 @@ console.log('Shadows:', report1.sampleShadows);
 
 console.log('\n=== TechPulse v2 Design System ===');
 console.log('Top Colors:', report2.topColors);
+
