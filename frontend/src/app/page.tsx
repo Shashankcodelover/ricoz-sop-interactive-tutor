@@ -26,6 +26,10 @@ import {
   X,
   ChevronRight,
   SlidersHorizontal,
+  Sliders,
+  Key,
+  Cpu,
+  CheckCircle,
   Lock,
   Calendar,
   UserCheck,
@@ -149,6 +153,21 @@ export default function Home() {
   const [activeNoteStep, setActiveNoteStep] = useState<number | null>(null);
   const [tempNoteText, setTempNoteText] = useState<string>('');
 
+  // Enterprise RAG & LLM Engine Settings State
+  const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false);
+  const [settingsForm, setSettingsForm] = useState({
+    llmProvider: 'local-rag' as 'local-rag' | 'gemini-1.5' | 'openai-gpt4o' | 'anthropic-claude' | 'groq-llama3',
+    apiKey: '',
+    modelName: 'ricoz-hybrid-rag-384',
+    temperature: 0.2,
+    ragTopK: 5,
+    strictPrerequisites: true,
+    enableHallucinationGuard: true,
+    hasCustomKey: false
+  });
+  const [settingsLoading, setSettingsLoading] = useState<boolean>(false);
+  const [settingsSuccess, setSettingsSuccess] = useState<string | null>(null);
+
   const [activeTab, setActiveTab] = useState<'tutor' | 'stepper' | 'knowledge' | 'compliance'>('tutor');
 
   // Chat State
@@ -239,6 +258,22 @@ export default function Home() {
     if (savedNotes) {
       try { setStepNotes(JSON.parse(savedNotes)); } catch {}
     }
+
+    // Load AI engine & RAG settings
+    fetch('/api/settings', {
+      headers: savedToken ? { 'Authorization': `Bearer ${savedToken}` } : {}
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.settings) {
+          setSettingsForm(prev => ({
+            ...prev,
+            ...data.settings,
+            apiKey: data.settings.hasCustomKey ? '••••••••••••••••' : ''
+          }));
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const handleAuthSubmit = async (e: React.FormEvent) => {
@@ -279,6 +314,45 @@ export default function Home() {
     setCurrentUser(null);
     setAuthToken('');
     localStorage.removeItem('ricoz_auth_token');
+  };
+
+  const handleSaveSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSettingsLoading(true);
+    setSettingsSuccess(null);
+    try {
+      const payload: Record<string, unknown> = {
+        llmProvider: settingsForm.llmProvider,
+        modelName: settingsForm.modelName,
+        temperature: Number(settingsForm.temperature),
+        ragTopK: Number(settingsForm.ragTopK),
+        strictPrerequisites: settingsForm.strictPrerequisites,
+        enableHallucinationGuard: settingsForm.enableHallucinationGuard
+      };
+      if (settingsForm.apiKey && !settingsForm.apiKey.includes('•')) {
+        payload.apiKey = settingsForm.apiKey;
+      }
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {})
+        },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSettingsSuccess('AI Engine and API Keys updated successfully!');
+        if (data.settings?.hasCustomKey) {
+          setSettingsForm(prev => ({ ...prev, hasCustomKey: true, apiKey: '••••••••••••••••' }));
+        }
+        setTimeout(() => setSettingsSuccess(null), 3000);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setSettingsLoading(false);
+    }
   };
 
   const handleCreateDocument = async (e: React.FormEvent) => {
@@ -653,6 +727,20 @@ export default function Home() {
               <span>Sign In / Sign Up</span>
             </button>
           )}
+
+          <button
+            onClick={() => setShowSettingsModal(true)}
+            aria-label="AI Engine & API Settings"
+            className="px-3 py-1.5 rounded-full border text-xs flex items-center gap-1.5 transition-all shadow-xs cursor-pointer hover:border-cyan-400"
+            style={{ background: 'var(--card)', borderColor: 'var(--line-strong)', color: 'var(--ink)' }}
+            title="Configure Real AI Provider & API Keys"
+          >
+            <Sliders className="h-3.5 w-3.5" style={{ color: 'var(--accent)' }} />
+            <span className="hidden sm:inline font-mono-code text-[11px]">Settings</span>
+            {settingsForm.hasCustomKey && (
+              <span className="h-1.5 w-1.5 rounded-full" style={{ background: 'var(--ok)' }} />
+            )}
+          </button>
 
           <button
             onClick={toggleTheme}

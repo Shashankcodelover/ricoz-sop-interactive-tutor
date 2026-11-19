@@ -26,14 +26,30 @@ export interface StoredSOPDocument {
   createdAt: string;
 }
 
+export interface UserAppSettings {
+  id: string;
+  userId?: string;
+  llmProvider: 'local-rag' | 'gemini-1.5' | 'openai-gpt4o' | 'anthropic-claude' | 'groq-llama3';
+  apiKey: string;
+  modelName: string;
+  temperature: number;
+  ragTopK: number;
+  strictPrerequisites: boolean;
+  enableHallucinationGuard: boolean;
+  themePreference: 'system' | 'light' | 'dark';
+  updatedAt: string;
+}
+
 // In-Memory Global Store with Serverless Fallback
 class GlobalDataStore {
   private users: Map<string, StoredUser> = new Map();
   private documents: Map<string, StoredSOPDocument> = new Map();
+  private settings: Map<string, UserAppSettings> = new Map();
 
   constructor() {
     this.seedDefaultAdmin();
     this.seedCoreDocuments();
+    this.seedDefaultSettings();
   }
 
   private seedDefaultAdmin() {
@@ -47,6 +63,22 @@ class GlobalDataStore {
       department: 'Technology',
       createdAt: new Date().toISOString()
     });
+  }
+
+  private seedDefaultSettings() {
+    const defaultSettings: UserAppSettings = {
+      id: 'global_default_settings',
+      llmProvider: 'local-rag',
+      apiKey: '',
+      modelName: 'ricoz-hybrid-rag-384',
+      temperature: 0.2,
+      ragTopK: 5,
+      strictPrerequisites: true,
+      enableHallucinationGuard: true,
+      themePreference: 'system',
+      updatedAt: new Date().toISOString()
+    };
+    this.settings.set('global', defaultSettings);
   }
 
   private seedCoreDocuments() {
@@ -78,11 +110,11 @@ class GlobalDataStore {
         category: 'Human Resources',
         department: 'People & HR',
         version: '2.1',
-        effectiveDate: '2026-10-15',
-        author: 'People & HR Operations',
+        effectiveDate: '2026-09-01',
+        author: 'People & Culture',
         tags: ['Human Resources', 'People & HR', 'google_drive'],
-        createdAt: '2026-10-15T00:00:00Z',
-        content: `HR Standard Operating Procedure: Time Off and Emergency Leave
+        createdAt: '2026-09-01T00:00:00Z',
+        content: `HR SOP: Leave Application, PTO, and Emergency Absences
 1. Leave Balance Verification: Check your accrued leave balance in the portal under My Time -> Leave & Time Off before submitting.
 2. Notice Period Requirement: Submit standard planned annual leave requests at least 5 business days in advance for manager approval.
 3. Emergency & Sick Leave Notification: For unexpected medical or emergency absences, notify your department lead in First Chat within 2 hours of shift start.
@@ -98,7 +130,7 @@ class GlobalDataStore {
         department: 'Finance',
         version: '1.4',
         effectiveDate: '2026-10-01',
-        author: 'Finance Operations',
+        author: 'Finance Department',
         tags: ['Finance & Operations', 'Finance', 'notion'],
         createdAt: '2026-10-01T00:00:00Z',
         content: `Finance Standard Operating Procedure: Business Expense Reimbursement
@@ -117,7 +149,7 @@ class GlobalDataStore {
         department: 'Operations',
         version: '2.0',
         effectiveDate: '2026-09-15',
-        author: 'Operations',
+        author: 'Operations Team',
         tags: ['Customer Operations', 'Operations', 'confluence'],
         createdAt: '2026-09-15T00:00:00Z',
         content: `Operations SOP: Customer Refund and Dispute Escalation
@@ -130,21 +162,21 @@ class GlobalDataStore {
       {
         id: 'doc_technical_incident_008',
         sourcePlatform: 'confluence',
-        title: 'Technical Incident Management & Bug Escalation SOP',
-        sourceUrl: 'https://confluence.ricoz.in/wiki/spaces/TECH/pages/incident-sop',
-        category: 'Incident Response',
-        department: 'Engineering',
+        title: 'P1 Production Incident & Bug Escalation SOP',
+        sourceUrl: 'https://confluence.ricoz.in/wiki/spaces/TECH/pages/incident-response',
+        category: 'Engineering & DevOps',
+        department: 'Technology',
         version: '3.0',
-        effectiveDate: '2026-10-10',
-        author: 'Engineering Operations',
-        tags: ['Incident Response', 'Engineering', 'confluence'],
-        createdAt: '2026-10-10T00:00:00Z',
-        content: `Technical SOP: Production Incident Management
-1. Severity Classification: Classify outages immediately as P1 Critical (platform down), P2 Major (core service impaired), P3 Moderate, or P4 Low.
-2. Incident War Room Activation: For P1 incidents, page the on-call Incident Commander within 15 minutes and open an active debugging bridge.
-3. Status Communication: Dispatch stakeholder communication to internal channels and external status pages within 30 minutes of incident declaration.
-4. Hotfix & Rollback Protocol: Deploy targeted hotfix or rollback to last verified stable commit upon technical lead authorization.
-5. Blameless Post-Mortem: Conduct a root-cause analysis (RCA) within 24 hours of incident resolution and link corrective action tickets.`
+        effectiveDate: '2026-10-15',
+        author: 'SRE & Platform Team',
+        tags: ['Engineering & DevOps', 'Technology', 'confluence'],
+        createdAt: '2026-10-15T00:00:00Z',
+        content: `Engineering SOP: Production Outage and Bug Escalation Response
+1. Severity Assessment: Classify severity within 5 minutes: P1 Critical (total service outage), P2 High (major degradation), or P3 Normal.
+2. War Room Activation: For P1/P2 incidents, immediately create a dedicated Slack war room channel (#incident-YYYYMMDD) and summon on-call engineers.
+3. Mitigation & Rollback First: Prioritize customer uptime over root-cause investigation: trigger automated container rollback or DNS failover immediately.
+4. Stakeholder Communication: Send hourly status updates to internal leadership and update the public status page within 15 minutes of confirmation.
+5. Post-Mortem & Remediation: Publish a comprehensive Blameless Post-Mortem within 48 hours with prevention action items logged in Jira.`
       },
       {
         id: 'doc_onboarding_009',
@@ -207,6 +239,27 @@ class GlobalDataStore {
 
   public deleteDocument(id: string): boolean {
     return this.documents.delete(id);
+  }
+
+  // Settings & Real API Configuration Operations
+  public getSettings(userId?: string): UserAppSettings {
+    if (userId && this.settings.has(userId)) {
+      return this.settings.get(userId)!;
+    }
+    return this.settings.get('global')!;
+  }
+
+  public updateSettings(settings: Partial<UserAppSettings>, userId?: string): UserAppSettings {
+    const current = this.getSettings(userId);
+    const updated: UserAppSettings = {
+      ...current,
+      ...settings,
+      userId: userId || current.userId,
+      updatedAt: new Date().toISOString()
+    };
+    const key = userId || 'global';
+    this.settings.set(key, updated);
+    return updated;
   }
 }
 
