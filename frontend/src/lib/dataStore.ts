@@ -7,6 +7,7 @@ export interface StoredUser {
   passwordHash: string;
   role: 'employee' | 'department_lead' | 'org_admin';
   department: string;
+  status?: 'active' | 'suspended' | 'invited';
   createdAt: string;
 }
 
@@ -22,6 +23,9 @@ export interface StoredSOPDocument {
   author: string;
   tags: string[];
   content: string;
+  status?: 'active' | 'deprecated' | 'in_review';
+  chunksCount?: number;
+  lastSyncedAt?: string;
   createdByUserId?: string;
   createdAt: string;
 }
@@ -40,16 +44,38 @@ export interface UserAppSettings {
   updatedAt: string;
 }
 
+export interface AuditLogEntry {
+  id: string;
+  timestamp: string;
+  userId?: string;
+  userName: string;
+  action: 'USER_LOGIN' | 'DOC_INGESTED' | 'DOC_DELETED' | 'SETTINGS_CHANGED' | 'SYNC_TRIGGERED' | 'POLICY_FLAGGED';
+  details: string;
+  severity: 'info' | 'warn' | 'critical';
+}
+
+export interface ConnectorStatus {
+  platform: 'notion' | 'google_drive' | 'confluence' | 'custom_upload';
+  name: string;
+  connected: boolean;
+  docCount: number;
+  lastSync: string;
+  syncStatus: 'idle' | 'syncing' | 'synced' | 'error';
+}
+
 // In-Memory Global Store with Serverless Fallback
 class GlobalDataStore {
   private users: Map<string, StoredUser> = new Map();
   private documents: Map<string, StoredSOPDocument> = new Map();
   private settings: Map<string, UserAppSettings> = new Map();
+  private auditLogs: AuditLogEntry[] = [];
+  private connectors: Map<string, ConnectorStatus> = new Map();
 
   constructor() {
     this.seedDefaultAdmin();
     this.seedCoreDocuments();
     this.seedDefaultSettings();
+    this.seedConnectorsAndLogs();
   }
 
   private seedDefaultAdmin() {
@@ -61,7 +87,24 @@ class GlobalDataStore {
       passwordHash: hashPassword('RicozTech2026!'),
       role: 'org_admin',
       department: 'Technology',
+      status: 'active',
       createdAt: new Date().toISOString()
+    });
+
+    // Seed sample team members
+    const staff = [
+      { id: 'usr_staff_002', name: 'Aarav Patel', email: 'aarav.patel@ricoz.enterprise.io', role: 'department_lead' as const, department: 'DevOps & SRE', status: 'active' as const },
+      { id: 'usr_staff_003', name: 'Priya Sharma', email: 'priya.sharma@ricoz.enterprise.io', role: 'employee' as const, department: 'Human Resources', status: 'active' as const },
+      { id: 'usr_staff_004', name: 'Rohan Verma', email: 'rohan.verma@ricoz.enterprise.io', role: 'employee' as const, department: 'Finance', status: 'active' as const },
+      { id: 'usr_staff_005', name: 'Ananya Rao', email: 'ananya.rao@ricoz.enterprise.io', role: 'department_lead' as const, department: 'Operations', status: 'active' as const },
+    ];
+
+    staff.forEach(s => {
+      this.users.set(s.email, {
+        ...s,
+        passwordHash: hashPassword('StaffAccess2026!'),
+        createdAt: '2026-10-15T09:00:00Z'
+      });
     });
   }
 
@@ -81,6 +124,68 @@ class GlobalDataStore {
     this.settings.set('global', defaultSettings);
   }
 
+  private seedConnectorsAndLogs() {
+    this.connectors.set('notion', {
+      platform: 'notion',
+      name: 'Notion Enterprise Workspace',
+      connected: true,
+      docCount: 2,
+      lastSync: new Date(Date.now() - 3600000 * 2).toISOString(),
+      syncStatus: 'synced'
+    });
+    this.connectors.set('google_drive', {
+      platform: 'google_drive',
+      name: 'Google Drive Shared Drives',
+      connected: true,
+      docCount: 2,
+      lastSync: new Date(Date.now() - 3600000 * 4).toISOString(),
+      syncStatus: 'synced'
+    });
+    this.connectors.set('confluence', {
+      platform: 'confluence',
+      name: 'Atlassian Confluence Space',
+      connected: true,
+      docCount: 2,
+      lastSync: new Date(Date.now() - 3600000 * 5).toISOString(),
+      syncStatus: 'synced'
+    });
+    this.connectors.set('custom_upload', {
+      platform: 'custom_upload',
+      name: 'Direct Operational Ingestion',
+      connected: true,
+      docCount: 1,
+      lastSync: new Date().toISOString(),
+      syncStatus: 'idle'
+    });
+
+    this.auditLogs = [
+      {
+        id: 'log_001',
+        timestamp: new Date(Date.now() - 3600000 * 6).toISOString(),
+        userName: 'Shashank J',
+        action: 'USER_LOGIN',
+        details: 'Admin authenticated via PBKDF2/HMAC security session',
+        severity: 'info'
+      },
+      {
+        id: 'log_002',
+        timestamp: new Date(Date.now() - 3600000 * 4).toISOString(),
+        userName: 'System Synchronizer',
+        action: 'SYNC_TRIGGERED',
+        details: 'Automated delta synchronization completed for Notion and Confluence',
+        severity: 'info'
+      },
+      {
+        id: 'log_003',
+        timestamp: new Date(Date.now() - 3600000 * 2).toISOString(),
+        userName: 'Policy Sentinel',
+        action: 'POLICY_FLAGGED',
+        details: 'PostgreSQL vs MongoDB stack contradiction detected and flagged for review',
+        severity: 'warn'
+      }
+    ];
+  }
+
   private seedCoreDocuments() {
     const defaultDocs: StoredSOPDocument[] = [
       {
@@ -94,6 +199,9 @@ class GlobalDataStore {
         effectiveDate: '2026-10-01',
         author: 'Technology Operations',
         tags: ['Engineering Standards', 'Technology', 'notion'],
+        status: 'active',
+        chunksCount: 5,
+        lastSyncedAt: '2026-10-01T00:00:00Z',
         createdAt: '2026-10-01T00:00:00Z',
         content: `Standard Operating Procedure: Full-Stack Web Development Architecture
 1. Mandatory Technology Stack: All new full stack web development projects must use Next.js for frontend, Node.js + Express.js for backend, and MongoDB for database management.
@@ -113,6 +221,9 @@ class GlobalDataStore {
         effectiveDate: '2026-09-01',
         author: 'People & Culture',
         tags: ['Human Resources', 'People & HR', 'google_drive'],
+        status: 'active',
+        chunksCount: 5,
+        lastSyncedAt: '2026-09-01T00:00:00Z',
         createdAt: '2026-09-01T00:00:00Z',
         content: `HR SOP: Leave Application, PTO, and Emergency Absences
 1. Leave Balance Verification: Check your accrued leave balance in the portal under My Time -> Leave & Time Off before submitting.
@@ -132,6 +243,9 @@ class GlobalDataStore {
         effectiveDate: '2026-10-01',
         author: 'Finance Department',
         tags: ['Finance & Operations', 'Finance', 'notion'],
+        status: 'active',
+        chunksCount: 5,
+        lastSyncedAt: '2026-10-01T00:00:00Z',
         createdAt: '2026-10-01T00:00:00Z',
         content: `Finance Standard Operating Procedure: Business Expense Reimbursement
 1. Pre-Approval Verification: Any project or operational purchase exceeding 2,500 INR requires documented pre-approval from the Department Lead.
@@ -151,6 +265,9 @@ class GlobalDataStore {
         effectiveDate: '2026-09-15',
         author: 'Operations Team',
         tags: ['Customer Operations', 'Operations', 'confluence'],
+        status: 'active',
+        chunksCount: 5,
+        lastSyncedAt: '2026-09-15T00:00:00Z',
         createdAt: '2026-09-15T00:00:00Z',
         content: `Operations SOP: Customer Refund and Dispute Escalation
 1. Eligibility Assessment: Check if the refund request falls within the 14-day service trial window or satisfies SLA outage breach criteria.
@@ -170,6 +287,9 @@ class GlobalDataStore {
         effectiveDate: '2026-10-15',
         author: 'SRE & Platform Team',
         tags: ['Engineering & DevOps', 'Technology', 'confluence'],
+        status: 'active',
+        chunksCount: 5,
+        lastSyncedAt: '2026-10-15T00:00:00Z',
         createdAt: '2026-10-15T00:00:00Z',
         content: `Engineering SOP: Production Outage and Bug Escalation Response
 1. Severity Assessment: Classify severity within 5 minutes: P1 Critical (total service outage), P2 High (major degradation), or P3 Normal.
@@ -189,6 +309,9 @@ class GlobalDataStore {
         effectiveDate: '2026-09-01',
         author: 'People & HR Operations',
         tags: ['People & Culture', 'People & HR', 'google_drive'],
+        status: 'active',
+        chunksCount: 5,
+        lastSyncedAt: '2026-09-01T00:00:00Z',
         createdAt: '2026-09-01T00:00:00Z',
         content: `Onboarding SOP: 7-Day Technical Onboarding Journey
 1. Day 1 System & Workspace Setup: Complete company email setup, join First Chat, configure 2FA, and verify RicoZ dashboard access.
@@ -207,6 +330,13 @@ class GlobalDataStore {
     return this.users.get(email.toLowerCase().trim()) || null;
   }
 
+  public getAllUsers(): StoredUser[] {
+    return Array.from(this.users.values()).map(u => ({
+      ...u,
+      passwordHash: '[PROTECTED_HASH]'
+    }));
+  }
+
   public createUser(user: Omit<StoredUser, 'id' | 'createdAt'>): StoredUser {
     const normalizedEmail = user.email.toLowerCase().trim();
     if (this.users.has(normalizedEmail)) {
@@ -216,10 +346,21 @@ class GlobalDataStore {
       ...user,
       id: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       email: normalizedEmail,
+      status: user.status || 'active',
       createdAt: new Date().toISOString()
     };
     this.users.set(normalizedEmail, newUser);
+    this.addAuditLog('USER_LOGIN', `New user registered: ${newUser.name} (${newUser.email}) - Role: ${newUser.role}`);
     return newUser;
+  }
+
+  public updateUserRole(email: string, role: 'employee' | 'department_lead' | 'org_admin'): StoredUser | null {
+    const user = this.users.get(email.toLowerCase().trim());
+    if (!user) return null;
+    user.role = role;
+    this.users.set(email.toLowerCase().trim(), user);
+    this.addAuditLog('SETTINGS_CHANGED', `User role updated for ${user.name} to ${role}`);
+    return user;
   }
 
   // Document Operations
@@ -231,14 +372,32 @@ class GlobalDataStore {
     const newDoc: StoredSOPDocument = {
       ...doc,
       id: `doc_custom_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      status: doc.status || 'active',
+      chunksCount: doc.chunksCount || Math.max(1, doc.content.split('\n').filter(l => l.trim().match(/^[0-9]+[.:\-)]/)).length),
+      lastSyncedAt: new Date().toISOString(),
       createdAt: new Date().toISOString()
     };
     this.documents.set(newDoc.id, newDoc);
+    this.addAuditLog('DOC_INGESTED', `Document ingested: ${newDoc.title} (v${newDoc.version}) - Source: ${newDoc.sourcePlatform}`);
     return newDoc;
   }
 
   public deleteDocument(id: string): boolean {
-    return this.documents.delete(id);
+    const doc = this.documents.get(id);
+    const deleted = this.documents.delete(id);
+    if (deleted && doc) {
+      this.addAuditLog('DOC_DELETED', `Document archived: ${doc.title}`, 'warn');
+    }
+    return deleted;
+  }
+
+  public updateDocumentStatus(id: string, status: 'active' | 'deprecated' | 'in_review'): StoredSOPDocument | null {
+    const doc = this.documents.get(id);
+    if (!doc) return null;
+    doc.status = status;
+    this.documents.set(id, doc);
+    this.addAuditLog('SETTINGS_CHANGED', `Document status updated: ${doc.title} -> ${status}`);
+    return doc;
   }
 
   // Settings & Real API Configuration Operations
@@ -259,7 +418,42 @@ class GlobalDataStore {
     };
     const key = userId || 'global';
     this.settings.set(key, updated);
+    this.addAuditLog('SETTINGS_CHANGED', `AI Engine configuration updated (Provider: ${updated.llmProvider})`);
     return updated;
+  }
+
+  // Connectors & Audit Logs
+  public getConnectors(): ConnectorStatus[] {
+    return Array.from(this.connectors.values());
+  }
+
+  public syncConnector(platform: string): ConnectorStatus | null {
+    const conn = this.connectors.get(platform);
+    if (!conn) return null;
+    conn.lastSync = new Date().toISOString();
+    conn.syncStatus = 'synced';
+    const docsForPlatform = Array.from(this.documents.values()).filter(d => d.sourcePlatform === platform);
+    conn.docCount = docsForPlatform.length;
+    this.connectors.set(platform, conn);
+    this.addAuditLog('SYNC_TRIGGERED', `Manual sync triggered for ${conn.name}`);
+    return conn;
+  }
+
+  public getAuditLogs(): AuditLogEntry[] {
+    return [...this.auditLogs].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  }
+
+  public addAuditLog(action: AuditLogEntry['action'], details: string, severity: AuditLogEntry['severity'] = 'info', userName: string = 'System Admin') {
+    const entry: AuditLogEntry = {
+      id: `log_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      timestamp: new Date().toISOString(),
+      userName,
+      action,
+      details,
+      severity
+    };
+    this.auditLogs.unshift(entry);
+    if (this.auditLogs.length > 100) this.auditLogs.pop();
   }
 }
 
