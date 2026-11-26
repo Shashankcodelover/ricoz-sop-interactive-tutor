@@ -26,6 +26,12 @@ import {
   X,
   ChevronRight,
   SlidersHorizontal,
+  Rocket,
+  Target,
+  Award,
+  DollarSign,
+  TrendingUp,
+  Presentation,
   Radio,
   Globe,
   History,
@@ -173,7 +179,7 @@ export default function Home() {
   });
   const [settingsLoading, setSettingsLoading] = useState<boolean>(false);
   const [settingsSuccess, setSettingsSuccess] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'tutor' | 'stepper' | 'knowledge' | 'compliance' | 'admin'>('tutor');
+  const [activeTab, setActiveTab] = useState<'tutor' | 'stepper' | 'knowledge' | 'compliance' | 'admin' | 'pitch'>('tutor');
 
   // Enterprise Admin Panel State
   const [adminStats, setAdminStats] = useState<any>(null);
@@ -183,6 +189,7 @@ export default function Home() {
   const [adminLoading, setAdminLoading] = useState<boolean>(false);
   const [adminFilter, setAdminFilter] = useState<'all' | 'users' | 'documents' | 'connectors' | 'audit'>('all');
   const [adminActionMsg, setAdminActionMsg] = useState<string | null>(null);
+  const [activeSlide, setActiveSlide] = useState<number>(0);
 
   const fetchAdminData = async () => {
     if (!authToken) return;
@@ -754,6 +761,22 @@ export default function Home() {
             <span>Admin Console</span>
             <span className="text-[10px] font-mono-code px-1.5 py-0.2 rounded-full border" style={{ background: 'var(--pill)', borderColor: 'var(--line-strong)', color: 'var(--accent)' }}>
               RBAC
+            </span>
+          </button>
+          <button
+            onClick={() => setActiveTab('pitch')}
+            className="px-3.5 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer"
+            style={{
+              background: activeTab === 'pitch' ? 'var(--card)' : 'transparent',
+              color: activeTab === 'pitch' ? 'var(--ink)' : 'var(--ink-2)',
+              boxShadow: activeTab === 'pitch' ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
+              border: activeTab === 'pitch' ? '1px solid var(--line-strong)' : '1px solid transparent'
+            }}
+          >
+            <Presentation className="h-3.5 w-3.5" style={{ color: activeTab === 'pitch' ? 'var(--accent)' : 'inherit' }} />
+            <span>Investor Deck</span>
+            <span className="text-[10px] font-mono-code px-1.5 py-0.2 rounded-full border" style={{ background: 'var(--accent-tint)', borderColor: 'var(--accent)', color: 'var(--accent)' }}>
+              SEED
             </span>
           </button>
         </div>
@@ -2195,6 +2218,472 @@ export default function Home() {
           </div>
         )}
 
+        {/* ========================================================================= */}
+        {/* TAB 6: INVESTOR & CO-FOUNDER PITCH DECK                                 */}
+        {/* ========================================================================= */}
+        {activeTab === 'pitch' && (
+          <div className="space-y-6">
+            
+            {/* Pitch Deck Header */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b gap-3" style={{ borderColor: 'var(--line)' }}>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-mono-code px-2 py-0.5 rounded-full uppercase font-semibold" style={{ background: 'var(--accent-tint)', color: 'var(--accent)' }}>
+                    Confidential · Investor &amp; Co-Founder Portal
+                  </span>
+                  <span className="text-xs font-mono-code" style={{ color: 'var(--ok)' }}>
+                    Gate G4 Passed · 100% Production Ready
+                  </span>
+                </div>
+                <h2 className="font-editorial text-2xl font-bold tracking-tight mt-1" style={{ color: 'var(--ink)' }}>
+                  RicoZ SOP Interactive Tutor — Pitch Deck
+                </h2>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--ink-2)' }}>
+                  The Unified Operating System for Enterprise SOPs, Multi-Source Reconciliation &amp; Interactive Step Execution.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <a
+                  href="/INVESTOR_PITCH_DECK.md"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-3.5 py-2 rounded-xl border text-xs font-mono-code flex items-center gap-1.5 shadow-xs transition-transform hover:scale-102 cursor-pointer"
+                  style={{ background: 'var(--card)', borderColor: 'var(--line-strong)', color: 'var(--ink)' }}
+                >
+                  <FileText className="h-3.5 w-3.5" style={{ color: 'var(--accent)' }} />
+                  <span>Download Full Deck (.md)</span>
+                </a>
+                <button
+                  onClick={() => setActiveTab('tutor')}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold shadow-sm flex items-center gap-1.5 transition-transform hover:scale-102 cursor-pointer"
+                  style={{ background: 'var(--accent)', color: 'var(--on-accent)' }}
+                >
+                  <Rocket className="h-4 w-4" />
+                  <span>Test Live Interactive Demo</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Slide Navigation Carousel Bar */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+              {[
+                "1. Executive Summary",
+                "2. The $47B Problem",
+                "3. Solution & Moat",
+                "4. Market Size (TAM)",
+                "5. Business Model",
+                "6. Competitive Matrix",
+                "7. Architecture & Tech",
+                "8. Co-Founder Hiring",
+                "9. The $500k Ask"
+              ].map((title, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveSlide(idx)}
+                  className="px-3.5 py-1.5 rounded-full text-xs font-mono-code whitespace-nowrap border transition-all cursor-pointer"
+                  style={{
+                    background: activeSlide === idx ? 'var(--accent)' : 'var(--card)',
+                    color: activeSlide === idx ? 'var(--on-accent)' : 'var(--ink)',
+                    borderColor: activeSlide === idx ? 'var(--accent)' : 'var(--line)'
+                  }}
+                >
+                  {title}
+                </button>
+              ))}
+            </div>
+
+            {/* Slide Content Cards */}
+            <div className="border rounded-3xl p-6 sm:p-8 shadow-sm transition-all" style={{ background: 'var(--card)', borderColor: 'var(--line)' }}>
+              
+              {/* SLIDE 0: EXECUTIVE SUMMARY */}
+              {activeSlide === 0 && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: 'var(--line)' }}>
+                    <span className="text-xs font-mono-code uppercase font-bold" style={{ color: 'var(--accent)' }}>Slide 1 of 9 · Executive Summary</span>
+                    <span className="text-xs font-mono-code px-2.5 py-0.5 rounded-full" style={{ background: 'var(--ok-bg)', color: 'var(--ok)' }}>Seed Stage · Live MVP</span>
+                  </div>
+                  <div>
+                    <h3 className="font-editorial text-3xl font-extrabold tracking-tight" style={{ color: 'var(--ink)' }}>
+                      Transforming Fragmented Company Documents into Autonomous, Zero-Hallucination Execution
+                    </h3>
+                    <p className="text-sm mt-3 leading-relaxed" style={{ color: 'var(--ink-2)' }}>
+                      RicoZ SOP Interactive Tutor solves the multi-billion dollar enterprise problem of contradictory, outdated, and ignored operating procedures. By combining 384-dimensional dense vectors, multi-source ingestion (Notion, Google Drive, Confluence), and strict sequential interactive checklists, we turn documentation into verified operational execution.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                    <div className="border rounded-2xl p-4 shadow-xs" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                      <span className="text-xs font-mono-code uppercase" style={{ color: 'var(--ink-3)' }}>Current Readiness</span>
+                      <span className="text-2xl font-bold font-mono-code block mt-1" style={{ color: 'var(--ok)' }}>100% Deployed</span>
+                      <p className="text-xs mt-1" style={{ color: 'var(--ink-2)' }}>Next.js 16 + Serverless RAG + Admin RBAC</p>
+                    </div>
+                    <div className="border rounded-2xl p-4 shadow-xs" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                      <span className="text-xs font-mono-code uppercase" style={{ color: 'var(--ink-3)' }}>Target Round</span>
+                      <span className="text-2xl font-bold font-mono-code block mt-1" style={{ color: 'var(--accent)' }}>$500k Pre-Seed / Seed</span>
+                      <p className="text-xs mt-1" style={{ color: 'var(--ink-2)' }}>Enterprise pilot scaling &amp; team expansion</p>
+                    </div>
+                    <div className="border rounded-2xl p-4 shadow-xs" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                      <span className="text-xs font-mono-code uppercase" style={{ color: 'var(--ink-3)' }}>Target Market</span>
+                      <span className="text-2xl font-bold font-mono-code block mt-1" style={{ color: 'var(--ink)' }}>$65B TAM</span>
+                      <p className="text-xs mt-1" style={{ color: 'var(--ink-2)' }}>Workflow automation &amp; knowledge management</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* SLIDE 1: THE $47B PROBLEM */}
+              {activeSlide === 1 && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: 'var(--line)' }}>
+                    <span className="text-xs font-mono-code uppercase font-bold" style={{ color: 'var(--accent)' }}>Slide 2 of 9 · The Enterprise Crisis</span>
+                    <span className="text-xs font-mono-code px-2.5 py-0.5 rounded-full" style={{ background: 'var(--clash-bg)', color: 'var(--clash)' }}>High Market Friction</span>
+                  </div>
+                  <div>
+                    <h3 className="font-editorial text-3xl font-extrabold tracking-tight" style={{ color: 'var(--ink)' }}>
+                      The "Contradicted Claim" &amp; Naive Chunking Breakdown
+                    </h3>
+                    <p className="text-sm mt-2 leading-relaxed" style={{ color: 'var(--ink-2)' }}>
+                      Enterprises waste hundreds of engineering hours and face severe compliance outages due to three fundamental technical failures in modern knowledge tools:
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="border rounded-2xl p-4 space-y-2" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                      <div className="h-8 w-8 rounded-lg flex items-center justify-center font-bold text-xs" style={{ background: 'var(--clash-bg)', color: 'var(--clash)' }}>01</div>
+                      <h4 className="font-bold text-sm" style={{ color: 'var(--ink)' }}>Version Precedence Blindness</h4>
+                      <p className="text-xs leading-relaxed" style={{ color: 'var(--ink-2)' }}>
+                        When companies revise policies, older docs remain in drives. Standard chatbots quote deprecated policies, causing catastrophic relational vs document DB mistakes or invalid leave/refund approvals.
+                      </p>
+                    </div>
+                    <div className="border rounded-2xl p-4 space-y-2" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                      <div className="h-8 w-8 rounded-lg flex items-center justify-center font-bold text-xs" style={{ background: 'var(--warn-bg)', color: 'var(--warn)' }}>02</div>
+                      <h4 className="font-bold text-sm" style={{ color: 'var(--ink)' }}>Naive Chunking Fragmentation</h4>
+                      <p className="text-xs leading-relaxed" style={{ color: 'var(--ink-2)' }}>
+                        Traditional RAG slices text by arbitrary token counts (e.g. 500 tokens), severing numbered sequential steps and discarding prerequisite safety checks.
+                      </p>
+                    </div>
+                    <div className="border rounded-2xl p-4 space-y-2" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                      <div className="h-8 w-8 rounded-lg flex items-center justify-center font-bold text-xs" style={{ background: 'var(--accent-tint)', color: 'var(--accent)' }}>03</div>
+                      <h4 className="font-bold text-sm" style={{ color: 'var(--ink)' }}>Passive Text vs. Real Execution</h4>
+                      <p className="text-xs leading-relaxed" style={{ color: 'var(--ink-2)' }}>
+                        Static documents provide passive paragraphs. Without sequential checklists and blocker logging, employees skip mandatory compliance prerequisites.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* SLIDE 2: THE SOLUTION */}
+              {activeSlide === 2 && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: 'var(--line)' }}>
+                    <span className="text-xs font-mono-code uppercase font-bold" style={{ color: 'var(--accent)' }}>Slide 3 of 9 · Proprietary Solution</span>
+                    <span className="text-xs font-mono-code px-2.5 py-0.5 rounded-full" style={{ background: 'var(--ok-bg)', color: 'var(--ok)' }}>Defensible Moat</span>
+                  </div>
+                  <div>
+                    <h3 className="font-editorial text-3xl font-extrabold tracking-tight" style={{ color: 'var(--ink)' }}>
+                      A 3-Pillar Autonomous Execution Engine
+                    </h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div className="border rounded-2xl p-5 space-y-3" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                      <div className="flex items-center gap-2">
+                        <ShieldCheck className="h-5 w-5" style={{ color: 'var(--accent)' }} />
+                        <h4 className="font-editorial text-base font-bold" style={{ color: 'var(--ink)' }}>Policy Conflict Shield</h4>
+                      </div>
+                      <p className="text-xs leading-relaxed" style={{ color: 'var(--ink-2)' }}>
+                        Synthesizes multi-source documents and detects policy contradictions in real-time, enforcing version governance and alerting users before actions are executed.
+                      </p>
+                    </div>
+                    <div className="border rounded-2xl p-5 space-y-3" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                      <div className="flex items-center gap-2">
+                        <Layers className="h-5 w-5" style={{ color: 'var(--accent)' }} />
+                        <h4 className="font-editorial text-base font-bold" style={{ color: 'var(--ink)' }}>Hierarchical SOP Chunking</h4>
+                      </div>
+                      <p className="text-xs leading-relaxed" style={{ color: 'var(--ink-2)' }}>
+                        Two-tier hierarchical decomposition preserving procedural context. Breaks long operational manuals into discrete, verifiable action steps with prerequisite checks.
+                      </p>
+                    </div>
+                    <div className="border rounded-2xl p-5 space-y-3" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="h-5 w-5" style={{ color: 'var(--accent)' }} />
+                        <h4 className="font-editorial text-base font-bold" style={{ color: 'var(--ink)' }}>Interactive Stepper &amp; Notes</h4>
+                      </div>
+                      <p className="text-xs leading-relaxed" style={{ color: 'var(--ink-2)' }}>
+                        Replaces passive text with live interactive checklists, step execution blocker recorders, and progress rings providing verifiable audit trails.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* SLIDE 3: MARKET SIZE (TAM) */}
+              {activeSlide === 3 && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: 'var(--line)' }}>
+                    <span className="text-xs font-mono-code uppercase font-bold" style={{ color: 'var(--accent)' }}>Slide 4 of 9 · Market Opportunity</span>
+                    <span className="text-xs font-mono-code px-2.5 py-0.5 rounded-full" style={{ background: 'var(--accent-tint)', color: 'var(--accent)' }}>Massive B2B Expansion</span>
+                  </div>
+                  <h3 className="font-editorial text-3xl font-extrabold tracking-tight" style={{ color: 'var(--ink)' }}>
+                    $65 Billion Enterprise Automation TAM
+                  </h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div className="border rounded-2xl p-5 space-y-2" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                      <span className="text-xs font-mono-code uppercase font-bold" style={{ color: 'var(--ink-3)' }}>TAM (Global)</span>
+                      <span className="text-4xl font-extrabold font-mono-code block" style={{ color: 'var(--accent)' }}>$65.0 B</span>
+                      <p className="text-xs" style={{ color: 'var(--ink-2)' }}>Global Enterprise Knowledge Management &amp; Workflow Automation market by 2028 (18.2% CAGR).</p>
+                    </div>
+                    <div className="border rounded-2xl p-5 space-y-2" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                      <span className="text-xs font-mono-code uppercase font-bold" style={{ color: 'var(--ink-3)' }}>SAM (Mid-Market)</span>
+                      <span className="text-4xl font-extrabold font-mono-code block" style={{ color: 'var(--ink)' }}>$14.2 B</span>
+                      <p className="text-xs" style={{ color: 'var(--ink-2)' }}>Mid-market and enterprise technology, fintech, logistics, and healthcare firms with multi-tool documentation.</p>
+                    </div>
+                    <div className="border rounded-2xl p-5 space-y-2" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                      <span className="text-xs font-mono-code uppercase font-bold" style={{ color: 'var(--ink-3)' }}>SOM (Beachhead)</span>
+                      <span className="text-4xl font-extrabold font-mono-code block" style={{ color: 'var(--ok)' }}>$1.8 B</span>
+                      <p className="text-xs" style={{ color: 'var(--ink-2)' }}>Rapid-growth 100–5,000 employee companies seeking compliance and incident triage automation.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* SLIDE 4: BUSINESS MODEL */}
+              {activeSlide === 4 && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: 'var(--line)' }}>
+                    <span className="text-xs font-mono-code uppercase font-bold" style={{ color: 'var(--accent)' }}>Slide 5 of 9 · Revenue Streams</span>
+                    <span className="text-xs font-mono-code px-2.5 py-0.5 rounded-full" style={{ background: 'var(--ok-bg)', color: 'var(--ok)' }}>High Margin SaaS</span>
+                  </div>
+                  <h3 className="font-editorial text-3xl font-extrabold tracking-tight" style={{ color: 'var(--ink)' }}>
+                    Scalable Tiered Enterprise Monetization
+                  </h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div className="border rounded-2xl p-5 space-y-3" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                      <span className="text-xs font-mono-code uppercase" style={{ color: 'var(--ink-3)' }}>Growth Tier</span>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-3xl font-bold font-mono-code" style={{ color: 'var(--ink)' }}>$49</span>
+                        <span className="text-xs" style={{ color: 'var(--ink-2)' }}>/seat/mo</span>
+                      </div>
+                      <p className="text-xs leading-relaxed" style={{ color: 'var(--ink-2)' }}>
+                        Up to 5 connected sources, deterministic stepper, interactive notes, and standard hybrid RAG.
+                      </p>
+                    </div>
+                    <div className="border rounded-2xl p-5 space-y-3 relative overflow-hidden" style={{ background: 'var(--canvas)', borderColor: 'var(--accent)' }}>
+                      <div className="absolute top-0 right-0 px-3 py-0.5 text-[9px] font-mono-code font-bold" style={{ background: 'var(--accent)', color: 'var(--on-accent)' }}>POPULAR</div>
+                      <span className="text-xs font-mono-code uppercase" style={{ color: 'var(--accent)' }}>Enterprise Tier</span>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-3xl font-bold font-mono-code" style={{ color: 'var(--accent)' }}>$149</span>
+                        <span className="text-xs" style={{ color: 'var(--ink-2)' }}>/seat/mo</span>
+                      </div>
+                      <p className="text-xs leading-relaxed" style={{ color: 'var(--ink-2)' }}>
+                        Unlimited sources, custom RBAC permissions, dedicated vector cluster, real-time Slack/Teams bots.
+                      </p>
+                    </div>
+                    <div className="border rounded-2xl p-5 space-y-3" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                      <span className="text-xs font-mono-code uppercase" style={{ color: 'var(--ink-3)' }}>VPC / On-Prem License</span>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-3xl font-bold font-mono-code" style={{ color: 'var(--ink)' }}>$50k–$250k</span>
+                        <span className="text-xs" style={{ color: 'var(--ink-2)' }}>/year</span>
+                      </div>
+                      <p className="text-xs leading-relaxed" style={{ color: 'var(--ink-2)' }}>
+                        Full data isolation, self-hosted air-gapped vector search, custom fine-tuned model embeddings.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* SLIDE 5: COMPETITIVE ADVANTAGE */}
+              {activeSlide === 5 && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: 'var(--line)' }}>
+                    <span className="text-xs font-mono-code uppercase font-bold" style={{ color: 'var(--accent)' }}>Slide 6 of 9 · Competitive Matrix</span>
+                    <span className="text-xs font-mono-code px-2.5 py-0.5 rounded-full" style={{ background: 'var(--accent-tint)', color: 'var(--accent)' }}>Unmatched Defensibility</span>
+                  </div>
+                  <h3 className="font-editorial text-3xl font-extrabold tracking-tight" style={{ color: 'var(--ink)' }}>
+                    Why RicoZ Wins Against Generalist AI
+                  </h3>
+
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead>
+                        <tr className="border-b font-mono-code text-[11px]" style={{ borderColor: 'var(--line)', color: 'var(--ink-3)' }}>
+                          <th className="pb-2">Capability</th>
+                          <th className="pb-2 font-bold" style={{ color: 'var(--accent)' }}>RicoZ SOP Tutor</th>
+                          <th className="pb-2">Standard Chatbots</th>
+                          <th className="pb-2">Enterprise Search (Glean)</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y font-mono-code text-xs" style={{ borderColor: 'var(--line)' }}>
+                        <tr>
+                          <td className="py-2.5 font-sans font-medium" style={{ color: 'var(--ink)' }}>Step-by-Step Interactive Stepper</td>
+                          <td className="py-2.5 font-bold" style={{ color: 'var(--ok)' }}>✓ Native Checklist + Prerequisites</td>
+                          <td className="py-2.5 text-zinc-400">✗ Passive Wall of Text</td>
+                          <td className="py-2.5 text-zinc-400">✗ Document Links Only</td>
+                        </tr>
+                        <tr>
+                          <td className="py-2.5 font-sans font-medium" style={{ color: 'var(--ink)' }}>Policy Contradiction Detection</td>
+                          <td className="py-2.5 font-bold" style={{ color: 'var(--ok)' }}>✓ Version Conflict Shield</td>
+                          <td className="py-2.5 text-zinc-400">✗ None (Hallucinates older docs)</td>
+                          <td className="py-2.5 text-zinc-400">✗ None</td>
+                        </tr>
+                        <tr>
+                          <td className="py-2.5 font-sans font-medium" style={{ color: 'var(--ink)' }}>Hierarchical SOP Chunking</td>
+                          <td className="py-2.5 font-bold" style={{ color: 'var(--ok)' }}>✓ Deterministic Step Preservation</td>
+                          <td className="py-2.5 text-zinc-400">✗ Arbitrary Token Slicing</td>
+                          <td className="py-2.5 text-zinc-400">✗ Document-level</td>
+                        </tr>
+                        <tr>
+                          <td className="py-2.5 font-sans font-medium" style={{ color: 'var(--ink)' }}>Executive RBAC Admin Panel</td>
+                          <td className="py-2.5 font-bold" style={{ color: 'var(--ok)' }}>✓ Live Sync, Audit &amp; Roles</td>
+                          <td className="py-2.5 text-zinc-400">✗ Simple API key wrapper</td>
+                          <td className="py-2.5" style={{ color: 'var(--ok)' }}>✓ Yes</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* SLIDE 6: ARCHITECTURE */}
+              {activeSlide === 6 && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: 'var(--line)' }}>
+                    <span className="text-xs font-mono-code uppercase font-bold" style={{ color: 'var(--accent)' }}>Slide 7 of 9 · Architecture &amp; Tech</span>
+                    <span className="text-xs font-mono-code px-2.5 py-0.5 rounded-full" style={{ background: 'var(--ok-bg)', color: 'var(--ok)' }}>Zero Tech Debt</span>
+                  </div>
+                  <h3 className="font-editorial text-3xl font-extrabold tracking-tight" style={{ color: 'var(--ink)' }}>
+                    Enterprise Grade, Sub-100ms Inference
+                  </h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono-code">
+                    <div className="border rounded-2xl p-4 space-y-2" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                      <span className="text-[11px] uppercase font-bold" style={{ color: 'var(--accent)' }}>Full Stack Web &amp; Edge</span>
+                      <ul className="space-y-1" style={{ color: 'var(--ink-2)' }}>
+                        <li>• Frontend: Next.js 16 (App Router) + TailwindCSS + Plus Jakarta Sans</li>
+                        <li>• Backend: Node.js + Express.js REST API + Next.js Serverless Edge</li>
+                        <li>• Database: MongoDB (Multi-Tenant Mongoose Schemas)</li>
+                        <li>• State: Serverless Global Singleton Data Store with fallback</li>
+                      </ul>
+                    </div>
+                    <div className="border rounded-2xl p-4 space-y-2" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                      <span className="text-[11px] uppercase font-bold" style={{ color: 'var(--accent)' }}>Cybersecurity &amp; RAG Stack</span>
+                      <ul className="space-y-1" style={{ color: 'var(--ink-2)' }}>
+                        <li>• Vector Engine: 384-Dim Normalized Dense Embeddings + BM25 Sparse</li>
+                        <li>• Security: Native PBKDF2 Password Hashing (100k rounds SHA-512)</li>
+                        <li>• Token Verification: HMAC-SHA256 Stateless Tokens</li>
+                        <li>• Protection: Regex Secret Masking &amp; Prompt Injection Screening</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* SLIDE 7: CO-FOUNDER HIRING */}
+              {activeSlide === 7 && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: 'var(--line)' }}>
+                    <span className="text-xs font-mono-code uppercase font-bold" style={{ color: 'var(--accent)' }}>Slide 8 of 9 · Founding Team Expansion</span>
+                    <span className="text-xs font-mono-code px-2.5 py-0.5 rounded-full" style={{ background: 'var(--accent-tint)', color: 'var(--accent)' }}>Now Interviewing</span>
+                  </div>
+                  <h3 className="font-editorial text-3xl font-extrabold tracking-tight" style={{ color: 'var(--ink)' }}>
+                    Open Co-Founder Roles (With Ms. Shivangi)
+                  </h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="border rounded-2xl p-4 space-y-2" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                      <span className="text-xs font-mono-code uppercase font-bold" style={{ color: 'var(--accent)' }}>Role 1</span>
+                      <h4 className="font-bold text-sm" style={{ color: 'var(--ink)' }}>Co-Founder &amp; CCO (Head of GTM)</h4>
+                      <p className="text-xs" style={{ color: 'var(--ink-2)' }}>
+                        Leading enterprise B2B sales, securing beta design partners, pitching to seed investors, and driving customer acquisition.
+                      </p>
+                    </div>
+                    <div className="border rounded-2xl p-4 space-y-2" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                      <span className="text-xs font-mono-code uppercase font-bold" style={{ color: 'var(--accent)' }}>Role 2</span>
+                      <h4 className="font-bold text-sm" style={{ color: 'var(--ink)' }}>Co-Founder &amp; VP of Engineering</h4>
+                      <p className="text-xs" style={{ color: 'var(--ink-2)' }}>
+                        Scaling vector database clusters, fine-tuning domain embeddings, building Slack/Teams bots, and leading distributed systems.
+                      </p>
+                    </div>
+                    <div className="border rounded-2xl p-4 space-y-2" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                      <span className="text-xs font-mono-code uppercase font-bold" style={{ color: 'var(--accent)' }}>Role 3</span>
+                      <h4 className="font-bold text-sm" style={{ color: 'var(--ink)' }}>Head of Product Design (UI/UX)</h4>
+                      <p className="text-xs" style={{ color: 'var(--ink-2)' }}>
+                        Crafting high-precision spatial layouts, micro-interactions, mobile native applications, and incident war room UX.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* SLIDE 8: THE ASK */}
+              {activeSlide === 8 && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: 'var(--line)' }}>
+                    <span className="text-xs font-mono-code uppercase font-bold" style={{ color: 'var(--accent)' }}>Slide 9 of 9 · Investment Opportunity</span>
+                    <span className="text-xs font-mono-code px-2.5 py-0.5 rounded-full" style={{ background: 'var(--ok-bg)', color: 'var(--ok)' }}>Funding Round Open</span>
+                  </div>
+                  <h3 className="font-editorial text-3xl font-extrabold tracking-tight" style={{ color: 'var(--ink)' }}>
+                    Raising $500,000 Seed Round
+                  </h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="border rounded-2xl p-5 space-y-3" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                      <span className="text-xs font-mono-code uppercase font-bold" style={{ color: 'var(--accent)' }}>Allocation of Funds</span>
+                      <ul className="space-y-2 text-xs font-mono-code" style={{ color: 'var(--ink-2)' }}>
+                        <li className="flex justify-between"><span>• 45% Vector Infra &amp; Core AI Engineering</span><span className="font-bold text-sky-500">$225k</span></li>
+                        <li className="flex justify-between"><span>• 35% B2B Sales &amp; Customer Acquisition</span><span className="font-bold text-emerald-500">$175k</span></li>
+                        <li className="flex justify-between"><span>• 20% Security Compliance (SOC2 / HIPAA)</span><span className="font-bold text-amber-500">$100k</span></li>
+                      </ul>
+                    </div>
+
+                    <div className="border rounded-2xl p-5 space-y-3" style={{ background: 'var(--canvas)', borderColor: 'var(--line)' }}>
+                      <span className="text-xs font-mono-code uppercase font-bold" style={{ color: 'var(--ok)' }}>Founder Contact</span>
+                      <div className="text-xs space-y-1.5" style={{ color: 'var(--ink)' }}>
+                        <p className="font-bold">Shashank J</p>
+                        <p className="text-[11px] font-mono-code" style={{ color: 'var(--ink-2)' }}>Founder &amp; Head of Technology</p>
+                        <p className="text-[11px] font-mono-code">Email: shashank.j8426@gmail.com</p>
+                        <p className="text-[11px] font-mono-code">Phone: +91 9449478126</p>
+                        <p className="text-[11px] font-mono-code">Live Platform: https://frontend-pi-ten-67.vercel.app</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Slide Pagination & Next/Prev Controls */}
+              <div className="flex items-center justify-between pt-6 border-t mt-6" style={{ borderColor: 'var(--line)' }}>
+                <button
+                  onClick={() => setActiveSlide(prev => Math.max(0, prev - 1))}
+                  disabled={activeSlide === 0}
+                  className="px-4 py-2 rounded-xl border text-xs font-mono-code disabled:opacity-40 cursor-pointer"
+                  style={{ background: 'var(--canvas)', borderColor: 'var(--line-strong)', color: 'var(--ink)' }}
+                >
+                  ← Previous Slide
+                </button>
+                <span className="text-xs font-mono-code" style={{ color: 'var(--ink-3)' }}>
+                  Slide {activeSlide + 1} of 9
+                </span>
+                <button
+                  onClick={() => setActiveSlide(prev => Math.min(8, prev + 1))}
+                  disabled={activeSlide === 8}
+                  className="px-4 py-2 rounded-xl border text-xs font-mono-code disabled:opacity-40 cursor-pointer"
+                  style={{ background: 'var(--canvas)', borderColor: 'var(--line-strong)', color: 'var(--ink)' }}
+                >
+                  Next Slide →
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+        )}
+
+        
         {/* ========================================================================= */}
         {/* TAB 5: ENTERPRISE ADMIN CONSOLE & RBAC MANAGEMENT                        */}
         {/* ========================================================================= */}
