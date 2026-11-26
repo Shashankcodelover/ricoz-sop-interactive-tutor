@@ -17,7 +17,7 @@
   --accent: #0284C7;
   --accent-hover: #0369A1;
   --accent-tint: #E0F2FE;
-  --accent-glow: rgba(2, 132, 199, 0.18);
+  --accent-glow: rgba(2, 132, 199, 0.22);
   --on-accent: #FFFFFF;
 
   /* Secondary Light Blue Highlights */
@@ -47,30 +47,30 @@
   --ink-2: #94A3B8;
   --ink-3: #64748B;
   --line: rgba(255, 255, 255, 0.08);
-  --line-strong: rgba(56, 189, 248, 0.25);
+  --line-strong: rgba(56, 189, 248, 0.28);
 
   /* Primary Accent: Electric Light Cyan / Azure Blue */
   --accent: #38BDF8;
   --accent-hover: #0EA5E9;
-  --accent-tint: rgba(56, 189, 248, 0.12);
-  --accent-glow: rgba(56, 189, 248, 0.28);
+  --accent-tint: rgba(56, 189, 248, 0.14);
+  --accent-glow: rgba(56, 189, 248, 0.35);
   --on-accent: #090D16;
 
   /* Secondary Light Blue Highlights */
-  --cyan-subtle: rgba(56, 189, 248, 0.06);
-  --cyan-border: rgba(56, 189, 248, 0.3);
+  --cyan-subtle: rgba(56, 189, 248, 0.08);
+  --cyan-border: rgba(56, 189, 248, 0.35);
   --cyan-bright: #38BDF8;
 
   /* Status Colors */
   --ok: #34D399;
-  --ok-bg: rgba(52, 211, 153, 0.12);
+  --ok-bg: rgba(52, 211, 153, 0.14);
   --warn: #FBBF24;
-  --warn-bg: rgba(251, 191, 36, 0.12);
+  --warn-bg: rgba(251, 191, 36, 0.14);
   --clash: #F87171;
-  --clash-bg: rgba(248, 113, 113, 0.12);
+  --clash-bg: rgba(248, 113, 113, 0.14);
 
   --page: #04070E;
-  --shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7), 0 0 25px rgba(56, 189, 248, 0.12);
+  --shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.75), 0 0 30px rgba(56, 189, 248, 0.15);
 }
 
 body {
@@ -84,7 +84,7 @@ body {
 
 .font-editorial {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
 }
 
 .font-mono-code {
@@ -93,23 +93,33 @@ body {
 
 /* Glassmorphism & Neon Glow Utilities */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .dark .glass-panel {
-  background: rgba(15, 23, 42, 0.82);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
 
 .glow-blue {
-  box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.32);
 }
 
 .glow-blue-sm {
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.18);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.22);
+}
+
+/* Keyframe Animations */
+@keyframes pulseSubtle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(0.98); }
+}
+
+.animate-pulse-subtle {
+  animation: pulseSubtle 3s infinite ease-in-out;
 }
 
 /* Custom Scrollbar */
